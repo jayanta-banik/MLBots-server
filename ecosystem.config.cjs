@@ -11,5 +11,13 @@ module.exports = {
         PORT: 3000,
       },
     },
+    {
+      name: 'mlbots-http',
+      script: './app_http.js',
+      env: {
+        NODE_ENV: process.env.ENV,
+        PORT: 3001,
+      },
+    },
   ],
 };

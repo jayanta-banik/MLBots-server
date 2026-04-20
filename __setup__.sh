@@ -128,6 +128,14 @@ sleep 1
 echo -e "\e[93mdone\e[97m"
 sleep 2
 
+# setup pm2 to run the node server
+echo -e "\e[32msetting up pm2 to run node server..\e[97m"
+yarn pm2 start ecosystem.config.js
+yarn pm2 startup
+sudo env PATH=$PATH:/usr/bin /home/pi/MLBots-server/node_modules/pm2/bin/pm2 startup systemd -u pi --hp /home/pi
+yarn pm2 save
+yarn pm2 status
+yarn pm2 start app.js
 
 echo -e "\e[32mcreating services...\e[97m"
 sleep 4
