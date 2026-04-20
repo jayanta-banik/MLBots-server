@@ -103,7 +103,7 @@ sleep 1
 echo -e "\e[32minstalling python libraries../\e[97m"
 sleep 2
 pip install --upgrade setuptools
-pip install gunicorn flask numpy pandas matplotlib flask_cors yagmail opencv-python
+pip install gunicorn fastapi "uvicorn[standard]" numpy pandas matplotlib yagmail opencv-python
 pip install tflite-runtime
 sleep 1
 echo -e "\e[93mdone\e[97m"
@@ -123,7 +123,7 @@ User=pi
 Group=www-data
 WorkingDirectory=/home/pi/MLBots-server/
 Environment=\"PATH=/home/pi/MLBots-server/venv3/bin\"
-ExecStart=/home/pi/MLBots-server/venv3/bin/gunicorn --workers 3 --bind unix:app.sock -m 007 wsgi:app
+ExecStart=/home/pi/MLBots-server/venv3/bin/gunicorn --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind unix:app.sock -m 007 wsgi:app
 [Install]
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app.service

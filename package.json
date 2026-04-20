@@ -1,0 +1,38 @@
+{
+  "name": "mlbots-server-root",
+  "private": true,
+  "type": "module",
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "dev:node": "node --watch app.js",
+    "start:node": "node app.js",
+    "dev:frontend": "yarn --cwd frontend dev",
+    "build:frontend": "yarn --cwd frontend build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "imports": {
+    "#service/*": "./node_backend/services/*.js",
+    "#utils/*": "./node_backend/utils/*.js",
+    "#models/*": "./node_backend/models/*.js",
+    "#middleware/*": "./node_backend/middleware/*.js",
+    "#constants/*": "./node_backend/constants/*.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jest": "^28.11.0",
+    "globals": "^15.15.0"
+  }
+}

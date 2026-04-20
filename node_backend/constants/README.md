@@ -1,0 +1,1 @@
+Node constants shared across routes, services, middleware, and utility helpers.

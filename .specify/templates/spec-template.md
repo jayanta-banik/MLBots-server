@@ -5,13 +5,13 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 <!--
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
   Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
   you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
+
   Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
   Think of each story as a standalone slice of functionality that can be:
   - Developed independently
@@ -75,7 +75,42 @@
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
 
-## Requirements *(mandatory)*
+## System Impact _(mandatory)_
+
+### Affected Layers
+
+- [Identify which of `frontend`, `node_backend`, `python_backend`, root/static`
+  are changed and why each layer owns that work]
+- [If Node or Python code is added, note the naming convention impact and how
+  file paths remain `snake_case`]
+- [State how the feature is invoked: root for Python/Node, `frontend` for UI]
+
+### Contract Changes
+
+- [Describe any HTTP payload, route, build output, static asset, or operator
+  workflow contract that changes]
+- [If no public contract changes, state that explicitly]
+
+### Data Layer Impact
+
+- [Describe any PostgreSQL schema, Prisma model, migration, SQLAlchemy model, or
+  query-layer change]
+- [If persistence is untouched, state that explicitly]
+
+### Frontend Impact
+
+- [If frontend work is involved, describe the Vite entrypoint, Redux state
+  impact, and desktop/mobile responsive behavior]
+- [If frontend is untouched, state that explicitly]
+
+### Observability Impact
+
+- [Describe what logs, health signals, or operator-visible diagnostics are added
+  or changed]
+- [If no observability changes are needed, explain why existing signals are
+  sufficient]
+
+## Requirements _(mandatory)_
 
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
@@ -85,22 +120,42 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
+- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-XXX**: The implementation MUST keep layer ownership explicit and avoid
+  moving feature logic into root entrypoints unless the change is purely
+  bootstrap or wiring.
+- **FR-XXX**: The implementation MUST define a verification approach that is
+  proportional to the risk of the changed behavior.
+- **FR-XXX**: File names and folder names MUST remain `snake_case` across Node
+  and Python code.
+- **FR-XXX**: Python code MUST use `snake_case`, Node code MUST use
+  `camelCase` or `PascalCase` as appropriate, and constants MUST use
+  `UPPER_SNAKE_CASE`.
+- **FR-XXX**: Persistence changes MUST target PostgreSQL, using Prisma in Node
+  and SQLAlchemy in Python.
+- **FR-XXX**: Node internal imports MUST use `#service`, `#util`, `#model`, or
+  `#middleware`, with relative imports reserved for local helper files only.
+- **FR-XXX**: Python and Node runtime entrypoints MUST remain callable from the
+  repository root.
+- **FR-XXX**: Frontend runtime commands MUST remain callable from within
+  `frontend`.
+- **FR-XXX**: Frontend work MUST use Vite, Redux for shared application state,
+  and responsive behavior across desktop and mobile layouts.
 
-*Example of marking unclear requirements:*
+_Example of marking unclear requirements:_
 
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 <!--
   ACTION REQUIRED: Define measurable success criteria.
@@ -126,3 +181,9 @@
 - [Assumption about scope boundaries, e.g., "Mobile support is out of scope for v1"]
 - [Assumption about data/environment, e.g., "Existing authentication system will be reused"]
 - [Dependency on existing system/service, e.g., "Requires access to the existing user profile API"]
+- [Assumption about deployment environment, e.g., "The Raspberry Pi host keeps
+  the existing Node, Python, and static asset serving model"]
+- [Assumption about persistence, e.g., "PostgreSQL remains the system of record,
+  with Prisma for Node and SQLAlchemy for Python"]
+- [Assumption about Python execution, e.g., "The repository virtual environment
+  is auto-activated from shell startup for bash sessions"]

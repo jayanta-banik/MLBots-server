@@ -1,3 +1,1 @@
-files with public access.
-
-These are deleted after 24 hours.
+Temporary public-access files exported by the Python backend. These are intended for short-lived sharing only.

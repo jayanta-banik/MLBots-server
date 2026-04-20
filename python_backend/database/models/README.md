@@ -1,1 +1,1 @@
-saving weights of trained models and config files.
+Model artifacts, trained weights, schema snapshots, and configuration files tied to Python-side persistence.

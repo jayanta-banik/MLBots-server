@@ -17,21 +17,44 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
+**Language/Version**: [Node 20 for Node services, Python 3.x for Python services, or specify the affected subset]  
+**Primary Dependencies**: [Express for Node-side work, Flask/Gunicorn for Python-side work, Vite/React/Redux for frontend work, Prisma for Node persistence, SQLAlchemy for Python persistence, or NEEDS CLARIFICATION]  
+**Storage**: PostgreSQL  
+**Testing**: [e.g., Vitest, Jest, pytest, integration checks, or NEEDS CLARIFICATION]  
+**Target Platform**: Linux server / Raspberry Pi host
+**Project Type**: Monorepo web service with frontend + Node API + Python API  
 **Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+- Confirm the affected runtime layer ownership is explicit (`frontend`,
+  `node_backend`, `python_backend`, root/static).
+- Confirm file names and folder names remain `snake_case`, Python identifiers
+  remain `snake_case`, Node identifiers use `camelCase` or `PascalCase` as
+  appropriate, and constants use `UPPER_SNAKE_CASE`.
+- Confirm Python and Node runtime commands execute from the repository root,
+  while frontend commands execute from `frontend`.
+- Confirm Node internal imports use `#service`, `#util`, `#model`, or
+  `#middleware` unless the import is a local helper that legitimately uses a
+  relative path.
+- Confirm frontend changes use Vite, Redux where shared application state is
+  involved, and responsive behavior for both desktop and mobile.
+- Confirm every contract change is identified, including HTTP payloads,
+  generated assets, or deployment-facing behavior.
+- Confirm observability impact is covered, including request logging, error
+  visibility, or health signal changes.
+- Confirm verification is proportional to risk and names the automated or
+  manual validation path for the changed behavior.
+- Confirm any persistence changes stay on PostgreSQL and use Prisma in Node or
+  SQLAlchemy in Python.
+- Confirm Python command assumptions remain compatible with the repository venv
+  being auto-activated from shell startup.
+- Confirm any new dependency, service, or infrastructure complexity is justified
+  against the existing Raspberry Pi friendly scaffold.
 
 ## Project Structure
 
@@ -48,6 +71,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -92,13 +116,14 @@ ios/ or android/
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+directories captured above. Explain how responsibilities remain separated across
+the affected runtime layers.]
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |

@@ -1,1 +1,1 @@
-template HTMLs and logs
+Server-rendered HTML templates and related Python-side rendering assets.
