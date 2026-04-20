@@ -2,7 +2,6 @@
 # This bash scripts creats a newly formatted Raspberrypi into a MLBOT system
 # 
 
-
 # change the splash screen
 echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -60,8 +59,10 @@ sleep 1
 # downloading dependency libraries
 echo -e "\e[32mdownloading drivers and kernals../\e[97m"
 sleep 2
-sudo apt-get install libhdf5-dev libc-ares-dev libatlas-base-dev libeigen3-dev 
+sudo apt-get install libhdf5-dev libc-ares-dev libatlas-base-dev libeigen3-dev -y
 sudo apt-get install python3-pip python3-dev python3-venv python3-opencv git nginx postgresql -y
+sudo apt install snapd -y
+sudo systemctl enable --now snapd
 sudo snap install ngrok
 echo -e "\e[93mdone\e[97m"
 sleep 1
@@ -73,11 +74,20 @@ git clone https://github.com/jayanta-banik/MLBots-server.git
 echo -e "\e[93mdone\e[97m"
 sleep 1
 
-# echo -e "\e[32mcurrent directory is as follows:\e[97m"
-# ls
-# tree MLBots-server
-# sleep 4
-# into the working directory
+# creating the virtual environment for python
+echo -e "\e[32mcreating virtual environment../\e[97m"
+sleep 2
+python3 -m venv ~/venv3
+echo -e "\e[93mdone\e[97m"
+sleep 1
+
+echo -e "\e[32mactivating virtual environment../\e[97m"
+sleep 2
+echo 'source ~/venv3/bin/activate' | tee -a ~/.bashrc
+source ~/venv3/bin/activate
+echo -e "\e[93mdone\e[97m"
+sleep 1
+
 cd MLBots-server
 
 # export all the variables in .env to the system
@@ -87,24 +97,11 @@ export $(grep -v '^#' .env | xargs)
 echo -e "\e[93mdone\e[97m"
 sleep 1
 
-# creating the virtual environment for python
-echo -e "\e[32mcreating virtual environment../\e[97m"
-sleep 2
-python3 -m venv venv3
-echo -e "\e[93mdone\e[97m"
-sleep 1
-
-echo -e "\e[32mactivating virtual environment../\e[97m"
-sleep 2
-source venv3/bin/activate
-echo -e "\e[93mdone\e[97m"
-sleep 1
-
 echo -e "\e[32minstalling python libraries../\e[97m"
 sleep 2
 pip install --upgrade setuptools
 pip install gunicorn fastapi "uvicorn[standard]" numpy pandas matplotlib yagmail opencv-python
-pip install tflite-runtime
+# pip install tflite-runtime #depricated now
 sleep 1
 echo -e "\e[93mdone\e[97m"
 sleep 2
@@ -113,62 +110,66 @@ deactivate
 
 echo -e "\e[32mcreating services...\e[97m"
 sleep 4
+echo -e "\e[32m\tcreating https service\e[97m"
 # <---------------- app.service ---------------->
 sudo printf "
 [Unit]
-Description=Gunicorn instance to serve webhost
+Description=MLBots Node Backend
 After=network.target
 [Service]
 User=pi
 Group=www-data
 WorkingDirectory=/home/pi/MLBots-server/
-Environment=\"PATH=/home/pi/MLBots-server/venv3/bin\"
-ExecStart=/home/pi/MLBots-server/venv3/bin/gunicorn --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind unix:app.sock -m 007 wsgi:app
+Environment=\"PATH=/home/pi/venv3/bin\"
+ExecStart=/home/pi/venv3/bin/gunicorn --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind unix:app.sock -m 007 wsgi:app
 [Install]
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app.service
 # <------------- end of copy to file ------------->
+echo -e "\e[32m\tcreating http service\e[97m"
 # <---------------- app_http.service ---------------->
 sudo printf "
 [Unit]
-Description=Gunicorn instance to serve arduino http
+Description=Gunicorn instance to serve arduino edge devices with http only access seperate layer for minimal access
 After=network.target
 [Service]
 User=pi
 Group=www-data
 WorkingDirectory=/home/pi/MLBots-server/
-Environment=\"PATH=/home/pi/MLBots-server/venv3/bin\"
-ExecStart=/home/pi/MLBots-server/venv3/bin/gunicorn --workers 2 --bind unix:app_http.sock -m 007 wsgi_http:app_http
+Environment=\"PATH=/home/pi/venv3/bin\"
+ExecStart=/home/pi/venv3/bin/gunicorn --workers 2 --bind unix:app_http.sock -m 007 wsgi_http:app_http
 [Install]
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app_http.service
 # <------------- end of copy to file ------------->
+echo -e "\e[32m\tcreating root service\e[97m"
 # <---------------- app_root.service ---------------->
 sudo printf "
 [Unit]
-Description=Gunicorn instance to serve myproject
+Description=Gunicorn instance to serve myproject admin only access seperate layer for minimal access
 After=network.target
 [Service]
 User=root
 Group=www-data
 WorkingDirectory=/home/pi/MLBots-server/
-Environment=\"PATH=/home/pi/MLBots-server/venv3/bin\"
-ExecStart=/home/pi/MLBots-server/venv3/bin/gunicorn --workers 1 --bind unix:app_root.sock -m 007 wsgi_root:app_root
+Environment=\"PATH=/home/pi/venv3/bin\"
+ExecStart=/home/pi/venv3/bin/gunicorn --workers 1 --bind unix:app_root.sock -m 007 wsgi_root:app_root
 [Install]
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app_root.service
 # <------------- end of copy to file ------------->
+echo -e "\e[32m\tcreating ai service\e[97m"
 # <---------------- ai.service ---------------->
 sudo printf "
 [Unit]
-Description=Gunicorn instance to serve myproject
+Description=Gunicorn instance to serve myproject AI layer with python backend access seperate layer for minimal access
 After=network.target
 [Service]
 User=pi
 Group=www-data
 WorkingDirectory=/home/pi/MLBots-server/
-Environment=\"PATH=/home/pi/MLBots-server/venv3/bin\"
-ExecStart=/home/pi/MLBots-server/venv3/bin/gunicorn --workers 1 --bind unix:ai.sock -m 007 wsgi_ai:ai
+Environment=\"PATH=/home/pi/venv3/bin\"
+ExecStart=/home/pi/venv3/bin/gunicorn --workers 1 --bind unix:ai.sock -m 007 wsgi_ai:ai
 [Install]
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/ai.service

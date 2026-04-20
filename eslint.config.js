@@ -12,7 +12,7 @@ export default [
   pluginJs.configs.recommended,
   prettierConfig,
   {
-    files: ['app.js', 'eslint.config.js', 'node_backend/**/*.js', 'frontend/**/*.js', 'frontend/**/*.jsx'],
+    files: ['app.js', 'app_http.js', 'eslint.config.js', 'node_backend/**/*.js', 'frontend/**/*.js', 'frontend/**/*.jsx'],
     languageOptions: {
       globals: {
         ...globals.node,
