@@ -220,6 +220,7 @@ echo "completed!!"
 
 # configure ngrok
 ngrok config add-authtoken 2lZT48oc9OFv15jebVObnjpOCee_6jcXzCzLmmyCZMrivmmXs
+cat ngrok.yml | sudo tee /etc/nginx/sites-available/mlbots
 
 for i in {10..0..-1}
 do
