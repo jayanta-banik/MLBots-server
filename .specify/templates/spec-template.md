@@ -1,9 +1,28 @@
 # Feature Specification: [FEATURE NAME]
 
-**Feature Branch**: `[###-feature-name]`  
+**Feature Branch**: `feat/[###-feature-name]`  
 **Created**: [DATE]  
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
+
+**Workflow Note**: Review `.specify/memory/constitution.md`,
+`.specify/memory/UI_BEHAVIOR_STANDARDS.md`, `.specify/memory/LEARNINGS.md`, and
+all additional files in `.specify/memory/` before drafting or revising this
+spec. Confirm uncertain semantics from tests, existing code paths, contracts,
+or the user instead of guessing.
+
+## Compliance Notes _(mandatory)_
+
+- **Relevant Constitution Principles**: [List the constitution principles that
+  directly constrained this spec]
+- **UI Behavior Standards Applied**: [List the UI behavior standards used, or
+  state "Not applicable"]
+- **Cross-Feature Learnings Applied**: [List the learnings from
+  `.specify/memory/LEARNINGS.md` or other memory files that influenced this
+  spec]
+- **Conflicts and Resolution**: [List any conflicts with UI standards,
+  learnings, or existing behavior and how the safest compliant alternative was
+  chosen, or state "None"]
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -77,6 +96,25 @@
 
 ## System Impact _(mandatory)_
 
+### Source-of-Truth Behavior
+
+- [Identify the tests, code paths, contracts, or operator-visible behaviors
+  that define current semantics for this feature]
+- [Call out any semantic invariants that MUST be preserved: validation, units,
+  rounding, timestamps, interpretation rules]
+- [If artifacts disagree, record the conflict and the user clarification needed]
+
+### Privacy, Security, and Public Exposure
+
+- [Identify any PHI/PII, measurement data, notes, ECG traces, or secrets this
+  feature can touch]
+- [State how tests, fixtures, prompts, screenshots, and examples use synthetic
+  data only]
+- [Identify any logging, analytics, telemetry, or debugging surfaces that must
+  avoid sensitive payload capture]
+- [Identify whether the feature touches `frontend`, `admin`, Python-only
+  endpoints, or files under `static`, and call out any public exposure]
+
 ### Affected Layers
 
 - [Identify which of `frontend`, `node_backend`, `python_backend`, root/static`
@@ -129,6 +167,27 @@
   bootstrap or wiring.
 - **FR-XXX**: The implementation MUST define a verification approach that is
   proportional to the risk of the changed behavior.
+- **FR-XXX**: The implementation MUST preserve semantic behavior unless this
+  spec explicitly changes it.
+- **FR-XXX**: The implementation MUST NOT guess domain logic; unclear behavior
+  MUST be resolved from source-of-truth artifacts or explicit user
+  clarification.
+- **FR-XXX**: Existing validation, units, rounding, timestamps, and
+  interpretation rules MUST remain unchanged unless this spec explicitly says
+  otherwise.
+- **FR-XXX**: The implementation MUST NOT include real PHI/PII in prompts,
+  logs, tests, fixtures, screenshots, examples, or debugging artifacts.
+- **FR-XXX**: The implementation MUST use synthetic data for all examples,
+  fixtures, tests, and debugging workflows.
+- **FR-XXX**: The implementation MUST NOT introduce logging, analytics,
+  telemetry, or tracking that can capture PHI-bearing request bodies,
+  measurement payloads, ECG traces, or free-text notes.
+- **FR-XXX**: The implementation MUST redact sensitive output before sharing
+  debugging evidence.
+- **FR-XXX**: The implementation MUST NOT commit secrets such as tokens,
+  passwords, private keys, or certificates.
+- **FR-XXX**: The implementation MUST stay within minimal, reviewable diffs and
+  MUST NOT bundle unrelated refactors into the same change.
 - **FR-XXX**: File names and folder names MUST remain `snake_case` across Node
   and Python code.
 - **FR-XXX**: Python code MUST use `snake_case`, Node code MUST use
@@ -142,8 +201,16 @@
   repository root.
 - **FR-XXX**: Frontend runtime commands MUST remain callable from within
   `frontend`.
+- **FR-XXX**: Features in `frontend` MUST treat that app as the main Vite-built
+  user-facing UI, features in `admin` MUST follow the admin UI patterns and
+  respect secured admin API middleware, Python-only ML endpoints MUST remain in
+  the Python service, and anything written to `static` MUST be safe for public
+  access.
 - **FR-XXX**: Frontend work MUST use Vite, Redux for shared application state,
   and responsive behavior across desktop and mobile layouts.
+- **FR-XXX**: Larger feature sets or migrations MUST define incremental chunks
+  and create `chunked_plan.md` under the feature directory when staged delivery
+  is required.
 
 _Example of marking unclear requirements:_
 
@@ -187,3 +254,5 @@ _Example of marking unclear requirements:_
   with Prisma for Node and SQLAlchemy for Python"]
 - [Assumption about Python execution, e.g., "The repository virtual environment
   is auto-activated from shell startup for bash sessions"]
+- [Assumption about branch workflow, e.g., "This spec is delivered from a
+  short-lived `feat/NNN-short-name` branch"]

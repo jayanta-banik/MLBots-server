@@ -49,10 +49,18 @@ for low-risk wiring/doc changes only, explicitly documented manual checks.
 
 **Purpose**: Project initialization and basic structure
 
+- [ ] T000 Review `.specify/memory/constitution.md`, `.specify/memory/UI_BEHAVIOR_STANDARDS.md`, `.specify/memory/LEARNINGS.md`, and every additional file in `.specify/memory/`; capture the constraints that apply to this feature
+- [ ] T000A Inventory modules, callers, outbound dependencies, and contracts inside the feature boundary
+- [ ] T000B Capture the semantic invariants that MUST remain unchanged: validation, units, rounding, timestamps, and interpretation rules
+- [ ] T000C Inventory PHI/PII touchpoints, secret boundaries, logging surfaces, and any publicly exposed assets such as files in `static`
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
 - [ ] T00X Document affected runtime layers and contract surfaces for this feature
+- [ ] T00X Confirm the branch follows `feat/NNN-short-name` for spec work and remains short-lived
+- [ ] T00X Confirm the planned change stays within existing subproject patterns and avoids drive-by refactors
+- [ ] T00X Confirm only synthetic data is used in prompts, tests, fixtures, screenshots, and examples
+- [ ] T00X If `frontend` or `admin` is in scope, review `.specify/memory/ui_standards.md` and capture the MUI, Redux, motion, Moment, and shared-component rules
 - [ ] T00X Confirm naming conventions, import paths, and `snake_case` file paths
 - [ ] T00X Confirm root-vs-frontend runtime invocation paths and shell assumptions
 
@@ -73,8 +81,14 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
 - [ ] T00X Confirm observability and deployment touchpoints for changed layers
+- [ ] T00X Confirm logs, telemetry, analytics, and debug output do not capture PHI/PII or secrets
+- [ ] T00X For touched UI apps, run `yarn lint` and `yarn test`, or add minimal test support / document manual verification if the app does not yet expose tests
 - [ ] T00X Create or update PostgreSQL migrations and Prisma or SQLAlchemy data models as required
 - [ ] T00X Add or update Vite and Redux frontend scaffolding when frontend work is in scope
+- [ ] T00X Record the points during implementation where constitution and learnings must be re-reviewed
+- [ ] T00X Record any conflicts with UI behavior standards or established learnings and the safest compliant alternative for each
+- [ ] T00X Create `specs/[###-feature-name]/chunked_plan.md` when the feature is too large for a single safe slice, including chunk-by-chunk file plans and checkpoints
+- [ ] T00X Define migration checkpoints that keep the codebase runnable after each slice
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -103,7 +117,11 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
 - [ ] T016 [US1] Add validation and error handling
 - [ ] T017 [US1] Add logging for user story 1 operations
+- [ ] T01X [US1] Verify existing semantics are preserved against the identified source-of-truth behavior
+- [ ] T01X [US1] Verify the changed flow does not expose PHI/PII, secrets, or sensitive payloads in logs, tests, fixtures, or debug output
+- [ ] T01X [US1] Verify UI timestamp handling uses `moment`, repeated API calls are reduced appropriately with Redux where helpful, and deferred optimizations are marked with TODOs when intentionally postponed
 - [ ] T01X [US1] Normalize imports and identifiers to repo naming standards
+- [ ] T01X [US1] Re-check constitution and learnings before closing the story if implementation details changed
 - [ ] T01X [US1] Verify responsive desktop/mobile behavior for frontend changes
 - [ ] T01X [US1] Update affected operator or developer documentation
 
@@ -190,8 +208,21 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Within Each User Story
 
+- Constitution and learnings MUST be re-checked when implementation findings,
+  scope, or risk change
+- UI behavior standards and any additional relevant memory files MUST also be
+  re-checked when implementation findings, scope, or risk change
+- Semantic invariants from the spec and plan MUST be preserved unless the spec
+  explicitly changes them
+- Privacy and security rules override convenience, speed, and debugging ease
 - Verification tasks MUST be defined before implementation and automated when
   the change affects behavior, contracts, build output, or deployment flow
+- Unclear behavior MUST be resolved from source-of-truth artifacts or explicit
+  user clarification, not guessed during implementation
+- Use synthetic data only in tests, fixtures, examples, screenshots, and debug
+  workflows
+- Touched UI apps MUST satisfy the lint/test/manual-verification rule and keep
+  design consistent with the shared theme and component strategy
 - File and folder paths MUST remain `snake_case`
 - Python identifiers MUST remain `snake_case`; Node identifiers MUST use
   `camelCase` or `PascalCase`; constants MUST use `UPPER_SNAKE_CASE`
@@ -203,6 +234,7 @@ Examples of foundational tasks (adjust based on your project):
 - Models before services
 - Services before endpoints
 - Core implementation before integration
+- Keep the codebase runnable at each migration checkpoint
 - Story complete before moving to next priority
 
 ### Parallel Opportunities
@@ -267,6 +299,8 @@ With multiple developers:
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify the planned validation path before implementing
+- Redact sensitive output before sharing logs or debugging evidence
+- Separate feature-scope tasks from follow-up cleanup or future consistency work
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

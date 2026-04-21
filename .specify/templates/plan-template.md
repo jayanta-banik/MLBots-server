@@ -1,6 +1,6 @@
 # Implementation Plan: [FEATURE]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Branch**: `feat/[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
@@ -8,6 +8,27 @@
 ## Summary
 
 [Extract from feature spec: primary requirement + technical approach from research]
+
+## Semantic Guardrails
+
+- [List the source-of-truth behavior consulted: tests, existing code paths,
+  contracts, or operator-visible behavior]
+- [List the semantic invariants that MUST remain unchanged unless the spec says
+  otherwise, including validation, units, rounding, timestamps, and
+  interpretation rules]
+- [List any conflicts found between source-of-truth artifacts and how they were
+  resolved or escalated]
+
+## Privacy & Security Guardrails
+
+- [List any PHI/PII, secret, or compliance-sensitive surfaces touched by this
+  feature]
+- [Confirm only synthetic data is used in prompts, tests, fixtures, examples,
+  and screenshots]
+- [List logs, analytics, telemetry, or debugging paths reviewed to ensure they
+  cannot capture PHI or secrets]
+- [List any public exposure surfaces such as `static/` assets or admin-facing
+  routes and how they remain safe]
 
 ## Technical Context
 
@@ -31,8 +52,40 @@
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
+- Review `.specify/memory/constitution.md`,
+  `.specify/memory/UI_BEHAVIOR_STANDARDS.md`, `.specify/memory/LEARNINGS.md`,
+  and every additional file in `.specify/memory/` before starting planning;
+  record any constraints or lessons that affect this feature.
+- If `node_backend` is in scope, review `.specify/memory/node_backend_standards.md`
+  and record the route, service, model, alias, and middleware conventions that
+  apply.
+- If `frontend` or `admin` is in scope, review `.specify/memory/ui_standards.md`
+  and record the MUI, Redux, motion, Moment, validation, and shared-component
+  conventions that apply.
+- Confirm the working branch follows `feat/NNN-short-name` for spec work and is
+  intended to stay short-lived.
+- Inventory the feature boundary: modules involved, inbound callers, outbound
+  calls, and contracts that must remain stable.
+- Confirm semantic behavior is preserved unless the spec explicitly changes it,
+  including validation, units, rounding, timestamps, and interpretation rules.
+- Confirm any uncertainty has a source-of-truth reference or is explicitly
+  escalated to the user with evidence of the conflict.
+- Confirm the feature does not introduce PHI/PII into prompts, logs, tests,
+  fixtures, screenshots, or examples, and that synthetic data is used instead.
+- Confirm logs, analytics, telemetry, and debugging output cannot capture PHI,
+  request bodies, measurement payloads, ECG traces, free-text notes, or
+  secrets.
+- Confirm secrets are not added to code, config, fixtures, docs, or shared
+  output.
 - Confirm the affected runtime layer ownership is explicit (`frontend`,
   `node_backend`, `python_backend`, root/static).
+- Confirm the entrypoint map is correct for this feature: `frontend` is the
+  main Vite app, `admin` is the admin-only UI, Python-only ML endpoints belong
+  to the FastAPI/Python service, and anything under `static` is publicly
+  accessible.
+- Confirm the plan stays within existing subproject patterns and avoids drive-by
+  refactors, extra architectural layers, nested patterns, and needless
+  variable-copy rewrites.
 - Confirm file names and folder names remain `snake_case`, Python identifiers
   remain `snake_case`, Node identifiers use `camelCase` or `PascalCase` as
   appropriate, and constants use `UPPER_SNAKE_CASE`.
@@ -43,6 +96,12 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
   relative path.
 - Confirm frontend changes use Vite, Redux where shared application state is
   involved, and responsive behavior for both desktop and mobile.
+- Confirm touched UI apps will run `yarn lint` and `yarn test`, or that the
+  plan explicitly adds minimal test support or documents manual verification
+  when a test command is missing.
+- Confirm timestamp behavior in UI code uses `moment`, motion changes use
+  motion wrappers where appropriate, and design changes stay consistent with
+  the app theme and shared component strategy.
 - Confirm every contract change is identified, including HTTP payloads,
   generated assets, or deployment-facing behavior.
 - Confirm observability impact is covered, including request logging, error
@@ -55,6 +114,12 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
   being auto-activated from shell startup.
 - Confirm any new dependency, service, or infrastructure complexity is justified
   against the existing Raspberry Pi friendly scaffold.
+- Confirm larger feature sets or migrations define a chunked delivery path with
+  runnable checkpoints and safe review or rollback points.
+- Identify where implementation should re-check the constitution and learnings
+  during execution if new findings or scope changes emerge.
+- Confirm the plan records any conflict with UI behavior standards or learnings
+  and proposes the safest compliant alternative.
 
 ## Project Structure
 
@@ -63,6 +128,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 ```text
 specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
+├── chunked_plan.md      # Required for large features or staged migrations
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
 ├── quickstart.md        # Phase 1 output (/speckit.plan command)
@@ -118,6 +184,29 @@ ios/ or android/
 **Structure Decision**: [Document the selected structure and reference the real
 directories captured above. Explain how responsibilities remain separated across
 the affected runtime layers.]
+
+## Inventory
+
+- [List the modules in scope]
+- [List who calls them and what they call]
+- [List the contracts, payloads, files, or runtime expectations that must stay
+  stable]
+- [List any sensitive-data paths, secret boundaries, or publicly exposed files
+  involved]
+
+## Learnings Checkpoints
+
+- [Document the planning-time takeaways from `.specify/memory/LEARNINGS.md` and
+  any other relevant memory files]
+- [Document the implementation checkpoints where constitution, UI behavior
+  standards, and relevant memory files will be re-reviewed]
+
+## Migration Strategy
+
+- [Describe the incremental feature slices or migration checkpoints]
+- [State how the codebase stays runnable after each checkpoint]
+- [If the work is large, create `chunked_plan.md` and summarize the chunk/file
+  plan here]
 
 ## Complexity Tracking
 

@@ -11,7 +11,6 @@ param(
     [string]$ShortName,
     [Parameter()]
     [long]$Number = 0,
-    [switch]$Timestamp,
     [switch]$Help,
     [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
     [string[]]$FeatureDescription
@@ -19,7 +18,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 if ($Help) {
-    Write-Host "Usage: ./create-new-feature.ps1 [-Json] [-DryRun] [-AllowExistingBranch] [-ShortName <name>] [-Number N] [-Timestamp] <feature description>"
+    Write-Host "Usage: ./create-new-feature.ps1 [-Json] [-DryRun] [-AllowExistingBranch] [-ShortName <name>] [-Number N] <feature description>"
     Write-Host ""
     Write-Host "Options:"
     Write-Host "  -Json               Output in JSON format"
@@ -27,7 +26,6 @@ if ($Help) {
     Write-Host "  -AllowExistingBranch  Switch to branch if it already exists instead of failing"
     Write-Host "  -ShortName <name>   Provide a custom short name (2-4 words) for the branch"
     Write-Host "  -Number N           Specify branch number manually (overrides auto-detection)"
-    Write-Host "  -Timestamp          Use timestamp prefix (YYYYMMDD-HHMMSS) instead of sequential numbering"
     Write-Host "  -Help               Show this help message"
     Write-Host ""
     Write-Host "Environment variables:"
@@ -37,7 +35,7 @@ if ($Help) {
 }
 
 if (-not $FeatureDescription -or $FeatureDescription.Count -eq 0) {
-    Write-Error "Usage: ./create-new-feature.ps1 [-Json] [-DryRun] [-AllowExistingBranch] [-ShortName <name>] [-Number N] [-Timestamp] <feature description>"
+    Write-Error "Usage: ./create-new-feature.ps1 [-Json] [-DryRun] [-AllowExistingBranch] [-ShortName <name>] [-Number N] <feature description>"
     exit 1
 }
 
@@ -54,7 +52,7 @@ function Get-HighestNumberFromSpecs {
     [long]$highest = 0
     if (Test-Path $SpecsDir) {
         Get-ChildItem -Path $SpecsDir -Directory | ForEach-Object {
-            if ($_.Name -match '^(\d{3,})-' -and $_.Name -notmatch '^\d{8}-\d{6}-') {
+            if ($_.Name -match '^(\d{3,})-') {
                 [long]$num = 0
                 if ([long]::TryParse($matches[1], [ref]$num) -and $num -gt $highest) {
                     $highest = $num
@@ -70,7 +68,8 @@ function Get-HighestNumberFromNames {
 
     [long]$highest = 0
     foreach ($name in $Names) {
-        if ($name -match '^(\d{3,})-' -and $name -notmatch '^\d{8}-\d{6}-') {
+        $effectiveName = Get-SpecKitEffectiveBranchName $name
+        if ($effectiveName -match '^(\d{3,})-') {
             [long]$num = 0
             if ([long]::TryParse($matches[1], [ref]$num) -and $num -gt $highest) {
                 $highest = $num
@@ -266,14 +265,13 @@ if ($env:GIT_BRANCH_NAME) {
     if ($branchNameUtf8ByteCount -gt 244) {
         throw "GIT_BRANCH_NAME must be 244 bytes or fewer in UTF-8. Provided value is $branchNameUtf8ByteCount bytes; please supply a shorter override branch name."
     }
-    # Extract FEATURE_NUM from the branch name if it starts with a numeric prefix
-    # Check timestamp pattern first (YYYYMMDD-HHMMSS-) since it also matches the simpler ^\d+ pattern
-    if ($branchName -match '^(\d{8}-\d{6})-') {
+    $effectiveBranchName = Get-SpecKitEffectiveBranchName $branchName
+    if ($effectiveBranchName -match '^(\d+)-') {
         $featureNum = $matches[1]
-    } elseif ($branchName -match '^(\d+)-') {
-        $featureNum = $matches[1]
+        $branchSuffix = $effectiveBranchName.Substring($featureNum.Length + 1)
     } else {
         $featureNum = $branchName
+        $branchSuffix = $branchName
     }
 } else {
     if ($ShortName) {
@@ -282,42 +280,32 @@ if ($env:GIT_BRANCH_NAME) {
         $branchSuffix = Get-BranchName -Description $featureDesc
     }
 
-    if ($Timestamp -and $Number -ne 0) {
-        Write-Warning "[specify] Warning: -Number is ignored when -Timestamp is used"
-        $Number = 0
-    }
-
-    if ($Timestamp) {
-        $featureNum = Get-Date -Format 'yyyyMMdd-HHmmss'
-        $branchName = "$featureNum-$branchSuffix"
-    } else {
-        if ($Number -eq 0) {
-            if ($DryRun -and $hasGit) {
-                $Number = Get-NextBranchNumber -SpecsDir $specsDir -SkipFetch
-            } elseif ($DryRun) {
-                $Number = (Get-HighestNumberFromSpecs -SpecsDir $specsDir) + 1
-            } elseif ($hasGit) {
-                $Number = Get-NextBranchNumber -SpecsDir $specsDir
-            } else {
-                $Number = (Get-HighestNumberFromSpecs -SpecsDir $specsDir) + 1
-            }
+    if ($Number -eq 0) {
+        if ($DryRun -and $hasGit) {
+            $Number = Get-NextBranchNumber -SpecsDir $specsDir -SkipFetch
+        } elseif ($DryRun) {
+            $Number = (Get-HighestNumberFromSpecs -SpecsDir $specsDir) + 1
+        } elseif ($hasGit) {
+            $Number = Get-NextBranchNumber -SpecsDir $specsDir
+        } else {
+            $Number = (Get-HighestNumberFromSpecs -SpecsDir $specsDir) + 1
         }
-
-        $featureNum = ('{0:000}' -f $Number)
-        $branchName = "$featureNum-$branchSuffix"
     }
+
+    $featureNum = ('{0:000}' -f $Number)
+    $branchName = "feat/$featureNum-$branchSuffix"
 }
 
 $maxBranchLength = 244
 if ($branchName.Length -gt $maxBranchLength) {
-    $prefixLength = $featureNum.Length + 1
+    $prefixLength = $branchName.Length - $branchSuffix.Length
     $maxSuffixLength = $maxBranchLength - $prefixLength
 
     $truncatedSuffix = $branchSuffix.Substring(0, [Math]::Min($branchSuffix.Length, $maxSuffixLength))
     $truncatedSuffix = $truncatedSuffix -replace '-$', ''
 
     $originalBranchName = $branchName
-    $branchName = "$featureNum-$truncatedSuffix"
+    $branchName = "feat/$featureNum-$truncatedSuffix"
 
     Write-Warning "[specify] Branch name exceeded GitHub's 244-byte limit"
     Write-Warning "[specify] Original: $originalBranchName ($($originalBranchName.Length) bytes)"
@@ -356,9 +344,6 @@ if (-not $DryRun) {
                             exit 1
                         }
                     }
-                } elseif ($Timestamp) {
-                    Write-Error "Error: Branch '$branchName' already exists. Rerun to get a new timestamp or use a different -ShortName."
-                    exit 1
                 } else {
                     Write-Error "Error: Branch '$branchName' already exists. Please use a different feature name or specify a different number with -Number."
                     exit 1
