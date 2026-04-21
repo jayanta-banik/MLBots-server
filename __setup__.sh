@@ -64,7 +64,7 @@ sudo apt-get install python3-pip python3-dev python3-venv python3-opencv git ngi
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs
 sudo npm install -g yarn
-sudo apt install snapd -y
+sudo apt install snapd ufw -y
 sudo systemctl enable --now snapd
 sudo snap install ngrok
 echo -e "\e[93mdone\e[97m"
@@ -178,9 +178,19 @@ sudo chmod +x rg.sh
 echo -e "\e[93mdone\e[97m"
 sleep 1
 
+# add monthly backup cron job
+echo -e "\e[32mAdding monthly backup cron job..\e[97m"
+(
+  crontab -l 2>/dev/null
+  echo '0 3 1 * * cd /home/pi/MLBots-server && /home/pi/MLBots-server/backup.sh >> /home/pi/MLBots-server/temp/backup.log 2>&1'
+) | crontab -
+echo -e "\e[93mdone\e[97m"
+sleep 1
+
 echo -e "\e[32mrestarting server../\e[97m"
 ./rg.sh
 sudo ufw allow 'Nginx Full'
+sudo ufw allow OpenSSH
 echo "completed!!"
 
 # configure ngrok
