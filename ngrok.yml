@@ -1,0 +1,7 @@
+version: "2"
+
+tunnels:
+  app:
+    proto: http
+    addr: 5173   # your Vite dev server OR nginx port
+    hostname: app.mlbots.in 

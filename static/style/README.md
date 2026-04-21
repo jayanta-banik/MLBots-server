@@ -1,3 +1,0 @@
-stylesheets 
-
-webpagename.css
