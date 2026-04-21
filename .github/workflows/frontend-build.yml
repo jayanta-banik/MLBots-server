@@ -3,9 +3,10 @@ name: frontend-build
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - frontend/**
+      - admin/**
       - .github/workflows/frontend-build.yml
   workflow_dispatch:
 
