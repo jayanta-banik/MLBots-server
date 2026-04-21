@@ -28,7 +28,6 @@ This extension provides Git operations as an optional, self-contained module. It
 | Event                  | Command                  | Optional | Description                                       |
 | ---------------------- | ------------------------ | -------- | ------------------------------------------------- |
 | `before_constitution`  | `speckit.git.initialize` | No       | Init git repo before constitution                 |
-| `before_specify`       | `speckit.git.feature`    | No       | Create feature branch before specification        |
 | `before_clarify`       | `speckit.git.commit`     | Yes      | Commit outstanding changes before clarification   |
 | `before_plan`          | `speckit.git.commit`     | Yes      | Commit outstanding changes before planning        |
 | `before_tasks`         | `speckit.git.commit`     | Yes      | Commit outstanding changes before task generation |
@@ -87,7 +86,7 @@ specify extension enable git
 
 When Git is not installed or the directory is not a Git repository:
 
-- Spec directories are still created under `specs/`
+- Requirement artifacts are still created under `specs/`
 - Branch creation is skipped with a warning
 - Branch validation is skipped with a warning
 - Remote detection returns empty results
@@ -96,7 +95,7 @@ When Git is not installed or the directory is not a Git repository:
 
 The extension bundles cross-platform scripts:
 
-- `scripts/bash/create-new-feature.sh` — Bash implementation
+- `scripts/bash/create-new-feature.sh` — Legacy wrapper for the core requirement generator
 - `scripts/bash/git-common.sh` — Shared Git utilities (Bash)
 - `scripts/powershell/create-new-feature.ps1` — PowerShell implementation
 - `scripts/powershell/git-common.ps1` — Shared Git utilities (PowerShell)

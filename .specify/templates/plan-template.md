@@ -1,7 +1,7 @@
 # Implementation Plan: [FEATURE]
 
-**Branch**: `feat/[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `[feat/###-feature-name or bugfix/short-name]` | **Date**: [DATE] | **Requirements**: [link]
+**Input**: Requirement document from `/specs/[###-feature-name]/requirements.md` or `/specs/bugfix/[branch-name].md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
@@ -62,8 +62,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - If `frontend` or `admin` is in scope, review `.specify/memory/ui_standards.md`
   and record the MUI, Redux, motion, Moment, validation, and shared-component
   conventions that apply.
-- Confirm the working branch follows `feat/NNN-short-name` for spec work and is
-  intended to stay short-lived.
+- Confirm the working branch follows `feat/NNN-short-name` for feature work or
+  `bugfix/short-name` for bug work and is intended to stay short-lived.
 - Inventory the feature boundary: modules involved, inbound callers, outbound
   calls, and contracts that must remain stable.
 - Confirm semantic behavior is preserved unless the spec explicitly changes it,
@@ -127,14 +127,19 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ```text
 specs/[###-feature]/
+├── requirements.md      # Created by /speckit.specify
 ├── plan.md              # This file (/speckit.plan command output)
 ├── chunked_plan.md      # Required for large features or staged migrations
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
 ├── quickstart.md        # Phase 1 output (/speckit.plan command)
 ├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+└── tasklist.md          # Phase 2 output (/speckit.tasks command)
 ```
+
+For bugfix requirements, the canonical requirement document lives under
+`specs/bugfix/[branch-name].md`, with sibling planning artifacts such as
+`[branch-name].plan.md` and `[branch-name].tasklist.md`.
 
 ### Source Code (repository root)
 

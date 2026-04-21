@@ -4,7 +4,7 @@ description: "Create a short-lived feature branch with sequential numbering"
 
 # Create Feature Branch
 
-Create and switch to a new git feature branch for the given specification. This command handles **branch creation only** — the spec directory and files are created by the core `/speckit.specify` workflow.
+Create and switch to a new git feature branch for the given specification. This command handles **branch creation only** — `/speckit.specify` now creates the canonical requirement artifacts.
 
 ## User Input
 
@@ -32,7 +32,7 @@ Spec branches MUST use the `feat/NNN-short-name` format, where `NNN` is the
 next zero-padded sequential feature number starting at `001`.
 
 Bugfix branches use `bugfix/short-name`, but they are outside this command's
-numbered spec-branch workflow.
+numbered feature-branch workflow.
 
 ## Execution
 

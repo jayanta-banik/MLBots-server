@@ -9,8 +9,8 @@
 #
 # OPTIONS:
 #   --json              Output in JSON format
-#   --require-tasks     Require tasks.md to exist (for implementation phase)
-#   --include-tasks     Include tasks.md in AVAILABLE_DOCS list
+#   --require-tasks     Require the resolved task list to exist (tasklist.md or legacy tasks.md)
+#   --include-tasks     Include the resolved task list in AVAILABLE_DOCS
 #   --paths-only        Only output path variables (no validation)
 #   --help, -h          Show help message
 #
@@ -49,8 +49,8 @@ Consolidated prerequisite checking for Spec-Driven Development workflow.
 
 OPTIONS:
   --json              Output in JSON format
-  --require-tasks     Require tasks.md to exist (for implementation phase)
-  --include-tasks     Include tasks.md in AVAILABLE_DOCS list
+    --require-tasks     Require the resolved task list to exist (tasklist.md or legacy tasks.md)
+    --include-tasks     Include the resolved task list in AVAILABLE_DOCS list
   --paths-only        Only output path variables (no prerequisite validation)
   --help, -h          Show this help message
 
@@ -58,7 +58,7 @@ EXAMPLES:
   # Check task prerequisites (plan.md required)
   ./check-prerequisites.sh --json
   
-  # Check implementation prerequisites (plan.md + tasks.md required)
+    # Check implementation prerequisites (plan.md + tasklist.md required)
   ./check-prerequisites.sh --json --require-tasks --include-tasks
   
   # Get feature paths only (no validation)
@@ -125,9 +125,9 @@ if [[ ! -f "$IMPL_PLAN" ]]; then
     exit 1
 fi
 
-# Check for tasks.md if required
+# Check for tasklist.md if required
 if $REQUIRE_TASKS && [[ ! -f "$TASKS" ]]; then
-    echo "ERROR: tasks.md not found in $FEATURE_DIR" >&2
+    echo "ERROR: tasklist.md not found in $FEATURE_DIR" >&2
     echo "Run /speckit.tasks first to create the task list." >&2
     exit 1
 fi
@@ -146,9 +146,9 @@ fi
 
 [[ -f "$QUICKSTART" ]] && docs+=("quickstart.md")
 
-# Include tasks.md if requested and it exists
+# Include tasklist.md if requested and it exists
 if $INCLUDE_TASKS && [[ -f "$TASKS" ]]; then
-    docs+=("tasks.md")
+    docs+=("tasklist.md")
 fi
 
 # Output results
@@ -185,6 +185,6 @@ else
     check_file "$QUICKSTART" "quickstart.md"
     
     if $INCLUDE_TASKS; then
-        check_file "$TASKS" "tasks.md"
+        check_file "$TASKS" "tasklist.md"
     fi
 fi

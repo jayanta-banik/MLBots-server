@@ -44,10 +44,6 @@ hooks:
     command: speckit.git.initialize
     optional: false
     description: "Initialize Git repository before constitution setup"
-  before_specify:
-    command: speckit.git.feature
-    optional: false
-    description: "Create feature branch before specification"
   before_clarify:
     command: speckit.git.commit
     optional: true

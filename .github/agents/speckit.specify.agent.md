@@ -1,5 +1,5 @@
 ---
-description: Create or update the feature specification from a natural language feature description.
+description: Create or update a requirement package from a natural language feature or bugfix description.
 handoffs: 
   - label: Build Technical Plan
     agent: speckit.plan
@@ -70,44 +70,28 @@ Given that feature description, do this:
      - "Create a dashboard for analytics" → "analytics-dashboard"
      - "Fix payment processing timeout bug" → "fix-payment-timeout"
 
-2. **Branch creation** (optional, via hook):
+2. **Classify the requirement and create the working branch**:
 
-   If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to a git branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
+   - Infer whether the request is a numbered feature requirement or a bugfix requirement.
+   - Run `.specify/scripts/bash/create-new-features.sh --json --allow-existing-branch --short-name "<short-name>" "<feature description>"` from the repo root.
+   - If the request clearly represents a bugfix, pass `--kind bugfix`.
+   - If the user explicitly provided `GIT_BRANCH_NAME`, pass it through with `--branch-name` so the script uses the exact branch name.
+   - Parse the JSON response and treat these values as authoritative:
+     - `BRANCH_NAME`
+     - `FEATURE_TYPE`
+     - `FEATURE_DIR`
+     - `REQUIREMENTS_FILE`
+     - `TASKLIST_FILE`
+     - `PLAN_FILE`
 
-   If the user explicitly provided `GIT_BRANCH_NAME`, pass it through to the hook so the branch script uses the exact value as the branch name (bypassing all prefix/suffix generation).
+3. **Create the requirement package**:
 
-3. **Create the spec feature directory**:
+   - The script above creates the branch from the current checked-out branch and initializes the canonical requirement artifacts.
+   - Feature work lives under `specs/NNN-short-name/` with `requirements.md`, `tasklist.md`, and `plan.md`.
+   - Bugfix work stores its primary requirement document under `specs/bugfix/<branch-name>.md`, with sibling files such as `<branch-name>.tasklist.md` and `<branch-name>.plan.md` when those commands run later.
+   - `.specify/feature.json` is the source of truth for downstream path resolution; do not invent alternate paths once the script has run.
 
-   Specs live under the default `specs/` directory unless the user explicitly provides `SPECIFY_FEATURE_DIRECTORY`.
-
-   **Resolution order for `SPECIFY_FEATURE_DIRECTORY`**:
-   1. If the user explicitly provided `SPECIFY_FEATURE_DIRECTORY` (e.g., via environment variable, argument, or configuration), use it as-is
-   2. Otherwise, auto-generate it under `specs/`:
-      - Check `.specify/init-options.json` for `branch_numbering`
-      - If `"timestamp"`: prefix is `YYYYMMDD-HHMMSS` (current timestamp)
-      - If `"sequential"` or absent: prefix is `NNN` (next available 3-digit number after scanning existing directories in `specs/`)
-      - Construct the directory name: `<prefix>-<short-name>` (e.g., `003-user-auth` or `20260319-143022-user-auth`)
-      - Set `SPECIFY_FEATURE_DIRECTORY` to `specs/<directory-name>`
-
-   **Create the directory and spec file**:
-   - `mkdir -p SPECIFY_FEATURE_DIRECTORY`
-   - Copy `.specify/templates/spec-template.md` to `SPECIFY_FEATURE_DIRECTORY/spec.md` as the starting point
-   - Set `SPEC_FILE` to `SPECIFY_FEATURE_DIRECTORY/spec.md`
-   - Persist the resolved path to `.specify/feature.json`:
-     ```json
-     {
-       "feature_directory": "<resolved feature dir>"
-     }
-     ```
-     Write the actual resolved directory path value (for example, `specs/003-user-auth`), not the literal string `SPECIFY_FEATURE_DIRECTORY`.
-     This allows downstream commands (`/speckit.plan`, `/speckit.tasks`, etc.) to locate the feature directory without relying on git branch name conventions.
-
-   **IMPORTANT**:
-   - You must only create one feature per `/speckit.specify` invocation
-   - The spec directory name and the git branch name are independent — they may be the same but that is the user's choice
-   - The spec directory and file are always created by this command, never by the hook
-
-4. Load `.specify/templates/spec-template.md` to understand required sections.
+4. Load `.specify/templates/requirements-template.md` to understand required sections.
 
 5. Follow this execution flow:
     1. Parse user description from arguments
@@ -134,18 +118,18 @@ Given that feature description, do this:
     7. Identify Key Entities (if data involved)
     8. Return: SUCCESS (spec ready for planning)
 
-6. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
+6. Write the requirement document to `REQUIREMENTS_FILE` using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
 7. **Specification Quality Validation**: After writing the initial spec, validate it against quality criteria:
 
-   a. **Create Spec Quality Checklist**: Generate a checklist file at `SPECIFY_FEATURE_DIRECTORY/checklists/requirements.md` using the checklist template structure with these validation items:
+   a. **Create Requirement Quality Checklist**: Generate a checklist file at `FEATURE_DIR/checklists/requirements.md` using the checklist template structure with these validation items:
 
       ```markdown
       # Specification Quality Checklist: [FEATURE NAME]
       
       **Purpose**: Validate specification completeness and quality before proceeding to planning
       **Created**: [DATE]
-      **Feature**: [Link to spec.md]
+      **Feature**: [Link to requirements.md]
       
       ## Content Quality
       
@@ -174,10 +158,10 @@ Given that feature description, do this:
       
       ## Notes
       
-      - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
+      - Items marked incomplete require requirement updates before `/speckit.clarify` or `/speckit.plan`
       ```
 
-   b. **Run Validation Check**: Review the spec against each checklist item:
+   b. **Run Validation Check**: Review the requirement document against each checklist item:
       - For each item, determine if it passes or fails
       - Document specific issues found (quote relevant spec sections)
 
@@ -187,19 +171,19 @@ Given that feature description, do this:
 
       - **If items fail (excluding [NEEDS CLARIFICATION])**:
         1. List the failing items and specific issues
-        2. Update the spec to address each issue
+            2. Update the requirement document to address each issue
         3. Re-run validation until all items pass (max 3 iterations)
         4. If still failing after 3 iterations, document remaining issues in checklist notes and warn user
 
       - **If [NEEDS CLARIFICATION] markers remain**:
-        1. Extract all [NEEDS CLARIFICATION: ...] markers from the spec
+            1. Extract all [NEEDS CLARIFICATION: ...] markers from the requirement document
         2. **LIMIT CHECK**: If more than 3 markers exist, keep only the 3 most critical (by scope/security/UX impact) and make informed guesses for the rest
         3. For each clarification needed (max 3), present options to user in this format:
 
            ```markdown
            ## Question [N]: [Topic]
            
-           **Context**: [Quote relevant spec section]
+           **Context**: [Quote relevant requirement section]
            
            **What we need to know**: [Specific question from NEEDS CLARIFICATION marker]
            
@@ -223,14 +207,15 @@ Given that feature description, do this:
         5. Number questions sequentially (Q1, Q2, Q3 - max 3 total)
         6. Present all questions together before waiting for responses
         7. Wait for user to respond with their choices for all questions (e.g., "Q1: A, Q2: Custom - [details], Q3: B")
-        8. Update the spec by replacing each [NEEDS CLARIFICATION] marker with the user's selected or provided answer
+            8. Update the requirement document by replacing each [NEEDS CLARIFICATION] marker with the user's selected or provided answer
         9. Re-run validation after all clarifications are resolved
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
 8. **Report completion** to the user with:
-   - `SPECIFY_FEATURE_DIRECTORY` — the feature directory path
-   - `SPEC_FILE` — the spec file path
+   - `FEATURE_DIR` — the requirement artifact root path
+   - `REQUIREMENTS_FILE` — the canonical requirement file path
+   - `TASKLIST_FILE` — the task list file path created for this requirement
    - Checklist results summary
    - Readiness for the next phase (`/speckit.clarify` or `/speckit.plan`)
 
@@ -263,7 +248,7 @@ Given that feature description, do this:
        ```
    - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
-**NOTE:** Branch creation is handled by the `before_specify` hook (git extension). Spec directory and file creation are always handled by this core command.
+**NOTE:** Branch creation is handled by this core command so branch names and artifact paths stay in sync.
 
 ## Quick Guidelines
 

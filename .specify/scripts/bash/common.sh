@@ -114,6 +114,39 @@ spec_kit_effective_branch_name() {
     fi
 }
 
+read_feature_json_value() {
+    local repo_root="$1"
+    local key="$2"
+    local json_path="$repo_root/.specify/feature.json"
+
+    [[ -f "$json_path" ]] || return 1
+
+    if command -v jq >/dev/null 2>&1; then
+        jq -r --arg key "$key" '.[$key] // empty' "$json_path" 2>/dev/null
+        return 0
+    fi
+
+    if command -v python3 >/dev/null 2>&1; then
+        python3 -c 'import json, sys; data = json.load(open(sys.argv[1])); print(data.get(sys.argv[2], ""))' "$json_path" "$key" 2>/dev/null
+        return 0
+    fi
+
+    grep -o '"'"$key"'"[[:space:]]*:[[:space:]]*"[^"]*"' "$json_path" 2>/dev/null | sed 's/.*"\([^"]*\)"$/\1/'
+}
+
+resolve_feature_path() {
+    local repo_root="$1"
+    local candidate="$2"
+
+    if [[ -z "$candidate" ]]; then
+        printf '%s\n' ""
+    elif [[ "$candidate" = /* ]]; then
+        printf '%s\n' "$candidate"
+    else
+        printf '%s\n' "$repo_root/$candidate"
+    fi
+}
+
 check_feature_branch() {
     local raw="$1"
     local has_git_repo="$2"
@@ -127,9 +160,13 @@ check_feature_branch() {
     local branch
     branch=$(spec_kit_effective_branch_name "$raw")
 
+    if [[ "$raw" == bugfix/* ]] && [[ -n "$branch" ]]; then
+        return 0
+    fi
+
     if [[ "$raw" != feat/* ]] || [[ ! "$branch" =~ ^[0-9]{3,}- ]]; then
         echo "ERROR: Not on a feature branch. Current branch: $raw" >&2
-        echo "Feature branches should be named like: feat/001-feature-name" >&2
+        echo "Feature branches should be named like: feat/001-feature-name or bugfix/short-name" >&2
         return 1
     fi
 
@@ -148,6 +185,8 @@ find_feature_dir_by_prefix() {
     local prefix=""
     if [[ "$branch_name" =~ ^([0-9]{3,})- ]]; then
         prefix="${BASH_REMATCH[1]}"
+    elif [[ "$2" == bugfix/* ]]; then
+        echo "$specs_dir/bugfix"
     else
         # If branch doesn't have a recognized prefix, fall back to exact match
         echo "$specs_dir/$branch_name"
@@ -188,9 +227,9 @@ get_feature_paths() {
         has_git_repo="true"
     fi
 
-    # Resolve feature directory.  Priority:
+    # Resolve feature paths. Priority:
     #   1. SPECIFY_FEATURE_DIRECTORY env var (explicit override)
-    #   2. .specify/feature.json "feature_directory" key (persisted by /speckit.specify)
+    #   2. .specify/feature.json explicit path keys (persisted by /speckit.specify)
     #   3. Branch-name-based prefix lookup (legacy fallback)
     local feature_dir
     if [[ -n "${SPECIFY_FEATURE_DIRECTORY:-}" ]]; then
@@ -199,19 +238,9 @@ get_feature_paths() {
         [[ "$feature_dir" != /* ]] && feature_dir="$repo_root/$feature_dir"
     elif [[ -f "$repo_root/.specify/feature.json" ]]; then
         local _fd
-        if command -v jq >/dev/null 2>&1; then
-            _fd=$(jq -r '.feature_directory // empty' "$repo_root/.specify/feature.json" 2>/dev/null)
-        elif command -v python3 >/dev/null 2>&1; then
-            # Fallback: use Python to parse JSON so pretty-printed/multi-line files work
-            _fd=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d.get('feature_directory',''))" "$repo_root/.specify/feature.json" 2>/dev/null)
-        else
-            # Last resort: single-line grep fallback (won't work on multi-line JSON)
-            _fd=$(grep -o '"feature_directory"[[:space:]]*:[[:space:]]*"[^"]*"' "$repo_root/.specify/feature.json" 2>/dev/null | sed 's/.*"\([^"]*\)"$/\1/')
-        fi
+        _fd=$(read_feature_json_value "$repo_root" "feature_directory")
         if [[ -n "$_fd" ]]; then
-            feature_dir="$_fd"
-            # Normalize relative paths to absolute under repo root
-            [[ "$feature_dir" != /* ]] && feature_dir="$repo_root/$feature_dir"
+            feature_dir=$(resolve_feature_path "$repo_root" "$_fd")
         elif ! feature_dir=$(find_feature_dir_by_prefix "$repo_root" "$current_branch"); then
             echo "ERROR: Failed to resolve feature directory" >&2
             return 1
@@ -221,15 +250,48 @@ get_feature_paths() {
         return 1
     fi
 
-    # Use printf '%q' to safely quote values, preventing shell injection
-    # via crafted branch names or paths containing special characters
+    local feature_spec
+    local impl_plan
+    local tasks
+
+    feature_spec=$(read_feature_json_value "$repo_root" "requirements_file")
+    [[ -z "$feature_spec" ]] && feature_spec=$(read_feature_json_value "$repo_root" "feature_spec")
+    feature_spec=$(resolve_feature_path "$repo_root" "$feature_spec")
+
+    impl_plan=$(read_feature_json_value "$repo_root" "impl_plan")
+    impl_plan=$(resolve_feature_path "$repo_root" "$impl_plan")
+
+    tasks=$(read_feature_json_value "$repo_root" "tasklist_file")
+    [[ -z "$tasks" ]] && tasks=$(read_feature_json_value "$repo_root" "tasks_file")
+    tasks=$(resolve_feature_path "$repo_root" "$tasks")
+
+    if [[ -z "$feature_spec" ]]; then
+        if [[ -f "$feature_dir/requirements.md" ]]; then
+            feature_spec="$feature_dir/requirements.md"
+        else
+            feature_spec="$feature_dir/spec.md"
+        fi
+    fi
+
+    if [[ -z "$impl_plan" ]]; then
+        impl_plan="$feature_dir/plan.md"
+    fi
+
+    if [[ -z "$tasks" ]]; then
+        if [[ -f "$feature_dir/tasklist.md" ]]; then
+            tasks="$feature_dir/tasklist.md"
+        else
+            tasks="$feature_dir/tasks.md"
+        fi
+    fi
+
     printf 'REPO_ROOT=%q\n' "$repo_root"
     printf 'CURRENT_BRANCH=%q\n' "$current_branch"
     printf 'HAS_GIT=%q\n' "$has_git_repo"
     printf 'FEATURE_DIR=%q\n' "$feature_dir"
-    printf 'FEATURE_SPEC=%q\n' "$feature_dir/spec.md"
-    printf 'IMPL_PLAN=%q\n' "$feature_dir/plan.md"
-    printf 'TASKS=%q\n' "$feature_dir/tasks.md"
+    printf 'FEATURE_SPEC=%q\n' "$feature_spec"
+    printf 'IMPL_PLAN=%q\n' "$impl_plan"
+    printf 'TASKS=%q\n' "$tasks"
     printf 'RESEARCH=%q\n' "$feature_dir/research.md"
     printf 'DATA_MODEL=%q\n' "$feature_dir/data-model.md"
     printf 'QUICKSTART=%q\n' "$feature_dir/quickstart.md"

@@ -5,7 +5,7 @@ description: "Task list template for feature implementation"
 # Tasks: [FEATURE NAME]
 
 **Input**: Design documents from `/specs/[###-feature-name]/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Prerequisites**: plan.md (required), requirements.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: Include verification tasks whenever the feature changes behavior,
 contracts, build outputs, or deployment flow. Validation may be automated or,
@@ -31,7 +31,7 @@ for low-risk wiring/doc changes only, explicitly documented manual checks.
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
 
   The /speckit.tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - User stories from requirements.md (with their priorities P1, P2, P3...)
   - Feature requirements from plan.md
   - Entities from data-model.md
   - Endpoints from contracts/
@@ -41,7 +41,7 @@ for low-risk wiring/doc changes only, explicitly documented manual checks.
   - Tested independently
   - Delivered as an MVP increment
 
-  DO NOT keep these sample tasks in the generated tasks.md file.
+  DO NOT keep these sample tasks in the generated tasklist.md file.
   ============================================================================
 -->
 
@@ -57,7 +57,7 @@ for low-risk wiring/doc changes only, explicitly documented manual checks.
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
 - [ ] T00X Document affected runtime layers and contract surfaces for this feature
-- [ ] T00X Confirm the branch follows `feat/NNN-short-name` for spec work and remains short-lived
+- [ ] T00X Confirm the branch follows `feat/NNN-short-name` for feature work or `bugfix/short-name` for bug work and remains short-lived
 - [ ] T00X Confirm the planned change stays within existing subproject patterns and avoids drive-by refactors
 - [ ] T00X Confirm only synthetic data is used in prompts, tests, fixtures, screenshots, and examples
 - [ ] T00X If `frontend` or `admin` is in scope, review `.specify/memory/ui_standards.md` and capture the MUI, Redux, motion, Moment, and shared-component rules
