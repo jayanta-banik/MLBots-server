@@ -1,12 +1,8 @@
+import { motion } from 'framer-motion';
+
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { alpha } from '@mui/material/styles';
-import { motion } from 'framer-motion';
-
-const ACCENT_BY_TONE = {
-  primary: 'primary.main',
-  secondary: 'secondary.main',
-};
 
 function SurfaceCard({ children, tone = 'primary', delay = 0, contentSx, sx }) {
   return (
@@ -22,7 +18,7 @@ function SurfaceCard({ children, tone = 'primary', delay = 0, contentSx, sx }) {
           content: '""',
           position: 'absolute',
           inset: 0,
-          background: (theme) => `linear-gradient(135deg, ${alpha(theme.palette[ tone === 'secondary' ? 'secondary' : 'primary' ].main, 0.1)}, transparent 42%)`,
+          background: (theme) => `linear-gradient(135deg, ${alpha(theme.palette[tone === 'secondary' ? 'secondary' : 'primary'].main, 0.1)}, transparent 42%)`,
           pointerEvents: 'none',
         },
         ...sx,

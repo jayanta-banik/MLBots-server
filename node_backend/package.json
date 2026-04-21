@@ -16,6 +16,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "NODE_ENV=test jest --runInBand",
     "start": "nodemon --trace-warnings app.js",
     "dev:http": "nodemon --trace-warnings app_http.js"
   },
@@ -23,7 +24,7 @@
     "node": ">=20"
   },
   "imports": {
-    "#service/*": "./node_backend/services/*.js",
+    "#services/*": "./node_backend/services/*.js",
     "#utils/*": "./node_backend/utils/*.js",
     "#models/*": "./node_backend/models/*.js",
     "#middleware/*": "./node_backend/middleware/*.js",

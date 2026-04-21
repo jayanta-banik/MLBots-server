@@ -11,10 +11,10 @@
 
 **Purpose**: Align frontend and backend tooling with the planned auth/home feature work.
 
-- [ ] T001 Add frontend auth and test dependencies in `frontend/package.json`
-- [ ] T002 Add frontend lint, test, and build verification scripts in `frontend/package.json`
-- [ ] T003 [P] Create frontend test setup files in `frontend/vitest.config.js` and `frontend/src/test/setup.jsx`
-- [ ] T004 [P] Add frontend ESLint configuration in `frontend/eslint.config.js`
+- [X] T001 Add frontend auth and test dependencies in `frontend/package.json`
+- [X] T002 Add frontend lint, test, and build verification scripts in `frontend/package.json`
+- [X] T003 [P] Create frontend test setup files in `frontend/vitest.config.js` and `frontend/src/test/setup.jsx`
+- [X] T004 [P] Add frontend ESLint configuration in `frontend/eslint.config.js`
 
 ---
 
@@ -24,11 +24,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Extend the Prisma user model and migration for first-name-aware auth in `node_backend/prisma/schema.prisma` and `node_backend/prisma/migrations/*`
-- [ ] T006 [P] Create reusable auth/profile Prisma models in `node_backend/models/create_user.js`, `node_backend/models/fetch_user.js`, and `node_backend/models/index.js`
-- [ ] T007 [P] Implement auth workflow and token utilities in `node_backend/services/auth_service.js` and `node_backend/utils/auth_utils.js`
-- [ ] T008 Add auth routes and route registration in `node_backend/routes/auth_routes.js` and `node_backend/routes/index.js`
-- [ ] T009 Add auth-safe request logging and bearer-token middleware in `node_backend/middleware/request_logger.js` and `node_backend/middleware/index.js`
+- [X] T005 Extend the Prisma user model and migration for first-name-aware auth in `node_backend/prisma/schema.prisma` and `node_backend/prisma/migrations/*`
+- [X] T006 [P] Create reusable auth/profile Prisma models in `node_backend/models/create_user.js`, `node_backend/models/fetch_user.js`, and `node_backend/models/index.js`
+- [X] T007 [P] Implement auth workflow and token utilities in `node_backend/services/auth_service.js` and `node_backend/utils/auth_utils.js`
+- [X] T008 Add auth routes and route registration in `node_backend/routes/auth_routes.js` and `node_backend/routes/index.js`
+- [X] T009 Add auth-safe request logging and bearer-token middleware in `node_backend/middleware/request_logger.js` and `node_backend/middleware/index.js`
 - [ ] T010 [P] Add frontend store, auth slice, and provider wiring in `frontend/src/store/index.js`, `frontend/src/store/provider.jsx`, and `frontend/src/features/auth/auth_slice.js`
 - [ ] T011 [P] Expand API helpers for auth and profile calls in `frontend/src/utils/api_client.js`
 - [ ] T012 Add app-level route shell and session bootstrap wiring in `frontend/src/App.jsx` and `frontend/src/main.jsx`
