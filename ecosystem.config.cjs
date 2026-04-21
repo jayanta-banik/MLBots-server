@@ -4,7 +4,7 @@ module.exports = {
   apps: [
     {
       name: 'mlbots-https',
-      script: './app.js',
+      script: './node_backend/app.js',
       instances: 2,
       exec_mode: 'cluster',
       env: {
@@ -15,7 +15,7 @@ module.exports = {
     },
     {
       name: 'mlbots-http',
-      script: './app_http.js',
+      script: './node_backend/app_http.js',
       instances: 1,
       exec_mode: 'fork',
       env: {

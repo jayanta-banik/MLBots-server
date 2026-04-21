@@ -16,7 +16,15 @@ endpoints:
     url: https://admin.mlbots.in
     upstream:
       url: 80
+  - name: app
+    url: https://app.mlbots.in
+    upstream:
+      url: 80
+  - name: resources
+    url: https://resources.mlbots.in
+    upstream:
+      url: 80
   - name: http
-    url: http://api.mlbots.in
+    url: http://arduino.mlbots.in
     upstream:
       url: 80
