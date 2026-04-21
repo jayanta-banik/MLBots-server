@@ -11,7 +11,7 @@ model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   username  String   @unique
-  password  String
+  password  String /// @encrypted
   createdAt DateTime @default(now()) @db.Timestamptz(0)
   updatedAt DateTime @updatedAt @db.Timestamptz(0)
 }
