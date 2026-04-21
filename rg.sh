@@ -31,6 +31,5 @@ yarn pm2 save
 
 sudo nginx -t
 sudo systemctl restart nginx
-sudo systemctl status nginx
 
 echo "done"
