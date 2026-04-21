@@ -2,6 +2,7 @@ echo "restarting python server..."
 git pull origin master
 
 echo "restarting python backend..."
+sudo systemctl daemon-reexec
 sudo systemctl daemon-reload
 sudo systemctl start app
 sudo systemctl enable app
@@ -27,4 +28,9 @@ cd ..
 
 yarn pm2 restart ecosystem.config.cjs
 yarn pm2 save
+
+sudo nginx -t
+sudo systemctl restart nginx
+sudo systemctl status nginx
+
 echo "done"

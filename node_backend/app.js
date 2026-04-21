@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 
 import { register_global_middleware } from '#middleware/index';
-import { register_routes } from './node_backend/routes/index.js';
+import { register_routes } from './routes/index.js';
 
 dotenv.config();
 

@@ -146,7 +146,7 @@ After=network.target
 [Service]
 User=pi
 Group=www-data
-WorkingDirectory=/home/pi/MLBots-server/
+WorkingDirectory=/home/pi/MLBots-server/python_backend
 Environment=\"PATH=/home/pi/venv3/bin\"
 ExecStart=/home/pi/venv3/bin/gunicorn --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind unix:app.sock -m 007 wsgi:app
 [Install]
@@ -154,8 +154,29 @@ WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app.service
 # <------------- end of copy to file ------------->
 
+# <---------------- ngrok.service ---------------->
+sudo printf "
+[Unit]
+Description=Ngrok Tunnel Service
+After=network.target
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/usr/local/bin/ngrok start --all
+
+[Install]
+WantedBy=multi-user.target
+" | sudo tee /etc/systemd/system/ngrok.service
+# <------------- end of copy to file ------------->
+
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
 sudo systemctl start app
 sudo systemctl enable app
+sudo systemctl enable ngrok
+sudo systemctl start ngrok
 sleep 2
 ls
 sleep 4
@@ -163,6 +184,8 @@ sleep 4
 echo -e "\e[32mcreating server node\e[97m"
 sleep 2
 cat mlbots-nginx | sudo tee /etc/nginx/sites-available/mlbots
+sudo nginx -t
+sleep 4
 
 
 echo -e "\e[32mConfigurating nginx services...\e[97m"
@@ -191,6 +214,8 @@ echo -e "\e[32mrestarting server../\e[97m"
 ./rg.sh
 sudo ufw allow 'Nginx Full'
 sudo ufw allow OpenSSH
+sudo systemctl restart nginx
+
 echo "completed!!"
 
 # configure ngrok
@@ -201,5 +226,14 @@ do
 echo -ne "System will restart in $i    \r"
 sleep 1
 done
+
+sudo chgrp -R www-data /home/pi/MLBots-server
+sudo chmod g+rx /home/pi
+sudo chmod -R g+rx /home/pi/MLBots-server
+sudo chmod g+rwx /home/pi/MLBots-server
+sudo chgrp www-data /home/pi/MLBots-server/python_backend/app.sock
+sudo chmod 770 /home/pi/MLBots-server/python_backend/app.sock
+sudo setfacl -m u:www-data:rx /home/pi
+namei -l /home/pi/MLBots-server/python_backend/app.sock
 
 sudo reboot

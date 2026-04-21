@@ -1,7 +1,20 @@
-version: "3"
+endpoints:
+  - name: api
+    url: https://api.mlbots.in
+    upstream:
+      url: 80
 
-tunnels:
-  app:
-    proto: http
-    addr: 5173   # your Vite dev server OR nginx port
-    hostname: app.mlbots.in 
+  - name: ai
+    url: https://ai.mlbots.in
+    upstream:
+      url: 80
+
+  - name: admin
+    url: https://admin.mlbots.in
+    upstream:
+      url: 80
+
+  - name: http
+    url: http://api.mlbots.in
+    upstream:
+      url: 80
