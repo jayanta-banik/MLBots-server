@@ -64,9 +64,15 @@ const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        html: {
+          width: '100%',
+          overflowX: 'clip',
+        },
         body: {
           margin: 0,
+          width: '100%',
           minHeight: '100vh',
+          overflowX: 'clip',
           background: [
             `radial-gradient(circle at top left, ${alpha(DARK_NAVY, 0.14)}, transparent 28%)`,
             `radial-gradient(circle at right center, ${alpha(FOREST_GREEN, 0.18)}, transparent 32%)`,
@@ -74,7 +80,9 @@ const theme = createTheme({
           ].join(','),
         },
         '#root': {
+          width: '100%',
           minHeight: '100vh',
+          overflowX: 'clip',
         },
       },
     },

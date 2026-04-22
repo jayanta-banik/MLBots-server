@@ -1,11 +1,12 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import { fieldEncryptionExtension } from 'prisma-field-encryption';
 
-const global_for_prisma = globalThis;
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
-export const prisma = global_for_prisma.__mlbots_prisma__ ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  global_for_prisma.__mlbots_prisma__ = prisma;
-}
+const prisma = new PrismaClient({
+  adapter,
+  log: [{ level: 'query', emit: 'event' }],
+}).$extends(fieldEncryptionExtension());
 
 export default prisma;

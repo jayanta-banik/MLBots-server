@@ -9,15 +9,15 @@ function HomeTopBar({ onLogout, user }) {
 
   return (
     <>
-      <AppBar position="static" color="transparent" elevation={0} sx={{ borderRadius: 4, border: (theme) => `1px solid ${theme.palette.divider}` }}>
+      <AppBar position="static" color="transparent" elevation={0} sx={{ width: '100%', borderRadius: 4, border: (theme) => `1px solid ${theme.palette.divider}` }}>
         <Toolbar sx={{ px: { xs: 2, md: 3 }, py: 1, minHeight: '72px !important' }}>
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexGrow: 1 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flexGrow: 1, minWidth: 0 }}>
             <Chip label="MLBots" color="primary" variant="outlined" />
-            <Box>
+            <Box sx={{ minWidth: 0 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 Home
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 Signed in as {firstName}
               </Typography>
             </Box>

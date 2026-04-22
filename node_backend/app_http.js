@@ -1,10 +1,17 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import dotenv from 'dotenv';
 import express from 'express';
 
 import { register_global_middleware } from '#middleware/index';
 import { register_routes } from './routes/index.js';
 
-dotenv.config();
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirectoryPath = path.dirname(currentFilePath);
+const envFileName = process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production' ? '.env.prod' : '.env';
+
+dotenv.config({ path: path.join(currentDirectoryPath, envFileName) });
 
 const DEFAULT_NODE_HTTP_PORT = Number.parseInt(process.env.NODE_HTTP_PORT ?? '3001', 10);
 

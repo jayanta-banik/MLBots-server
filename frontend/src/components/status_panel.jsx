@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Chip,
-  Skeleton,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Chip, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 
 import SurfaceCard from './surface_card.jsx';
 
@@ -29,8 +21,8 @@ function StatusPanel({ services, isLoading, lastUpdatedAt, loadError, onRetry })
   return (
     <SurfaceCard tone="secondary" delay={0.16}>
       <Stack spacing={2.5}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }}>
-          <Box>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ minWidth: 0 }}>
+          <Box sx={{ minWidth: 0 }}>
             <Typography variant="overline" color="secondary.main">
               Live endpoints
             </Typography>
@@ -42,6 +34,14 @@ function StatusPanel({ services, isLoading, lastUpdatedAt, loadError, onRetry })
             label={lastUpdatedAt ? `Last checked ${lastUpdatedAt}` : 'No probe completed yet'}
             color="secondary"
             variant="outlined"
+            sx={{
+              maxWidth: '100%',
+              '& .MuiChip-label': {
+                display: 'block',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              },
+            }}
           />
         </Stack>
 
@@ -49,6 +49,7 @@ function StatusPanel({ services, isLoading, lastUpdatedAt, loadError, onRetry })
           sx={{
             display: 'grid',
             gap: 2,
+            minWidth: 0,
             gridTemplateColumns: {
               xs: '1fr',
               sm: 'repeat(2, minmax(0, 1fr))',
@@ -57,23 +58,18 @@ function StatusPanel({ services, isLoading, lastUpdatedAt, loadError, onRetry })
         >
           {isLoading
             ? Array.from({ length: 2 }).map((_, index) => (
-              <SurfaceCard
-                key={`skeleton-${index}`}
-                tone={index % 2 === 0 ? 'primary' : 'secondary'}
-                contentSx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}
-                sx={{ minHeight: 224 }}
-              >
-                <Stack spacing={1.75}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Skeleton variant="text" width="42%" height={40} />
-                    <Skeleton variant="rounded" width={108} height={32} />
+                <SurfaceCard key={`skeleton-${index}`} tone={index % 2 === 0 ? 'primary' : 'secondary'} contentSx={{ p: 2.5, '&:last-child': { pb: 2.5 } }} sx={{ minHeight: 224 }}>
+                  <Stack spacing={1.75}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Skeleton variant="text" width="42%" height={40} />
+                      <Skeleton variant="rounded" width={108} height={32} />
+                    </Stack>
+                    <Skeleton variant="text" width="88%" />
+                    <Skeleton variant="text" width="76%" />
+                    <Skeleton variant="rounded" width="52%" height={26} />
                   </Stack>
-                  <Skeleton variant="text" width="88%" />
-                  <Skeleton variant="text" width="76%" />
-                  <Skeleton variant="rounded" width="52%" height={26} />
-                </Stack>
-              </SurfaceCard>
-            ))
+                </SurfaceCard>
+              ))
             : null}
 
           {showEmptyState ? (
@@ -107,49 +103,45 @@ function StatusPanel({ services, isLoading, lastUpdatedAt, loadError, onRetry })
 
           {!isLoading && !showEmptyState && !showErrorState
             ? services.map((service, index) => (
-              <SurfaceCard
-                key={service.service_name}
-                tone={service.reachable ? 'primary' : 'secondary'}
-                contentSx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}
-                sx={{ minHeight: '100%' }}
-                delay={0.18 + index * 0.04}
-              >
-                <Stack spacing={1.5}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-                    <Typography variant="h3" sx={{ fontSize: '1.15rem' }}>
-                      {service.service_name}
+                <SurfaceCard
+                  key={service.service_name}
+                  tone={service.reachable ? 'primary' : 'secondary'}
+                  contentSx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}
+                  sx={{ minHeight: '100%' }}
+                  delay={0.18 + index * 0.04}
+                >
+                  <Stack spacing={1.5}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                      <Typography variant="h3" sx={{ fontSize: '1.15rem' }}>
+                        {service.service_name}
+                      </Typography>
+                      <Chip label={formatStatusLabel(service.status)} color={service.reachable ? 'success' : 'error'} size="small" />
+                    </Stack>
+
+                    <Tooltip title={service.message || '--'} placement="top-start">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          minHeight: 44,
+                          lineHeight: 1.7,
+                        }}
+                      >
+                        {service.message || '--'}
+                      </Typography>
+                    </Tooltip>
+
+                    <Typography variant="caption" color="text.secondary">
+                      {service.timestamp || '--'}
                     </Typography>
-                    <Chip
-                      label={formatStatusLabel(service.status)}
-                      color={service.reachable ? 'success' : 'error'}
-                      size="small"
-                    />
                   </Stack>
-
-                  <Tooltip title={service.message || '--'} placement="top-start">
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        minHeight: 44,
-                        lineHeight: 1.7,
-                      }}
-                    >
-                      {service.message || '--'}
-                    </Typography>
-                  </Tooltip>
-
-                  <Typography variant="caption" color="text.secondary">
-                    {service.timestamp || '--'}
-                  </Typography>
-                </Stack>
-              </SurfaceCard>
-            ))
+                </SurfaceCard>
+              ))
             : null}
         </Box>
       </Stack>

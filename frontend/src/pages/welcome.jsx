@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Alert, Box, Chip, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
@@ -10,7 +10,8 @@ import { select_auth_error, select_auth_status } from '../features/auth/auth_sel
 import { login, signup } from '../features/auth/auth_thunks.js';
 import LoginForm from '../features/auth/login_form.jsx';
 import SignupForm from '../features/auth/signup_form.jsx';
-import { fetch_service_statuses } from '../utils/api_client.js';
+import { select_service_statuses, select_services_error, select_services_loading, select_services_updated_at } from '../features/status/status_selectors.js';
+import { fetch_service_statuses } from '../features/status/status_thunks.js';
 
 const LAYER_ITEMS = [
   {
@@ -39,57 +40,27 @@ function WelcomePage() {
   const dispatch = useDispatch();
   const authError = useSelector(select_auth_error);
   const authStatus = useSelector(select_auth_status);
-  const [services, setServices] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdatedAt, setLastUpdatedAt] = useState('');
-  const [loadError, setLoadError] = useState('');
+  const services = useSelector(select_service_statuses);
+  const isLoading = useSelector(select_services_loading);
+  const lastUpdatedAt = useSelector(select_services_updated_at);
+  const loadError = useSelector(select_services_error);
   const [activeTab, setActiveTab] = useState('login');
 
   const isSubmitting = authStatus === 'submitting';
 
-  const loadServices = useCallback(async () => {
-    setIsLoading(true);
-
-    const nextServices = await fetch_service_statuses();
-
-    setServices(nextServices);
-    setLastUpdatedAt(moment().format('hh:mm A'));
-    setLoadError(nextServices.some((service) => service.reachable) ? '' : 'All monitored services are currently unavailable. Retry when the endpoints are reachable again.');
-    setIsLoading(false);
-  }, []);
-
   useEffect(() => {
-    let isMounted = true;
-
-    const loadServicesSafely = async () => {
-      const nextServices = await fetch_service_statuses();
-
-      if (!isMounted) {
-        return;
-      }
-
-      setServices(nextServices);
-      setLastUpdatedAt(moment().format('hh:mm A'));
-      setLoadError(nextServices.some((service) => service.reachable) ? '' : 'All monitored services are currently unavailable. Retry when the endpoints are reachable again.');
-      setIsLoading(false);
-    };
-
-    loadServicesSafely();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    dispatch(fetch_service_statuses());
+  }, [dispatch]);
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
       <Stack spacing={3}>
         <SurfaceCard tone="secondary" delay={0.02}>
           <Stack spacing={3}>
             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} justifyContent="space-between" alignItems={{ xs: 'stretch', lg: 'flex-start' }}>
-              <Stack spacing={2.5} sx={{ flex: 1 }}>
+              <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
                 <Chip label="Monorepo service layout" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
-                <Typography variant="h1" sx={{ fontSize: { xs: '2.9rem', md: '4.8rem' }, maxWidth: '11ch' }}>
+                <Typography variant="h1" sx={{ fontSize: { xs: '2.45rem', sm: '2.9rem', md: '4.8rem' }, maxWidth: '11ch', overflowWrap: 'anywhere' }}>
                   MLBots control surface
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '66ch', lineHeight: 1.8 }}>
@@ -97,7 +68,7 @@ function WelcomePage() {
                 </Typography>
               </Stack>
 
-              <SurfaceCard tone="primary" delay={0.06} sx={{ minWidth: { lg: 360 }, width: '100%', maxWidth: 420 }} contentSx={{ p: { xs: 2.25, md: 2.75 } }}>
+              <SurfaceCard tone="primary" delay={0.06} sx={{ minWidth: 0, width: '100%', maxWidth: 420, flexShrink: 1 }} contentSx={{ p: { xs: 2.25, md: 2.75 }, minWidth: 0 }}>
                 <Stack spacing={2}>
                   <Box>
                     <Typography variant="overline" color="primary.main">
@@ -108,7 +79,7 @@ function WelcomePage() {
                     </Typography>
                   </Box>
 
-                  <Tabs value={activeTab} onChange={(_event, nextValue) => setActiveTab(nextValue)}>
+                  <Tabs value={activeTab} onChange={(_event, nextValue) => setActiveTab(nextValue)} variant="fullWidth" sx={{ minWidth: 0 }}>
                     <Tab label="Log in" value="login" />
                     <Tab label="Sign up" value="signup" />
                   </Tabs>
@@ -151,6 +122,7 @@ function WelcomePage() {
               sx={{
                 display: 'grid',
                 gap: 2,
+                minWidth: 0,
                 gridTemplateColumns: {
                   xs: '1fr',
                   sm: 'repeat(2, minmax(0, 1fr))',
@@ -180,7 +152,13 @@ function WelcomePage() {
           </Stack>
         </SurfaceCard>
 
-        <StatusPanel services={services} isLoading={isLoading} lastUpdatedAt={lastUpdatedAt} loadError={loadError} onRetry={loadServices} />
+        <StatusPanel
+          services={services}
+          isLoading={isLoading}
+          lastUpdatedAt={lastUpdatedAt ? moment(lastUpdatedAt).format('hh:mm A') : ''}
+          loadError={loadError}
+          onRetry={() => dispatch(fetch_service_statuses())}
+        />
       </Stack>
     </Container>
   );

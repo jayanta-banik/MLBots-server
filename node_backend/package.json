@@ -6,12 +6,16 @@
   "type": "module",
   "packageManager": "yarn@1.22.22",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "dotenv-cli": "^8.0.0",
+    "pg": "^8.20.0",
     "pm2": "^5.2.0",
-    "prisma": "^7.7.0"
+    "prisma": "^7.7.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "scripts": {
     "lint": "eslint .",
@@ -24,11 +28,11 @@
     "node": ">=20"
   },
   "imports": {
-    "#services/*": "./node_backend/services/*.js",
-    "#utils/*": "./node_backend/utils/*.js",
-    "#models/*": "./node_backend/models/*.js",
-    "#middleware/*": "./node_backend/middleware/*.js",
-    "#constants/*": "./node_backend/constants/*.js"
+    "#services/*": "./services/*.js",
+    "#utils/*": "./utils/*.js",
+    "#models/*": "./models/*.js",
+    "#middleware/*": "./middleware/*.js",
+    "#constants/*": "./constants/*.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",

@@ -1,16 +1,15 @@
-console.log('Loading ecosystem.config.cjs...', process.env.ENV);
-
 module.exports = {
   apps: [
     {
       name: 'mlbots-https',
       script: './node_backend/app.js',
+      watch: true,
       instances: 2,
       exec_mode: 'cluster',
-      env: {
-        NODE_ENV: process.env.ENV,
-        NODE_PORT: 3000,
+      env: { NODE_ENV: 'dev' },
+      env_production: {
         PORT: 3000,
+        NODE_ENV: 'prod',
       },
     },
     {
@@ -18,10 +17,8 @@ module.exports = {
       script: './node_backend/app_http.js',
       instances: 1,
       exec_mode: 'fork',
-      env: {
-        NODE_ENV: process.env.ENV,
-        PORT: 3001,
-      },
+      env: { NODE_ENV: 'dev' },
+      env_production: { NODE_ENV: 'prod' },
     },
   ],
 };

@@ -26,7 +26,7 @@ cd node_backend
 yarn install
 cd ..
 
-yarn pm2 restart ecosystem.config.cjs
+yarn pm2 restart ecosystem.config.cjs --env production
 yarn pm2 save
 
 sudo nginx -t

@@ -5,7 +5,7 @@ import SurfaceCard from '../components/surface_card.jsx';
 
 function HomePage({ onLogout, user }) {
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
       <Stack spacing={3}>
         <HomeTopBar onLogout={onLogout} user={user} />
 
@@ -13,7 +13,7 @@ function HomePage({ onLogout, user }) {
           <Stack spacing={2}>
             <Stack spacing={1.5}>
               <Chip label="Authenticated home" color="primary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
-              <Typography variant="h1" sx={{ fontSize: { xs: '2.9rem', md: '4.4rem' } }}>
+              <Typography variant="h1" sx={{ fontSize: { xs: '2.45rem', sm: '2.9rem', md: '4.4rem' }, overflowWrap: 'anywhere' }}>
                 Welcome, {user?.firstName ?? 'there'}
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '60ch', lineHeight: 1.8 }}>
