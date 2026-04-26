@@ -35,10 +35,7 @@ const signupSchema = z.object({
   email: z.string().trim().email(),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1).regex(LAST_NAME_PATTERN, 'Last name cannot contain whitespace.'),
-  dateOfBirth: z.preprocess(
-    parseDateOfBirth,
-    z.date().max(new Date(), 'Date of birth must be in the past.'),
-  ),
+  dateOfBirth: z.preprocess(parseDateOfBirth, z.date().max(new Date(), 'Date of birth must be in the past.')),
   username: z.string().trim().min(1).regex(USERNAME_PATTERN, 'Username can contain only letters and numbers.'),
   password: z.string().regex(PASSWORD_PATTERN, 'Password must be at least 5 characters long and include uppercase, lowercase, and one of @ # . without spaces.'),
 });
