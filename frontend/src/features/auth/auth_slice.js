@@ -60,9 +60,9 @@ const authSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.error = '';
-        state.status = 'authenticated';
+        state.status = action.payload.token ? 'authenticated' : 'anonymous';
         state.token = action.payload.token;
-        state.user = action.payload.user;
+        state.user = action.payload.token ? action.payload.user : null;
       })
       .addCase(signup.rejected, (state, action) => {
         state.error = action.payload ?? 'Unable to create the account.';

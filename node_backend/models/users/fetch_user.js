@@ -1,7 +1,10 @@
-import prisma from '#prisma/index';
+import prisma from '#prisma';
 
-export async function fetchUser({ email, id, includePassword = false, username }) {
-  const where = id ? { id } : email ? { email } : { username };
+export async function fetchUser({ email, id, username, includePassword = false }) {
+  const where = {};
+  if (id) where.id = id;
+  if (email) where.email = email;
+  if (username) where.username = username;
 
   return prisma.user.findUnique({
     where,

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { Button, Container, Skeleton, Stack, Typography } from '@mui/material';
+import { Alert, Button, Container, Skeleton, Stack } from '@mui/material';
 
 import { select_auth_error, select_auth_status, select_auth_user, select_is_authenticated } from './features/auth/auth_selectors.js';
 import { clear_auth_error, logout } from './features/auth/auth_slice.js';
@@ -26,7 +26,7 @@ function AuthShell() {
 
   if (authStatus === 'idle' || authStatus === 'loading') {
     return (
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
+      <Container maxWidth={false} disableGutters sx={{ width: '100%', px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 } }}>
         <Stack spacing={2.5}>
           <Skeleton variant="rounded" height={180} />
           <Skeleton variant="rounded" height={240} />
@@ -38,13 +38,17 @@ function AuthShell() {
   return (
     <Stack spacing={2.5}>
       {authError ? (
-        <Container maxWidth="lg" sx={{ pt: { xs: 2, md: 3 } }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }}>
-            <Typography color="error.main">{authError}</Typography>
-            <Button variant="text" color="secondary" onClick={() => dispatch(clear_auth_error())}>
-              Dismiss
-            </Button>
-          </Stack>
+        <Container maxWidth={false} disableGutters sx={{ width: '100%', px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 } }}>
+          <Alert
+            severity="error"
+            action={
+              <Button variant="text" color="secondary" onClick={() => dispatch(clear_auth_error())}>
+                Dismiss
+              </Button>
+            }
+          >
+            {authError}
+          </Alert>
         </Container>
       ) : null}
 

@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -53,7 +54,7 @@ function WelcomePage() {
   }, [dispatch]);
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
+    <Container maxWidth={false} disableGutters sx={{ width: '100%', px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
       <Stack spacing={3}>
         <SurfaceCard tone="secondary" delay={0.02}>
           <Stack spacing={3}>
@@ -84,23 +85,25 @@ function WelcomePage() {
                     <Tab label="Sign up" value="signup" />
                   </Tabs>
 
-                  {authError ? <Alert severity="error">{authError}</Alert> : null}
+                  <Box component={motion.div} layout transition={{ duration: 0.15 }} sx={{ overflow: 'hidden' }}>
+                    {authError ? <Alert severity="error">{authError}</Alert> : null}
 
-                  {activeTab === 'login' ? (
-                    <LoginForm
-                      isSubmitting={isSubmitting}
-                      onSubmit={(payload) => {
-                        dispatch(login(payload));
-                      }}
-                    />
-                  ) : (
-                    <SignupForm
-                      isSubmitting={isSubmitting}
-                      onSubmit={(payload) => {
-                        dispatch(signup(payload));
-                      }}
-                    />
-                  )}
+                    {activeTab === 'login' ? (
+                      <LoginForm
+                        isSubmitting={isSubmitting}
+                        onSubmit={(payload) => {
+                          dispatch(login(payload));
+                        }}
+                      />
+                    ) : (
+                      <SignupForm
+                        isSubmitting={isSubmitting}
+                        onSubmit={(payload) => {
+                          dispatch(signup(payload));
+                        }}
+                      />
+                    )}
+                  </Box>
                 </Stack>
               </SurfaceCard>
             </Stack>

@@ -4,13 +4,14 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { alpha } from '@mui/material/styles';
 
-function SurfaceCard({ children, tone = 'primary', delay = 0, contentSx, sx }) {
+function SurfaceCard({ children, tone = 'primary', delay = 0, contentSx, sx, enableLayout = false }) {
   return (
     <Card
       component={motion.div}
+      layout={enableLayout}
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.36, ease: 'easeOut', delay }}
+      transition={{ delay }}
       sx={{
         position: 'relative',
         overflow: 'hidden',

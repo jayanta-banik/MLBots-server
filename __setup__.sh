@@ -59,7 +59,7 @@ sleep 1
 # downloading dependency libraries
 echo -e "\e[32mdownloading drivers and kernals../\e[97m"
 sleep 2
-sudo apt-get install libhdf5-dev libc-ares-dev libatlas-base-dev libeigen3-dev -y
+sudo apt-get install libhdf5-dev libc-ares-dev libatlas-base-dev libeigen3-dev libnginx-mod-stream -y
 sudo apt-get install python3-pip python3-dev python3-venv python3-opencv git nginx postgresql -y
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs

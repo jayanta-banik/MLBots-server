@@ -1,4 +1,4 @@
-import prisma from '#prisma/index';
+import prisma from '#prisma';
 
 export async function createUser({ dateOfBirth, email, firstName, lastName, passwordHash, username }) {
   return prisma.user.create({

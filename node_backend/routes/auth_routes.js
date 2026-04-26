@@ -1,28 +1,44 @@
 import { Router } from 'express';
 
-import { require_authentication } from '#middleware/index';
-import { checkUsernameAvailability, getCurrentUser, loginUser, signupUser } from '#services/auth_service';
+import { checkUsernameAvailability, loginUser, signupUser } from '#services/auths';
 
-const auth_router = Router();
+const routes = Router({ mergeParams: true });
 
-auth_router.post('/signup', async (req, res) => {
+const signupUserHandler = async (req, res) => {
   const payload = await signupUser(req.body);
-  res.status(201).json(payload);
-});
 
-auth_router.post('/login', async (req, res) => {
+  if (payload instanceof Error) {
+    return res.status(payload.statusCode).json({ message: payload.message });
+  }
+
+  res.locals.token = payload.token;
+  return res.status(201).json(payload);
+};
+
+const loginUserHandler = async (req, res) => {
   const payload = await loginUser(req.body);
-  res.json(payload);
-});
 
-auth_router.get('/username-availability', async (req, res) => {
+  if (payload instanceof Error) {
+    return res.status(payload.statusCode).json({ message: payload.message });
+  }
+
+  res.locals.auth = {
+    token: payload.token,
+    user_id: payload.userId,
+  };
+  res.locals.token = payload.token;
+
+  return res.json(payload);
+};
+
+const checkUsernameAvailabilityHandler = async (req, res) => {
   const payload = await checkUsernameAvailability(req.query);
-  res.json(payload);
-});
 
-auth_router.get('/me', require_authentication, async (req, res) => {
-  const payload = await getCurrentUser({ userId: res.locals.auth.user_id });
-  res.json(payload);
-});
+  return res.json(payload);
+};
 
-export default auth_router;
+routes.get('/username-availability', checkUsernameAvailabilityHandler);
+routes.post('/login', loginUserHandler);
+routes.post('/signup', signupUserHandler);
+
+export default routes;

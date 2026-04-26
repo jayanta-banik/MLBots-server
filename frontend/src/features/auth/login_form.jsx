@@ -4,7 +4,7 @@ import { Button, Stack, TextField } from '@mui/material';
 
 function LoginForm({ isSubmitting, onSubmit }) {
   const [formValues, setFormValues] = useState({
-    email: '',
+    identifier: '',
     password: '',
   });
 
@@ -17,7 +17,7 @@ function LoginForm({ isSubmitting, onSubmit }) {
         onSubmit(formValues);
       }}
     >
-      <TextField required label="Email" type="email" value={formValues.email} onChange={(event) => setFormValues((current) => ({ ...current, email: event.target.value }))} />
+      <TextField required label="Email or username" value={formValues.identifier} onChange={(event) => setFormValues((current) => ({ ...current, identifier: event.target.value }))} />
       <TextField required label="Password" type="password" value={formValues.password} onChange={(event) => setFormValues((current) => ({ ...current, password: event.target.value }))} />
       <Button type="submit" variant="contained" disabled={isSubmitting}>
         {isSubmitting ? 'Signing in...' : 'Log in'}

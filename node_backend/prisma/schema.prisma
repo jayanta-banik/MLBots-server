@@ -8,6 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model audit_logs {
+  id          Int      @id @default(autoincrement())
+  user_id     Int?
+  status_code Int?
+  endpoint    String   @db.VarChar(250)
+  method      String   @db.VarChar(10)
+  body        String?  @db.Text /// @encrypted
+  param       Json?    @db.Json
+  query       Json?    @db.Json
+  ip_address  String?  @db.VarChar(45)
+  created_at DateTime @default(now()) @db.Timestamptz(0)
+
+  users users? @relation(fields: [user_id], references: [id], onDelete: Restrict)
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique

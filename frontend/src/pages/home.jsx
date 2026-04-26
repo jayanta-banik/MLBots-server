@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 import { Chip, Container, Stack, Typography } from '@mui/material';
 
 import HomeTopBar from '../components/home_top_bar.jsx';
@@ -5,8 +7,8 @@ import SurfaceCard from '../components/surface_card.jsx';
 
 function HomePage({ onLogout, user }) {
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
-      <Stack spacing={3}>
+    <Container component={motion.div} layout maxWidth={false} disableGutters sx={{ width: '100%', px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
+      <Stack component={motion.div} layout spacing={3}>
         <HomeTopBar onLogout={onLogout} user={user} />
 
         <SurfaceCard tone="primary" delay={0.02}>

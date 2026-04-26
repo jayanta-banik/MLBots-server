@@ -17,10 +17,10 @@
     "node": ">=20"
   },
   "imports": {
-    "#service/*": "./node_backend/services/*.js",
+    "#service/*": "./node_backend/services/*/index.js",
     "#utils/*": "./node_backend/utils/*.js",
-    "#models/*": "./node_backend/models/*.js",
-    "#middleware/*": "./node_backend/middleware/*.js",
+    "#models/*": "./node_backend/models/*/index.js",
+    "#middleware/*": "./node_backend/middleware/*/index.js",
     "#constants/*": "./node_backend/constants/*.js"
   },
   "dependencies": {

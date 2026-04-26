@@ -112,6 +112,23 @@ const theme = createTheme({
         },
       },
     },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: 18,
+          border: `1px solid ${alpha(DARK_NAVY, 0.12)}`,
+          boxShadow: `0 18px 40px ${alpha(DARK_NAVY, 0.08)}`,
+        },
+        standardError: {
+          backgroundColor: alpha('#f4ddd8', 0.82),
+          color: '#5a211b',
+        },
+        standardWarning: {
+          backgroundColor: alpha('#efe3cf', 0.86),
+          color: '#5b4324',
+        },
+      },
+    },
     MuiSkeleton: {
       defaultProps: {
         animation: 'wave',

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { get_health_payload } from '#services/health_service';
+import { get_health_payload } from '#services/heartbeat';
 
 const health_router = Router();
 

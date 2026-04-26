@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import express from 'express';
 
-import { register_global_middleware } from '#middleware/index';
 import { register_routes } from './routes/index.js';
+
+import { register_global_middleware } from '#middleware/index';
+
 
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirectoryPath = path.dirname(currentFilePath);

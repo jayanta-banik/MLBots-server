@@ -2,8 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { fieldEncryptionExtension } from 'prisma-field-encryption';
 
-const envFileName = process.env.NODE_ENV === 'prod' ? '.env.prod' : '.env';
-
 dotenv.config();
 
 const prisma = new PrismaClient({

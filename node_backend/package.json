@@ -27,12 +27,13 @@
     "node": ">=20"
   },
   "imports": {
-    "#services/*": "./services/*.js",
+    "#services/*": "./services/*/index.js",
     "#utils/*": "./utils/*.js",
-    "#models/*": "./models/*.js",
+    "#models/*": "./models/*/index.js",
     "#middleware/*": "./middleware/*.js",
     "#constants/*": "./constants/*.js",
-    "#prisma/*": "./prisma/*.js"
+    "#prisma": "./prisma/index.js",
+    "#mjml": "./mjml/index.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
