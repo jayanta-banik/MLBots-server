@@ -1,11 +1,11 @@
 import { createUser, fetchUser } from '#models/index';
 import {
   buildUserProfile,
-  buildUsername,
   createAuthToken,
   hashPassword,
   validateLoginPayload,
   validateSignupPayload,
+  validateUsernameAvailabilityPayload,
   verifyPassword,
 } from '#utils/auth_utils';
 
@@ -18,18 +18,26 @@ function createUnauthorizedError(message) {
 }
 
 export async function signupUser(payload) {
-  const { email, firstName, password } = validateSignupPayload(payload);
+  const { dateOfBirth, email, firstName, lastName, password, username } = validateSignupPayload(payload);
   const existingUser = await fetchUser({ email, includePassword: false });
 
   if (existingUser) {
     throw createConflictError('An account with that email already exists.');
   }
 
+  const existingUsername = await fetchUser({ includePassword: false, username });
+
+  if (existingUsername) {
+    throw createConflictError('That username is already taken.');
+  }
+
   const user = await createUser({
+    dateOfBirth,
     email,
     firstName,
+    lastName,
     passwordHash: hashPassword(password),
-    username: buildUsername(email),
+    username,
   });
 
   return {
@@ -60,4 +68,13 @@ export async function getCurrentUser({ userId }) {
   }
 
   return buildUserProfile(user);
+}
+
+export async function checkUsernameAvailability(payload) {
+  const { username } = validateUsernameAvailabilityPayload(payload);
+  const user = await fetchUser({ includePassword: false, username });
+
+  return {
+    available: !user,
+  };
 }

@@ -1,11 +1,10 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import 'express-async-errors'; // must follow express, adds async error handling
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { trim_all } from 'request_trimmer';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
@@ -14,8 +13,10 @@ import apiRputes from './routes/index.js';
 
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirectoryPath = path.dirname(currentFilePath);
-const envFileName = process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production' ? '.env.prod' : '.env';
+const envFileName = process.env.NODE_ENV === 'prod' ? '.env.prod' : '.env';
 const envFile = path.join(currentDirectoryPath, envFileName);
+
+console.info(`Loading environment variables from ${envFile}`);
 
 dotenv.config({ path: envFile });
 

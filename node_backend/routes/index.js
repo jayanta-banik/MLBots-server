@@ -3,8 +3,6 @@ import express from 'express';
 import auth_router from './auth_routes.js';
 import health_router from './health_routes.js';
 
-const API_PREFIX = '/api/node';
-
 const routes = express.Router();
 
 routes.use('/auth', auth_router);

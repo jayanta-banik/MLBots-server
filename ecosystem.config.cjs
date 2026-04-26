@@ -21,4 +21,16 @@ module.exports = {
       env_production: { NODE_ENV: 'prod' },
     },
   ],
+
+  // Deployment Configuration
+  // deploy: {
+  //   production: {
+  //     user: 'ubuntu',
+  //     host: ['127.0.0.1'],
+  //     ref: 'origin/master',
+  //     repo: 'git@github.com:Username/repository.git',
+  //     path: '/var/www/my-repository',
+  //     'post-deploy': 'npm install',
+  //   },
+  // },
 };

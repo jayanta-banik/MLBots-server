@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { require_authentication } from '#middleware/index';
-import { getCurrentUser, loginUser, signupUser } from '#services/auth_service';
+import { checkUsernameAvailability, getCurrentUser, loginUser, signupUser } from '#services/auth_service';
 
 const auth_router = Router();
 
@@ -12,6 +12,11 @@ auth_router.post('/signup', async (req, res) => {
 
 auth_router.post('/login', async (req, res) => {
   const payload = await loginUser(req.body);
+  res.json(payload);
+});
+
+auth_router.get('/username-availability', async (req, res) => {
+  const payload = await checkUsernameAvailability(req.query);
   res.json(payload);
 });
 
