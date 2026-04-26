@@ -18,19 +18,20 @@ model audit_logs {
   param       Json?    @db.Json
   query       Json?    @db.Json
   ip_address  String?  @db.VarChar(45)
-  created_at DateTime @default(now()) @db.Timestamptz(0)
+  created_at  DateTime @default(now()) @db.Timestamptz(0)
 
   users users? @relation(fields: [user_id], references: [id], onDelete: Restrict)
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+model users {
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
   first_name String?
-  last_name String?
-  dob       DateTime?
-  username  String   @unique
-  password  String /// @encrypted
-  created_at DateTime @default(now()) @db.Timestamptz(0)
-  updated_at DateTime @updatedAt @db.Timestamptz(0)
+  last_name  String?
+  dob        DateTime?
+  username   String       @unique
+  password   String /// @encrypted
+  created_at DateTime     @default(now()) @db.Timestamptz(0)
+  updated_at DateTime     @updatedAt @db.Timestamptz(0)
+  auditLogs  audit_logs[]
 }
