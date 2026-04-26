@@ -10,3 +10,11 @@ export async function getCurrentUser({ userId }) {
 
   return user;
 }
+
+export async function activateUser({ username, email }) {
+  const user = await fetchUser({ email, username });
+
+  if (!user) {
+    return createError({ message: 'User not found.', statusCode: 404 });
+  }
+}

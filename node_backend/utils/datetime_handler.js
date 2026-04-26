@@ -1,17 +1,13 @@
 import moment from 'moment-timezone';
 
-export function parseDateOfBirth(value) {
-  if (typeof value !== 'string') return value;
+export function parseDateOfBirth({ value }) {
+  if (!value) return null;
 
-  const trimmedValue = value.trim();
+  const m = moment(value, 'YYYY-MM-DD', true); // strict parsing
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmedValue)) return Number.NaN;
+  if (!m.isValid()) return null;
 
-  const parsedDate = new Date(`${trimmedValue}T00:00:00.000Z`);
-
-  if (Number.isNaN(parsedDate.getTime())) return Number.NaN;
-
-  return parsedDate;
+  return m.toDate(); // JS Date object
 }
 
 export function utcTimestamp() {

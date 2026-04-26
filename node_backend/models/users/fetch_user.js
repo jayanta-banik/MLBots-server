@@ -1,12 +1,12 @@
 import prisma from '#prisma';
 
-export async function fetchUser({ email, id, username, includePassword = false }) {
+export default async function fetchUser({ email, id, username, includePassword = false }) {
   const where = {};
   if (id) where.id = id;
   if (email) where.email = email;
   if (username) where.username = username;
 
-  return prisma.user.findUnique({
+  return prisma.users.findUnique({
     where,
     select: {
       id: true,

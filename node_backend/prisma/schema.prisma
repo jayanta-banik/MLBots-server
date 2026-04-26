@@ -31,6 +31,7 @@ model users {
   dob        DateTime?
   username   String       @unique
   password   String /// @encrypted
+  is_active  Boolean      @default(false)
   created_at DateTime     @default(now()) @db.Timestamptz(0)
   updated_at DateTime     @updatedAt @db.Timestamptz(0)
   auditLogs  audit_logs[]

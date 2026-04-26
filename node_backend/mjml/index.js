@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 
-export const getTemplate = (templateName) => readFile(new URL(`./${templateName}.html`, import.meta.url), 'utf8');
+export const getTemplate = (templateName) => readFile(new URL(`./templates/${templateName}_template.html`, import.meta.url), 'utf8');
 
 export const TEMPLATES = {
   // ACCOUNT_DELETION_CONFIRMATION:  getTemplate('account_deletion_confirmation'),
@@ -29,4 +29,5 @@ export const TEMPLATES = {
   // THANK_YOU_EMAIL:  getTemplate('thank_you_email'),
   // WEEKLY_REPORT:  getTemplate('weekly_report'),
   // WELCOME_EMAIL: getTemplate('welcome_email'),
+  OTP_EMAIL: getTemplate('otp_email'),
 };
