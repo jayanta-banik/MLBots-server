@@ -34,15 +34,48 @@ function getAuthSecret() {
   return secret;
 }
 
+function getVerificationSecret() {
+  return `${getAuthSecret()}:signup-verification`;
+}
+
+function hashValue(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+export function validateLoginPayload(payload) {
+  return loginSchema.parse(payload);
+}
+
+export function generateOtp() {
+  return String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+}
+
+export function createSignupVerificationToken({ email, otp, userId }) {
+  return jwt.sign(
+    {
+      email,
+      otpHash: hashValue(otp),
+      purpose: 'signup-verification',
+      sub: userId,
+    },
+    getVerificationSecret(),
+    { expiresIn: '10m' },
+  );
+}
+
+export function verifySignupVerificationToken(token) {
+  return jwt.verify(token, getVerificationSecret(), { algorithms: ['HS256'] });
+}
+
+export function doesOtpMatch({ otp, otpHash }) {
+  return hashValue(otp) === otpHash;
+}
+
 export function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.pbkdf2Sync(password, salt, PASSWORD_ITERATIONS, PASSWORD_KEY_LENGTH, PASSWORD_DIGEST).toString('hex');
 
   return `${salt}:${hash}`;
-}
-
-export function validateLoginPayload(payload) {
-  return loginSchema.parse(payload);
 }
 
 export function verifyPassword(password, storedValue) {
@@ -73,8 +106,4 @@ export function verifyAuthToken(token) {
 
     return decoded;
   });
-}
-
-export function getUserId(res) {
-  return res.locals?.auth?.user_id ? Number(res.locals.auth.user_id) : null;
 }

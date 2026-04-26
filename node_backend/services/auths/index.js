@@ -1,1 +1,1 @@
-export { checkUsernameAvailability, loginUser, signupUser } from './auth_service.js';
+export { checkUsernameAvailability, loginUser, signupUser, verifySignupOtp } from './auth_service.js';

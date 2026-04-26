@@ -59,6 +59,7 @@ for low-risk wiring/doc changes only, explicitly documented manual checks.
 - [ ] T00X Document affected runtime layers and contract surfaces for this feature
 - [ ] T00X Confirm the branch follows `feat/NNN-short-name` for feature work or `bugfix/short-name` for bug work and remains short-lived
 - [ ] T00X Confirm the planned change stays within existing subproject patterns and avoids drive-by refactors
+- [ ] T00X Confirm the planned implementation creates the minimal changes needed to achieve the requested behavior and adapts surrounding callers before replacing established shared surfaces
 - [ ] T00X Confirm only synthetic data is used in prompts, tests, fixtures, screenshots, and examples
 - [ ] T00X If `frontend` or `admin` is in scope, review `.specify/memory/ui_standards.md` and capture the MUI, Redux, motion, Moment, and shared-component rules
 - [ ] T00X Confirm naming conventions, import paths, and `snake_case` file paths

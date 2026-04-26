@@ -188,6 +188,10 @@ or the user instead of guessing.
   passwords, private keys, or certificates.
 - **FR-XXX**: The implementation MUST stay within minimal, reviewable diffs and
   MUST NOT bundle unrelated refactors into the same change.
+- **FR-XXX**: The implementation MUST create the minimal changes needed to
+  achieve the requested behavior and SHOULD adapt surrounding callers before
+  replacing an established shared utility, model, middleware, or contract
+  surface.
 - **FR-XXX**: File names and folder names MUST remain `snake_case` across Node
   and Python code.
 - **FR-XXX**: Python code MUST use `snake_case`, Node code MUST use

@@ -86,6 +86,10 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - Confirm the plan stays within existing subproject patterns and avoids drive-by
   refactors, extra architectural layers, nested patterns, and needless
   variable-copy rewrites.
+- Confirm the implementation strategy creates the minimal changes needed to
+  achieve the requested behavior and adapts surrounding callers before
+  replacing an established shared utility, model, middleware, or contract
+  surface.
 - Confirm file names and folder names remain `snake_case`, Python identifiers
   remain `snake_case`, Node identifiers use `camelCase` or `PascalCase` as
   appropriate, and constants use `UPPER_SNAKE_CASE`.

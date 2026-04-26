@@ -9,19 +9,18 @@ Added sections:
 Removed sections:
 - None
 Templates requiring updates:
-- ✅ updated /home/pi/MLBots-server/.specify/templates/plan-template.md
+Version change: 2.2.0 -> 2.2.1
 - ✅ updated /home/pi/MLBots-server/.specify/templates/spec-template.md
-- ✅ updated /home/pi/MLBots-server/.specify/templates/tasks-template.md
+- II. Minimal Diffs Keep Risk Local -> II. Minimal Diffs Keep Risk Local
 - ✅ updated /home/pi/MLBots-server/.specify/memory/README.md
-- ✅ added /home/pi/MLBots-server/.specify/memory/UI_BEHAVIOR_STANDARDS.md
-- ✅ added /home/pi/MLBots-server/.specify/memory/LEARNINGS.md
+- None
 Follow-up TODOs:
 - None
 -->
 
-# MLBots-server Constitution
+- ✅ updated /home/pi/MLBots-server/.specify/templates/spec-template.md
 
-## Core Principles
+# MLBots-server Constitution
 
 ### I. Semantic Safety Is Non-Negotiable
 
@@ -42,9 +41,12 @@ spec. Drive-by refactors, opportunistic renames, formatting churn, architecture
 reshuffles, and variable-copy boilerplate unrelated to the feature are
 prohibited. Agents MUST reuse existing utilities, validation flows, error
 handling, and local patterns whenever they already solve the problem. Agents
-SHOULD fix only the root cause inside the scoped area. Agents MAY record
-follow-up work as explicit TODOs, but MUST NOT bundle that work into the same
-change set unless the spec requests it.
+MUST create the minimal changes needed to achieve the requested outcome and
+SHOULD adapt surrounding callers before replacing an established shared
+utility, model, middleware, or contract surface. Agents SHOULD fix only the
+root cause inside the scoped area. Agents MAY record follow-up work as explicit
+TODOs, but MUST NOT bundle that work into the same change set unless the spec
+requests it.
 
 ### III. Incremental Migrations Preserve Operability
 
@@ -263,4 +265,4 @@ Escalation triggers (agents MUST stop and ask a human):
 - Privacy, PHI/PII handling, or secret-management implications are unclear.
 - The change proposes or requires amending this constitution.
 
-**Version**: 2.2.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-21
+**Version**: 2.2.1 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-26

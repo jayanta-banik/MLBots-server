@@ -1,1 +1,1 @@
-export { getCurrentUser } from './user_service.js';
+export { activateUser, getCurrentUser } from './user_service.js';
