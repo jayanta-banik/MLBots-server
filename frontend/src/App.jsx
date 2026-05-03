@@ -4,17 +4,19 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { Alert, Button, Container, Skeleton, Stack } from '@mui/material';
 
-import { select_auth_error, select_auth_status, select_auth_user, select_is_authenticated } from './features/auth/auth_selectors.js';
-import { clear_auth_error, logout } from './features/auth/auth_slice.js';
+import { select_auth_error, select_auth_status, select_auth_token, select_auth_user, select_is_authenticated } from './features/auth/auth_selectors.js';
+import { clear_auth_error, logout, session_expired } from './features/auth/auth_slice.js';
 import { bootstrap_auth } from './features/auth/auth_thunks.js';
 import HomePage from './pages/home.jsx';
 import WelcomePage from './pages/welcome.jsx';
 import './styles/app.css';
+import { get_auth_token_expiry } from './utils/authStorage.js';
 
 function AuthShell() {
   const dispatch = useDispatch();
   const authError = useSelector(select_auth_error);
   const authStatus = useSelector(select_auth_status);
+  const authToken = useSelector(select_auth_token);
   const isAuthenticated = useSelector(select_is_authenticated);
   const authUser = useSelector(select_auth_user);
 
@@ -23,6 +25,28 @@ function AuthShell() {
       dispatch(bootstrap_auth());
     }
   }, [authStatus, dispatch]);
+
+  useEffect(() => {
+    if (!authToken) {
+      return undefined;
+    }
+
+    const expiryAt = get_auth_token_expiry(authToken);
+    const remainingDuration = expiryAt - Date.now();
+
+    if (remainingDuration <= 0) {
+      dispatch(session_expired());
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      dispatch(session_expired());
+    }, remainingDuration);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [authToken, dispatch]);
 
   if (authStatus === 'idle' || authStatus === 'loading') {
     return (

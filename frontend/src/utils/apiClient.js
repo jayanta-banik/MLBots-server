@@ -1,15 +1,34 @@
 import axios from 'axios';
 
-const API_ORIGIN = (import.meta.env.VITE_CLOUD_URL ?? '').replace(/\/$/, '');
-const API_URL = API_ORIGIN ? `${API_ORIGIN}/api` : '/api';
+import { get_persisted_auth_token } from './authStorage.js';
 
-const apiClient = () => axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    Authorization: `Bearer ${window.sessionStorage.getItem('wrongToken') ?? window.localStorage.getItem('mlbots.auth.token') ?? ''}`,
-  },
-});
+const API_ORIGIN = (import.meta.env.VITE_CLOUD_URL ?? '').replace(/\/$/, '');
+export const API_URL = API_ORIGIN ? `${API_ORIGIN}/api` : '/api';
+
+const apiClient = () => {
+  const client = axios.create({
+    baseURL: API_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+  });
+
+  client.interceptors.request.use((config) => {
+    const token = get_persisted_auth_token();
+    const headers = config.headers ?? {};
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete headers.Authorization;
+    }
+
+    config.headers = headers;
+    return config;
+  });
+
+  return client;
+};
 
 export default apiClient;

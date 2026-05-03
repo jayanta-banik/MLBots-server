@@ -1,6 +1,6 @@
 import prisma from '#prisma';
 
-export default async function updateUser({ email, firstName, lastName, passwordHash, username, isActive }) {
+export default async function updateUser({ id, email, firstName, lastName, passwordHash, username, isActive }) {
   const data = {
     first_name: firstName,
     last_name: lastName,
@@ -10,7 +10,7 @@ export default async function updateUser({ email, firstName, lastName, passwordH
   };
 
   return prisma.users.update({
-    where: { email, username },
+    where: { id, email, username },
     data,
   });
 }

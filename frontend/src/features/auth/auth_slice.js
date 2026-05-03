@@ -21,6 +21,13 @@ const authSlice = createSlice({
       state.token = null;
       state.user = null;
     },
+    session_expired(state) {
+      logout_local();
+      state.error = 'Your session has expired. Please log in again.';
+      state.status = 'anonymous';
+      state.token = null;
+      state.user = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -71,6 +78,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { clear_auth_error, logout } = authSlice.actions;
+export const { clear_auth_error, logout, session_expired } = authSlice.actions;
 
 export default authSlice.reducer;

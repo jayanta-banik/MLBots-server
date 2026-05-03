@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Public privacy policy for MLBots websites, applications, APIs, and related services."
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://resources.mlbots.in/media/icons/mlbots/favicon.ico"
+    />
+    <title>MLBots Privacy Policy</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f1e8;
+        --panel: rgba(255, 252, 246, 0.92);
+        --panel-strong: #fffdf8;
+        --text: #1f2b24;
+        --muted: #5a675d;
+        --line: rgba(30, 58, 47, 0.14);
+        --primary: #1e3a2f;
+        --secondary: #16304f;
+        --shadow: 0 18px 48px rgba(17, 33, 27, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(22, 48, 79, 0.1),
+            transparent 32%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(30, 58, 47, 0.12),
+            transparent 30%
+          ),
+          linear-gradient(180deg, #fbf7ef 0%, var(--bg) 100%);
+      }
+
+      a {
+        color: var(--secondary);
+      }
+
+      .page {
+        width: min(1040px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 72px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: linear-gradient(
+          145deg,
+          rgba(255, 253, 248, 0.96),
+          rgba(248, 243, 233, 0.88)
+        );
+        box-shadow: var(--shadow);
+        padding: 32px;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -48px -72px auto;
+        width: 240px;
+        height: 240px;
+        border-radius: 999px;
+        background: radial-gradient(
+          circle,
+          rgba(22, 48, 79, 0.12),
+          transparent 68%
+        );
+        pointer-events: none;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        font-size: 0.76rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 5vw, 4.6rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        max-width: 11ch;
+      }
+
+      .lede {
+        margin: 18px 0 0;
+        max-width: 70ch;
+        font-size: 1.02rem;
+        line-height: 1.8;
+        color: var(--muted);
+      }
+
+      .meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 22px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(22, 48, 79, 0.06);
+        color: var(--secondary);
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+        gap: 22px;
+        margin-top: 24px;
+      }
+
+      .toc,
+      .content {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .toc {
+        position: sticky;
+        top: 20px;
+        align-self: start;
+        padding: 22px;
+      }
+
+      .toc h2 {
+        margin: 0 0 16px;
+        font-size: 1rem;
+      }
+
+      .toc ol {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      .toc li + li {
+        margin-top: 10px;
+      }
+
+      .toc a {
+        text-decoration: none;
+      }
+
+      .toc a:hover,
+      .toc a:focus-visible {
+        text-decoration: underline;
+      }
+
+      .content {
+        padding: 10px;
+      }
+
+      .section {
+        padding: 26px 24px;
+        border-radius: 18px;
+      }
+
+      .section + .section {
+        border-top: 1px solid var(--line);
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-size: 1.36rem;
+      }
+
+      h3 {
+        margin: 18px 0 8px;
+        font-size: 1rem;
+      }
+
+      p,
+      li {
+        font-size: 0.98rem;
+        line-height: 1.78;
+        color: var(--muted);
+      }
+
+      ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+      }
+
+      .callout {
+        margin-top: 18px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(30, 58, 47, 0.06);
+        border: 1px solid rgba(30, 58, 47, 0.12);
+      }
+
+      .footer {
+        margin-top: 22px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--panel-strong);
+        box-shadow: var(--shadow);
+      }
+
+      .footer p {
+        margin: 0;
+      }
+
+      .footer p + p {
+        margin-top: 10px;
+      }
+
+      @media (max-width: 880px) {
+        .page {
+          width: min(100% - 20px, 1040px);
+          padding: 24px 0 44px;
+        }
+
+        .hero {
+          padding: 24px;
+          border-radius: 22px;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .toc {
+          position: static;
+        }
+
+        .content {
+          padding: 4px;
+        }
+
+        .section {
+          padding: 22px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">MLBots Public Notice</p>
+        <h1>Privacy Policy</h1>
+        <p class="lede">
+          By using MLBots, you understand that we may collect information you
+          provide, information created through your use of the service, and
+          technical data needed to run, secure, and improve MLBots. If you do
+          not agree with this policy, do not use the service.
+        </p>
+        <div class="meta">Last updated: May 3, 2026</div>
+      </header>
+
+      <section class="layout" aria-label="Privacy policy contents">
+        <nav class="toc" aria-labelledby="toc-title">
+          <h2 id="toc-title">On this page</h2>
+          <ol>
+            <li><a href="#collect">What We Collect</a></li>
+            <li><a href="#use">How We Use It</a></li>
+            <li><a href="#share">Sharing</a></li>
+            <li><a href="#optout">Opt-Out and Contact</a></li>
+            <li><a href="#disclaimer">Use at Your Own Risk</a></li>
+            <li><a href="#changes">Policy Changes</a></li>
+          </ol>
+        </nav>
+
+        <article class="content">
+          <section class="section" id="collect">
+            <h2>1. What We Collect</h2>
+            <p>
+              We may collect any information you provide to MLBots or generate
+              through your use of the service. This can include personal
+              information, account details, and technical information needed to
+              operate the platform.
+            </p>
+            <ul>
+              <li>
+                Information you enter directly, such as your name, email
+                address, username, date of birth, messages, uploads, or anything
+                else you submit.
+              </li>
+              <li>
+                Account and sign-in information, including credentials,
+                authentication activity, and information made available by
+                third-party sign-in providers.
+              </li>
+              <li>
+                Technical and usage data, such as browser or device details,
+                IP-related network data, timestamps, page views, API requests,
+                logs, and local or session storage data.
+              </li>
+            </ul>
+          </section>
+
+          <section class="section" id="use">
+            <h2>2. How We Use It</h2>
+            <p>
+              We may use the information we collect for any legitimate business
+              or operational purpose related to MLBots, including:
+            </p>
+            <ul>
+              <li>Operating, maintaining, and improving the service.</li>
+              <li>
+                Creating accounts, signing users in, and managing sessions.
+              </li>
+              <li>
+                Communicating with users, including support, account, and
+                security messages.
+              </li>
+              <li>
+                Monitoring usage, preventing abuse, and protecting MLBots, its
+                users, and its systems.
+              </li>
+              <li>
+                Meeting legal, security, compliance, and recordkeeping
+                requirements.
+              </li>
+            </ul>
+            <div class="callout">
+              If you do not want us to collect or use this information, do not
+              use MLBots.
+            </div>
+          </section>
+
+          <section class="section" id="share">
+            <h2>3. Sharing</h2>
+            <p>
+              We may share information when needed to run MLBots or protect our
+              interests, including:
+            </p>
+            <ul>
+              <li>
+                With vendors, infrastructure providers, identity providers, and
+                service providers that help us operate the service.
+              </li>
+              <li>
+                When we believe disclosure is necessary for legal, security,
+                fraud-prevention, or enforcement reasons.
+              </li>
+              <li>
+                As part of a sale, transfer, merger, reorganization, or similar
+                business event.
+              </li>
+            </ul>
+          </section>
+
+          <section class="section" id="optout">
+            <h2>4. Opt-Out and Contact</h2>
+            <p>
+              If you want to ask about your data, request deletion, object to
+              our use of your information, or otherwise opt out where possible,
+              email us or contact us through the official MLBots contact method
+              provided on the site, app, or service you are using. We may need
+              to keep certain information if required for security, legal, or
+              operational reasons.
+            </p>
+          </section>
+
+          <section class="section" id="disclaimer">
+            <h2>5. Use at Your Own Risk</h2>
+            <p>
+              MLBots is provided on an as-is and as-available basis. To the
+              fullest extent permitted by law, MLBots disclaims warranties and
+              is not responsible for losses, damages, interruptions, third-party
+              actions, unauthorized access, or other issues arising from your
+              use of the service. You use MLBots at your own risk.
+            </p>
+          </section>
+
+          <section class="section" id="changes">
+            <h2>6. Policy Changes</h2>
+            <p>
+              We may change this policy at any time by updating this page. Your
+              continued use of MLBots after a change means you accept the
+              updated policy.
+            </p>
+          </section>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <p>
+          This is a basic public privacy notice for MLBots. If you need
+          something more detailed, we can expand it later with a specific
+          contact email, data-retention timing, or country-specific rights.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
