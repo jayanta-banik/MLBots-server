@@ -7,7 +7,9 @@ import { Alert, Button, Container, Skeleton, Stack } from '@mui/material';
 import { select_auth_error, select_auth_status, select_auth_token, select_auth_user, select_is_authenticated } from './features/auth/auth_selectors.js';
 import { clear_auth_error, logout, session_expired } from './features/auth/auth_slice.js';
 import { bootstrap_auth } from './features/auth/auth_thunks.js';
+import AboutPage from './pages/about.jsx';
 import HomePage from './pages/home.jsx';
+import PortfolioPage from './pages/portfolio.jsx';
 import WelcomePage from './pages/welcome.jsx';
 import './styles/app.css';
 import { get_auth_token_expiry } from './utils/authStorage.js';
@@ -79,6 +81,8 @@ function AuthShell() {
       <Routes>
         <Route path="/" element={<Navigate to={isAuthenticated ? '/home' : '/welcome'} replace />} />
         <Route path="/welcome" element={isAuthenticated ? <Navigate to="/home" replace /> : <WelcomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/home" element={isAuthenticated ? <HomePage user={authUser} onLogout={() => dispatch(logout())} /> : <Navigate to="/welcome" replace />} />
       </Routes>
     </Stack>

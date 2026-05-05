@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-import { Box, Button, Checkbox, Divider, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
+import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
+import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
+import { Box, Button, Checkbox, Divider, FormControlLabel, IconButton, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 
 import { get_remember_login_preference } from '../../utils/authStorage.js';
 
@@ -29,6 +31,7 @@ function LoginForm({ isSubmitting, onForgotPassword, onGoogleSignIn, onSubmit })
     password: '',
     rememberMe: get_remember_login_preference(),
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Stack
@@ -56,9 +59,20 @@ function LoginForm({ isSubmitting, onForgotPassword, onGoogleSignIn, onSubmit })
         required
         disabled={isSubmitting}
         label="Password"
-        type="password"
+        type={showPassword ? 'text' : 'password'}
         value={formValues.password}
         onChange={(event) => setFormValues((current) => ({ ...current, password: event.target.value }))}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton edge="end" disabled={isSubmitting} aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((current) => !current)}>
+                  {showPassword ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
       />
 
       <FormControlLabel

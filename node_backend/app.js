@@ -6,6 +6,7 @@ import { trim_all } from 'request_trimmer';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
+import consoleLogger from '#middleware/console_logger';
 import auditLogger from './middleware/audit_logger.js';
 import apiRoutes from './routes/index.js';
 import './utils/env_loader.js';
@@ -46,7 +47,7 @@ app.post('/api/error', () => {
 });
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
-app.use('/api', auditLogger(), apiRoutes);
+app.use('/api', auditLogger(), consoleLogger(), apiRoutes);
 
 // this has to come AFTER the controllers
 // if (SentryErrorHandler) SentryErrorHandler(app);

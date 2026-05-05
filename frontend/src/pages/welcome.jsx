@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Link, Stack, Tab, Tabs, Typography } from '@mui/material';
 
@@ -108,6 +109,7 @@ function LoginProgressOverlay() {
 }
 
 function WelcomePage() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const authError = useSelector(select_auth_error);
   const authStatus = useSelector(select_auth_status);
@@ -148,6 +150,29 @@ function WelcomePage() {
   return (
     <Container maxWidth={false} disableGutters aria-busy={isLoginSubmitting} sx={{ width: '100%', px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
       <Stack spacing={3}>
+        <SurfaceCard delay={0.01} tone="secondary" contentSx={{ p: { xs: 1, md: 1.25 } }}>
+          <Tabs
+            value="welcome"
+            onChange={(_event, nextValue) => {
+              if (isSubmitting) {
+                return;
+              }
+
+              if (nextValue === 'about') {
+                navigate('/about');
+                return;
+              }
+
+              navigate('/welcome');
+            }}
+            variant="fullWidth"
+            sx={{ minWidth: 0 }}
+          >
+            <Tab label="Welcome" value="welcome" disabled={isSubmitting} />
+            <Tab label="About" value="about" disabled={isSubmitting} />
+          </Tabs>
+        </SurfaceCard>
+
         <SurfaceCard tone="secondary" delay={0.02}>
           <Stack spacing={3}>
             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} justifyContent="space-between" alignItems={{ xs: 'stretch', lg: 'flex-start' }}>
