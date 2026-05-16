@@ -17,6 +17,9 @@ import { transformKeysToCamelCase } from '#utils/object_handler';
 import { getEmailHtml, sendEmail } from '#services/emails';
 import { activateUser } from '#services/users';
 
+const SIGNUPS_ENABLED = false;
+const SIGNUPS_DISABLED_MESSAGE = 'No longer accepting signups.';
+
 function getGoogleOauthConfig() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -127,6 +130,10 @@ async function findOrCreateGoogleUser(profile) {
     return existingUser;
   }
 
+  if (!SIGNUPS_ENABLED) {
+    return createError({ message: SIGNUPS_DISABLED_MESSAGE, statusCode: 403 });
+  }
+
   const username = await createUniqueUsername(email);
   const newUser = await createUser({
     email,
@@ -207,6 +214,10 @@ export async function handleGoogleAuthCallback({ code, state }) {
 }
 
 export async function signupUser(payload) {
+  if (!SIGNUPS_ENABLED) {
+    return createError({ message: SIGNUPS_DISABLED_MESSAGE, statusCode: 403 });
+  }
+
   const { email, password, username } = payload;
   const existingEmail = await fetchUser({ email });
   const existingUsername = await fetchUser({ username });
@@ -271,6 +282,10 @@ export async function loginUser({ email, password, username }) {
 }
 
 export async function verifySignupOtp({ otp, verificationToken }) {
+  if (!SIGNUPS_ENABLED) {
+    return createError({ message: SIGNUPS_DISABLED_MESSAGE, statusCode: 403 });
+  }
+
   const verificationPayload = verifySignupVerificationToken(verificationToken);
 
   if (verificationPayload.purpose !== 'signup-verification') {

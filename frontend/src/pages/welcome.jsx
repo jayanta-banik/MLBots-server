@@ -16,6 +16,9 @@ import { select_service_statuses, select_services_error, select_services_loading
 import { fetch_service_statuses } from '../features/status/status_thunks.js';
 import { API_URL } from '../utils/apiClient.js';
 
+const SIGNUPS_ENABLED = false;
+const SIGNUPS_DISABLED_MESSAGE = 'No longer accepting signups.';
+
 const LAYER_ITEMS = [
   {
     name: 'Root repo layer',
@@ -210,8 +213,10 @@ function WelcomePage() {
                     sx={{ minWidth: 0 }}
                   >
                     <Tab label="Log in" value="login" disabled={isSubmitting} />
-                    <Tab label="Sign up" value="signup" disabled={isSubmitting} />
+                    <Tab label="Sign up" value="signup" disabled={isSubmitting || !SIGNUPS_ENABLED} />
                   </Tabs>
+
+                  {!SIGNUPS_ENABLED ? <Alert severity="info">{SIGNUPS_DISABLED_MESSAGE}</Alert> : null}
 
                   <Box component={motion.div} layout transition={{ duration: 0.15 }} sx={{ overflow: 'hidden' }}>
                     {authError || socialAuthError ? <Alert severity="error">{authError || socialAuthError}</Alert> : null}
@@ -229,12 +234,16 @@ function WelcomePage() {
                         }}
                       />
                     ) : (
-                      <SignupForm
-                        isSubmitting={isSubmitting}
-                        onSubmit={(payload) => {
-                          dispatch(signup(payload));
-                        }}
-                      />
+                      SIGNUPS_ENABLED ? (
+                        <SignupForm
+                          isSubmitting={isSubmitting}
+                          onSubmit={(payload) => {
+                            dispatch(signup(payload));
+                          }}
+                        />
+                      ) : (
+                        <Alert severity="info">{SIGNUPS_DISABLED_MESSAGE}</Alert>
+                      )
                     )}
                   </Box>
                 </Stack>

@@ -152,7 +152,28 @@ ExecStart=/home/pi/venv3/bin/gunicorn --workers 3 --worker-class uvicorn.workers
 [Install]
 WantedBy=multi-user.target
 " | sudo tee /etc/systemd/system/app.service
+
 # <------------- end of copy to file ------------->
+
+sudo printf "
+[Unit]
+Description=Jupyter Notebook Service
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi
+Environment="PATH=/home/pi/venv3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/home/pi/venv3/bin/jupyter notebook \
+    --ip=0.0.0.0 \
+    --port=8778 \
+    --notebook-dir=/home/pi/MLBots-server/notebooks
+
+[Install]
+WantedBy=multi-user.target
+" | sudo tee /etc/systemd/system/notebook.service
 
 # <---------------- ngrok.service ---------------->
 sudo printf "

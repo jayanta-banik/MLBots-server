@@ -1,11 +1,14 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-import { Chip, Container, Stack, Typography } from '@mui/material';
+import { ButtonBase, Chip, Container, Stack, Typography } from '@mui/material';
 
 import HomeTopBar from '../components/home_top_bar.jsx';
 import SurfaceCard from '../components/surface_card.jsx';
 
 function HomePage({ onLogout, user }) {
+  const navigate = useNavigate();
+
   return (
     <Container component={motion.div} layout maxWidth={false} disableGutters sx={{ width: '100%', px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
       <Stack component={motion.div} layout spacing={3}>
@@ -24,6 +27,32 @@ function HomePage({ onLogout, user }) {
             </Stack>
           </Stack>
         </SurfaceCard>
+
+        <ButtonBase
+          onClick={() => navigate('/Visualize/Model')}
+          sx={{ display: 'block', width: '100%', borderRadius: 4, textAlign: 'left' }}
+          aria-label="Open visualize model page"
+        >
+          <SurfaceCard
+            tone="secondary"
+            delay={0.06}
+            sx={{
+              width: '100%',
+              transition: 'transform 160ms ease, box-shadow 160ms ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 6,
+              },
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Chip label="Model tools" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
+              <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.25rem' } }}>
+                Visualize model
+              </Typography>
+            </Stack>
+          </SurfaceCard>
+        </ButtonBase>
       </Stack>
     </Container>
   );

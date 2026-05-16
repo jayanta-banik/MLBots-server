@@ -7,6 +7,8 @@ sudo systemctl daemon-reload
 sudo systemctl start app
 sudo systemctl enable app
 sudo systemctl restart app
+sudo systemctl restart notebook.service
+sudo systemctl status notebook.service
 
 # restart node backend
 echo "restarting node backend..."
