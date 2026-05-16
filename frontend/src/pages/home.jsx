@@ -28,11 +28,7 @@ function HomePage({ onLogout, user }) {
           </Stack>
         </SurfaceCard>
 
-        <ButtonBase
-          onClick={() => navigate('/Visualize/Model')}
-          sx={{ display: 'block', width: '100%', borderRadius: 4, textAlign: 'left' }}
-          aria-label="Open visualize model page"
-        >
+        <ButtonBase onClick={() => navigate('/Visualize/Model')} sx={{ display: 'block', width: '100%', borderRadius: 4, textAlign: 'left' }} aria-label="Open visualize model page">
           <SurfaceCard
             tone="secondary"
             delay={0.06}
@@ -49,6 +45,31 @@ function HomePage({ onLogout, user }) {
               <Chip label="Model tools" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
               <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.25rem' } }}>
                 Visualize model
+              </Typography>
+            </Stack>
+          </SurfaceCard>
+        </ButtonBase>
+
+        <ButtonBase onClick={() => navigate('/tracking-uni')} sx={{ display: 'block', width: '100%', borderRadius: 4, textAlign: 'left' }} aria-label="Open faculty reachout tracker page">
+          <SurfaceCard
+            tone="primary"
+            delay={0.1}
+            sx={{
+              width: '100%',
+              transition: 'transform 160ms ease, box-shadow 160ms ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 6,
+              },
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Chip label="Outreach tools" color="primary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
+              <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.25rem' } }}>
+                Faculty reachout tracker
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '60ch', lineHeight: 1.75 }}>
+                Keep faculty outreach organized with one place to track conversations, follow-ups, and response progress.
               </Typography>
             </Stack>
           </SurfaceCard>

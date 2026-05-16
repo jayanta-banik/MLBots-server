@@ -4,6 +4,7 @@ import { requireLogin } from '#middleware/require_login';
 
 import authRouter from './auth_routes.js';
 import healthRouter from './health_routes.js';
+import universityRouter from './university_routes.js';
 import usersRouter from './users/user_routes.js';
 
 const routes = express.Router();
@@ -13,6 +14,7 @@ routes.use('/auth', authRouter);
 routes.use('/health', healthRouter);
 
 // authenticated routes
+routes.use('/universities', requireLogin, universityRouter);
 routes.use('/users', requireLogin, usersRouter);
 
 // error handler with a generic message

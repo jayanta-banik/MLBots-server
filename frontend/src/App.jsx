@@ -10,6 +10,7 @@ import { bootstrap_auth } from './features/auth/auth_thunks.js';
 import AboutPage from './pages/about.jsx';
 import HomePage from './pages/home.jsx';
 import PortfolioPage from './pages/portfolio.jsx';
+import TrackingUniPage from './pages/tracking_uni.jsx';
 import VisualizeModelPage from './pages/visualize_model.jsx';
 import WelcomePage from './pages/welcome.jsx';
 import './styles/app.css';
@@ -85,6 +86,7 @@ function AuthShell() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/home" element={isAuthenticated ? <HomePage user={authUser} onLogout={() => dispatch(logout())} /> : <Navigate to="/welcome" replace />} />
+        <Route path="/tracking-uni" element={isAuthenticated ? <TrackingUniPage /> : <Navigate to="/welcome" replace />} />
         <Route path="/Visualize/Model" element={isAuthenticated ? <VisualizeModelPage /> : <Navigate to="/welcome" replace />} />
       </Routes>
     </Stack>

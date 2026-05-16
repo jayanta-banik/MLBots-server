@@ -36,3 +36,31 @@ model users {
   updated_at DateTime     @updatedAt @db.Timestamptz(0)
   auditLogs  audit_logs[]
 }
+
+model universities {
+  id         Int         @id @default(autoincrement())
+  name       String      @db.VarChar(255)
+  location   String      @db.VarChar(100)
+  state      String      @db.VarChar(100)
+  created_at DateTime    @default(now()) @db.Timestamptz(0)
+  faculties  faculties[]
+}
+
+model faculties {
+  id                Int      @id @default(autoincrement())
+  name              String   @db.VarChar(255)
+  university_id     Int
+  google_scholar_id String?  @db.VarChar(255)
+  created_at        DateTime @default(now()) @db.Timestamptz(0)
+
+  universities universities @relation(fields: [university_id], references: [id], onDelete: Cascade)
+}
+
+model publications {
+  id               Int       @id @default(autoincrement())
+  title            String    @db.VarChar(500)
+  abstract         String?   @db.Text
+  publication_date DateTime?
+  faculties_id     String?   @db.VarChar(255)
+  created_at       DateTime  @default(now()) @db.Timestamptz(0)
+}
