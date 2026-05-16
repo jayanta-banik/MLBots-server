@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US University Rankings Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3148;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 1000;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    header .subtitle {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    header .stats-bar {
+      margin-left: auto;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    header .stat {
+      text-align: center;
+    }
+
+    header .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #a78bfa;
+    }
+
+    header .stat-label {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    #map {
+      flex: 1;
+      background: #1a1d27;
+    }
+
+    .sidebar {
+      width: 320px;
+      background: #1a1d27;
+      border-left: 1px solid #2d3148;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid #2d3148;
+    }
+
+    .sidebar-section h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 9px 12px 9px 36px;
+      font-size: 13px;
+      color: #e2e8f0;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: #6366f1;
+    }
+
+    .search-box input::placeholder { color: #4b5563; }
+
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #4b5563;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .filter-chip:hover { opacity: 0.8; }
+    .filter-chip.active { border-color: currentColor; }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .shortlist-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .shortlist-count {
+      background: #6366f1;
+      color: white;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .clear-btn:hover { background: rgba(239,68,68,0.1); }
+
+    .shortlist-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px;
+    }
+
+    .shortlist-scroll::-webkit-scrollbar { width: 4px; }
+    .shortlist-scroll::-webkit-scrollbar-track { background: transparent; }
+    .shortlist-scroll::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 2px; }
+
+    .shortlist-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 120px;
+      color: #4b5563;
+      font-size: 13px;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .shortlist-empty svg { opacity: 0.4; }
+
+    .shortlist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #1f2335;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .shortlist-item:last-child { border-bottom: none; }
+
+    .shortlist-rank {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      min-width: 36px;
+      padding-top: 1px;
+    }
+
+    .shortlist-info { flex: 1; min-width: 0; }
+
+    .shortlist-name {
+      font-size: 13px;
+      color: #e2e8f0;
+      font-weight: 500;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .shortlist-city {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #4b5563;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .remove-btn:hover { color: #ef4444; }
+
+    .export-btn {
+      margin: 12px 16px;
+      padding: 10px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      width: calc(100% - 32px);
+      transition: background 0.15s;
+    }
+
+    .export-btn:hover { background: #5558e3; }
+    .export-btn:disabled { background: #2d3148; color: #4b5563; cursor: default; }
+
+    /* Leaflet overrides */
+    .leaflet-container { background: #1a2744 !important; }
+
+    .leaflet-popup-content-wrapper {
+      background: #1a1d27 !important;
+      border: 1px solid #2d3148 !important;
+      border-radius: 10px !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+      color: #e2e8f0 !important;
+      padding: 0 !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+      min-width: 220px;
+    }
+
+    .leaflet-popup-tip { background: #1a1d27 !important; }
+    .leaflet-popup-close-button { color: #6b7280 !important; top: 6px !important; right: 6px !important; }
+
+    .popup-content {
+      padding: 14px 16px;
+    }
+
+    .popup-rank {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .popup-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .popup-city {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+
+    .popup-btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .popup-btn.add {
+      background: #6366f1;
+      color: white;
+    }
+
+    .popup-btn.add:hover { background: #5558e3; }
+
+    .popup-btn.remove {
+      background: rgba(239,68,68,0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    .popup-btn.remove:hover { background: rgba(239,68,68,0.25); }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      color: #e2e8f0;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 9999;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>US University Rankings</h1>
+    <div class="subtitle">QS World Rankings · Interactive Map</div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value" id="total-count">193</div>
+      <div class="stat-label">Universities</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="visible-count">193</div>
+      <div class="stat-label">Visible</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="shortlist-stat">0</div>
+      <div class="stat-label">Shortlisted</div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div id="map"></div>
+
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h3>Search & Filter</h3>
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search universities or cities…" />
+      </div>
+      <div class="filter-row" id="filter-chips"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Legend</h3>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="sidebar-section" style="padding-bottom: 10px;">
+      <div class="shortlist-header">
+        <h3 style="margin-bottom: 0;">Shortlist <span class="shortlist-count" id="shortlist-count">0</span></h3>
+        <button class="clear-btn" id="clear-btn" onclick="clearShortlist()">Clear all</button>
+      </div>
+    </div>
+
+    <div class="shortlist-scroll" id="shortlist-scroll">
+      <div class="shortlist-empty" id="shortlist-empty">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Click a marker on the map<br/>to add to your shortlist</span>
+      </div>
+    </div>
+
+    <button class="export-btn" id="export-btn" disabled onclick="exportShortlist()">
+      Export Shortlist (0)
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const UNIVERSITIES = [
+  {rank:"1",   name:"Massachusetts Institute of Technology (MIT)",    city:"Cambridge",        state:"MA", lat:42.3601, lng:-71.0942},
+  {rank:"3",   name:"Stanford University",                             city:"Stanford",         state:"CA", lat:37.4275, lng:-122.1697},
+  {rank:"5",   name:"Harvard University",                              city:"Cambridge",        state:"MA", lat:42.3742, lng:-71.1169},
+  {rank:"10",  name:"California Institute of Technology (Caltech)",    city:"Pasadena",         state:"CA", lat:34.1377, lng:-118.1253},
+  {rank:"13",  name:"University of Chicago",                           city:"Chicago",          state:"IL", lat:41.7886, lng:-87.5987},
+  {rank:"15",  name:"University of Pennsylvania",                      city:"Philadelphia",     state:"PA", lat:39.9522, lng:-75.1932},
+  {rank:"16",  name:"Cornell University",                              city:"Ithaca",           state:"NY", lat:42.4534, lng:-76.4735},
+  {rank:"17",  name:"University of California, Berkeley (UCB)",        city:"Berkeley",         state:"CA", lat:37.8719, lng:-122.2585},
+  {rank:"21",  name:"Yale University",                                 city:"New Haven",        state:"CT", lat:41.3163, lng:-72.9223},
+  {rank:"24",  name:"Johns Hopkins University",                        city:"Baltimore",        state:"MD", lat:39.3299, lng:-76.6205},
+  {rank:"25",  name:"Princeton University",                            city:"Princeton",        state:"NJ", lat:40.3431, lng:-74.6551},
+  {rank:"38",  name:"Columbia University",                             city:"New York City",    state:"NY", lat:40.8075, lng:-73.9626},
+  {rank:"42",  name:"Northwestern University",                         city:"Evanston",         state:"IL", lat:42.0565, lng:-87.6753},
+  {rank:"45",  name:"University of Michigan-Ann Arbor",                city:"Ann Arbor",        state:"MI", lat:42.2780, lng:-83.7382},
+  {rank:"46",  name:"University of California, Los Angeles (UCLA)",    city:"Los Angeles",      state:"CA", lat:34.0689, lng:-118.4452},
+  {rank:"52",  name:"Carnegie Mellon University",                      city:"Pittsburgh",       state:"PA", lat:40.4427, lng:-79.9430},
+  {rank:"55",  name:"New York University (NYU)",                       city:"New York City",    state:"NY", lat:40.7295, lng:-73.9965},
+  {rank:"62",  name:"Duke University",                                 city:"Durham",           state:"NC", lat:36.0014, lng:-78.9382},
+  {rank:"66",  name:"University of California, San Diego (UCSD)",      city:"San Diego",        state:"CA", lat:32.8801, lng:-117.2340},
+  {rank:"68",  name:"University of Texas at Austin",                   city:"Austin",           state:"TX", lat:30.2849, lng:-97.7341},
+  {rank:"69",  name:"Brown University",                                city:"Providence",       state:"RI", lat:41.8268, lng:-71.4025},
+  {rank:"70",  name:"University of Illinois Urbana-Champaign",         city:"Champaign",        state:"IL", lat:40.1020, lng:-88.2272},
+  {rank:"81",  name:"University of Washington",                        city:"Seattle",          state:"WA", lat:47.6553, lng:-122.3035},
+  {rank:"82",  name:"Pennsylvania State University",                   city:"University Park",  state:"PA", lat:40.7982, lng:-77.8599},
+  {rank:"88",  name:"Boston University",                               city:"Boston",           state:"MA", lat:42.3505, lng:-71.1054},
+  {rank:"88",  name:"Purdue University",                               city:"West Lafayette",   state:"IN", lat:40.4237, lng:-86.9212},
+  {rank:"110", name:"University of Wisconsin-Madison",                 city:"Madison",          state:"WI", lat:43.0767, lng:-89.4125},
+  {rank:"114", name:"University of California, Davis",                 city:"Davis",            state:"CA", lat:38.5382, lng:-121.7617},
+  {rank:"119", name:"Rice University",                                 city:"Houston",          state:"TX", lat:29.7174, lng:-95.4018},
+  {rank:"123", name:"Georgia Institute of Technology",                 city:"Atlanta",          state:"GA", lat:33.7756, lng:-84.3963},
+  {rank:"140", name:"University of North Carolina at Chapel Hill",     city:"Chapel Hill",      state:"NC", lat:35.9049, lng:-79.0469},
+  {rank:"144", name:"Texas A&M University",                            city:"College Station",  state:"TX", lat:30.6180, lng:-96.3365},
+  {rank:"146", name:"University of Southern California",               city:"Los Angeles",      state:"CA", lat:34.0224, lng:-118.2851},
+  {rank:"161", name:"Michigan State University",                       city:"East Lansing",     state:"MI", lat:42.7235, lng:-84.4822},
+  {rank:"167", name:"Washington University in St. Louis",              city:"St. Louis",        state:"MO", lat:38.6488, lng:-90.3108},
+  {rank:"173", name:"Arizona State University",                        city:"Tempe",            state:"AZ", lat:33.4255, lng:-111.9400},
+  {rank:"179", name:"University of California, Santa Barbara (UCSB)",  city:"Santa Barbara",    state:"CA", lat:34.4140, lng:-119.8489},
+  {rank:"182", name:"Emory University",                                city:"Atlanta",          state:"GA", lat:33.7940, lng:-84.3241},
+  {rank:"190", name:"The Ohio State University",                       city:"Columbus",         state:"OH", lat:40.0067, lng:-83.0305},
+  {rank:"207", name:"University of Maryland, College Park",            city:"College Park",     state:"MD", lat:38.9869, lng:-76.9426},
+  {rank:"210", name:"University of Minnesota",                         city:"Minneapolis",      state:"MN", lat:44.9740, lng:-93.2277},
+  {rank:"212", name:"University of Florida",                           city:"Gainesville",      state:"FL", lat:29.6436, lng:-82.3549},
+  {rank:"236", name:"University of Rochester",                         city:"Rochester",        state:"NY", lat:43.1284, lng:-77.6279},
+  {rank:"247", name:"Dartmouth College",                               city:"Hanover",          state:"NH", lat:43.7022, lng:-72.2896},
+  {rank:"247", name:"University of Massachusetts Amherst",             city:"Amherst",          state:"MA", lat:42.3868, lng:-72.5301},
+  {rank:"250", name:"Vanderbilt University",                           city:"Nashville",        state:"TN", lat:36.1447, lng:-86.8027},
+  {rank:"272", name:"North Carolina State University",                 city:"Raleigh",          state:"NC", lat:35.7872, lng:-78.6822},
+  {rank:"275", name:"University of Virginia",                          city:"Charlottesville",  state:"VA", lat:38.0336, lng:-78.5080},
+  {rank:"281", name:"University of Pittsburgh",                        city:"Pittsburgh",       state:"PA", lat:40.4444, lng:-79.9608},
+  {rank:"285", name:"Georgetown University",                           city:"Washington D.C.",  state:"DC", lat:38.9076, lng:-77.0723},
+  {rank:"287", name:"The University of Arizona",                       city:"Tucson",           state:"AZ", lat:32.2319, lng:-110.9501},
+  {rank:"293", name:"University of California, Irvine",                city:"Irvine",           state:"CA", lat:33.6405, lng:-117.8443},
+  {rank:"294", name:"Case Western Reserve University",                 city:"Cleveland",        state:"OH", lat:41.5042, lng:-81.6076},
+  {rank:"294", name:"University of Notre Dame",                        city:"Notre Dame",       state:"IN", lat:41.7002, lng:-86.2379},
+  {rank:"299", name:"University of Colorado Boulder",                  city:"Boulder",          state:"CO", lat:40.0074, lng:-105.2663},
+  {rank:"306", name:"Indiana University Bloomington",                  city:"Bloomington",      state:"IN", lat:39.1682, lng:-86.5230},
+  {rank:"314", name:"University of Miami",                             city:"Miami",            state:"FL", lat:25.7217, lng:-80.2779},
+  {rank:"328", name:"Rutgers University–New Brunswick",                city:"New Brunswick",    state:"NJ", lat:40.5008, lng:-74.4474},
+  {rank:"334", name:"Tufts University",                                city:"Medford",          state:"MA", lat:42.4084, lng:-71.1190},
+  {rank:"334", name:"University of Illinois Chicago (UIC)",            city:"Chicago",          state:"IL", lat:41.8708, lng:-87.6505},
+  {rank:"358", name:"George Washington University",                    city:"Washington D.C.",  state:"DC", lat:38.8997, lng:-77.0478},
+  {rank:"358", name:"Virginia Polytechnic Institute and State Univ.", city:"Blacksburg",        state:"VA", lat:37.2296, lng:-80.4139},
+  {rank:"384", name:"Northeastern University",                         city:"Boston",           state:"MA", lat:42.3398, lng:-71.0892},
+  {rank:"410", name:"University at Buffalo SUNY",                      city:"Buffalo",          state:"NY", lat:43.0023, lng:-78.7890},
+  {rank:"423", name:"Washington State University",                     city:"Pullman",          state:"WA", lat:46.7298, lng:-117.1817},
+  {rank:"440", name:"University of California, Riverside",             city:"Riverside",        state:"CA", lat:33.9737, lng:-117.3281},
+  {rank:"449", name:"Iowa State University",                           city:"Ames",             state:"IA", lat:42.0308, lng:-93.6319},
+  {rank:"452", name:"Stony Brook University, SUNY",                    city:"Stony Brook",      state:"NY", lat:40.9176, lng:-73.1236},
+  {rank:"458", name:"Colorado State University",                       city:"Fort Collins",     state:"CO", lat:40.5734, lng:-105.0865},
+  {rank:"458", name:"University of California, Santa Cruz",            city:"Santa Cruz",       state:"CA", lat:36.9916, lng:-122.0583},
+  {rank:"465", name:"University of Kansas",                            city:"Lawrence",         state:"KS", lat:38.9543, lng:-95.2558},
+  {rank:"525", name:"The University of Georgia",                       city:"Athens",           state:"GA", lat:33.9480, lng:-83.3774},
+  {rank:"526", name:"Boston College",                                  city:"Chestnut Hill",    state:"MA", lat:42.3340, lng:-71.1680},
+  {rank:"530", name:"University of Iowa",                              city:"Iowa City",        state:"IA", lat:41.6611, lng:-91.5302},
+  {rank:"534", name:"University of Connecticut",                       city:"Storrs",           state:"CT", lat:41.8070, lng:-72.2495},
+  {rank:"540", name:"University of Utah",                              city:"Salt Lake City",   state:"UT", lat:40.7649, lng:-111.8421},
+  {rank:"546", name:"University of Hawaiʻi at Mānoa",                 city:"Honolulu",         state:"HI", lat:21.2999, lng:-157.8186},
+  {rank:"549", name:"Florida State University",                        city:"Tallahassee",      state:"FL", lat:30.4418, lng:-84.2985},
+  {rank:"553", name:"University of Delaware",                          city:"Newark",           state:"DE", lat:39.6784, lng:-75.7573},
+  {rank:"556", name:"University of Houston",                           city:"Houston",          state:"TX", lat:29.7199, lng:-95.3422},
+  {rank:"571", name:"Colorado School of Mines",                        city:"Golden",           state:"CO", lat:39.7555, lng:-105.2211},
+  {rank:"582", name:"Florida International University",                city:"Miami",            state:"FL", lat:25.7573, lng:-80.3756},
+  {rank:"587", name:"American University",                             city:"Washington D.C.",  state:"DC", lat:38.9364, lng:-77.0855},
+  {rank:"591", name:"Illinois Institute of Technology",                city:"Chicago",          state:"IL", lat:41.8349, lng:-87.6275},
+  {rank:"597", name:"Tulane University",                               city:"New Orleans",      state:"LA", lat:29.9389, lng:-90.1215},
+  {rank:"597", name:"University of Texas at Dallas",                   city:"Richardson",       state:"TX", lat:32.9886, lng:-96.7479},
+  {rank:"607", name:"The University of Tennessee, Knoxville",          city:"Knoxville",        state:"TN", lat:35.9551, lng:-83.9310},
+  {rank:"613", name:"City University of New York",                     city:"New York City",    state:"NY", lat:40.7484, lng:-73.9967},
+  {rank:"624", name:"Oregon State University",                         city:"Corvallis",        state:"OR", lat:44.5638, lng:-123.2794},
+  {rank:"624", name:"Yeshiva University",                              city:"New York City",    state:"NY", lat:40.8505, lng:-73.9294},
+  {rank:"628", name:"Missouri University of Science and Technology",   city:"Rolla",            state:"MO", lat:37.9514, lng:-91.7713},
+  {rank:"628", name:"University of South Carolina",                    city:"Columbia",         state:"SC", lat:33.9966, lng:-81.0285},
+  {rank:"654", name:"University of South Florida",                     city:"Tampa",            state:"FL", lat:28.0587, lng:-82.4139},
+  {rank:"664", name:"University of Oklahoma",                          city:"Norman",           state:"OK", lat:35.2058, lng:-97.4455},
+  {rank:"668", name:"Lehigh University",                               city:"Bethlehem",        state:"PA", lat:40.6064, lng:-75.3783},
+  {rank:"673", name:"Stevens Institute of Technology",                 city:"Hoboken",          state:"NJ", lat:40.7440, lng:-74.0324},
+  {rank:"695", name:"Rensselaer Polytechnic Institute",                city:"Troy",             state:"NY", lat:42.7300, lng:-73.6809},
+  {rank:"697", name:"University of Missouri, Columbia",                city:"Columbia",         state:"MO", lat:38.9404, lng:-92.3278},
+  {rank:"701", name:"University of Central Florida",                   city:"Orlando",          state:"FL", lat:28.6024, lng:-81.2001},
+  {rank:"711", name:"Drexel University",                               city:"Philadelphia",     state:"PA", lat:39.9566, lng:-75.1896},
+  {rank:"711", name:"University of Nebraska - Lincoln",                city:"Lincoln",          state:"NE", lat:40.8136, lng:-96.7026},
+  {rank:"721", name:"Temple University",                               city:"Philadelphia",     state:"PA", lat:39.9811, lng:-75.1547},
+  {rank:"721", name:"University of Cincinnati",                        city:"Cincinnati",       state:"OH", lat:39.1329, lng:-84.5150},
+  {rank:"731", name:"Texas Tech University",                           city:"Lubbock",          state:"TX", lat:33.5843, lng:-101.8827},
+  {rank:"741", name:"Brandeis University",                             city:"Waltham",          state:"MA", lat:42.3665, lng:-71.2595},
+  {rank:"741", name:"Syracuse University",                             city:"Syracuse",         state:"NY", lat:43.0481, lng:-76.1474},
+  {rank:"751", name:"University of New Mexico",                        city:"Albuquerque",      state:"NM", lat:35.0844, lng:-106.6220},
+  {rank:"751", name:"University of Oregon",                            city:"Eugene",           state:"OR", lat:44.0456, lng:-123.0817},
+  {rank:"761", name:"New Jersey Institute of Technology (NJIT)",       city:"Newark",           state:"NJ", lat:40.7420, lng:-74.1787},
+  {rank:"771", name:"Rutgers University–Newark",                       city:"Newark",           state:"NJ", lat:40.7378, lng:-74.1745},
+  {rank:"781", name:"Georgia State University",                        city:"Atlanta",          state:"GA", lat:33.7536, lng:-84.3852},
+  {rank:"781", name:"University of Kentucky",                          city:"Lexington",        state:"KY", lat:38.0305, lng:-84.5037},
+  {rank:"781", name:"Wayne State University",                          city:"Detroit",          state:"MI", lat:42.3572, lng:-83.0688},
+  {rank:"791", name:"Wake Forest University",                          city:"Winston-Salem",    state:"NC", lat:36.1338, lng:-80.2784},
+  {rank:"801", name:"The New School",                                  city:"New York City",    state:"NY", lat:40.7358, lng:-74.0010},
+  {rank:"801", name:"University of Maryland, Baltimore",               city:"Baltimore",        state:"MD", lat:39.2976, lng:-76.5975},
+  {rank:"801", name:"University of Maryland, Baltimore County",        city:"Baltimore",        state:"MD", lat:39.2557, lng:-76.7110},
+  {rank:"851", name:"Auburn University",                               city:"Auburn",           state:"AL", lat:32.6057, lng:-85.4872},
+  {rank:"851", name:"Louisiana State University",                      city:"Baton Rouge",      state:"LA", lat:30.4133, lng:-91.1800},
+  {rank:"851", name:"Oklahoma State University",                       city:"Stillwater",       state:"OK", lat:36.1269, lng:-97.0706},
+  {rank:"851", name:"University of Colorado, Denver",                  city:"Denver",           state:"CO", lat:39.7447, lng:-104.9874},
+  {rank:"851", name:"Worcester Polytechnic Institute",                 city:"Worcester",        state:"MA", lat:42.2741, lng:-71.8063},
+  {rank:"901", name:"Kansas State University",                         city:"Manhattan",        state:"KS", lat:39.1836, lng:-96.5717},
+  {rank:"901", name:"Michigan Technological University",               city:"Houghton",         state:"MI", lat:47.1155, lng:-88.5432},
+  {rank:"901", name:"The University of Alabama",                       city:"Tuscaloosa",       state:"AL", lat:33.2119, lng:-87.5440},
+  {rank:"901", name:"University at Albany SUNY",                       city:"Albany",           state:"NY", lat:42.6864, lng:-73.8241},
+  {rank:"901", name:"University of Alaska Fairbanks",                  city:"Fairbanks",        state:"AK", lat:64.8578, lng:-147.8206},
+  {rank:"901", name:"University of North Texas",                       city:"Denton",           state:"TX", lat:33.2148, lng:-97.1331},
+  {rank:"901", name:"Virginia Commonwealth University",                city:"Richmond",         state:"VA", lat:37.5490, lng:-77.4515},
+  {rank:"951", name:"Clarkson University",                             city:"Potsdam",          state:"NY", lat:44.6698, lng:-74.9818},
+  {rank:"951", name:"Clemson University",                              city:"Clemson",          state:"SC", lat:34.6834, lng:-82.8374},
+  {rank:"951", name:"George Mason University",                         city:"Fairfax",          state:"VA", lat:38.8319, lng:-77.3099},
+  {rank:"951", name:"Rochester Institute of Technology (RIT)",         city:"Rochester",        state:"NY", lat:43.0855, lng:-77.6675},
+  {rank:"951", name:"Saint Louis University",                          city:"St. Louis",        state:"MO", lat:38.6367, lng:-90.2350},
+  {rank:"951", name:"University of Massachusetts Boston",              city:"Boston",           state:"MA", lat:42.3120, lng:-71.0381},
+  {rank:"1001",name:"Baylor University",                               city:"Waco",             state:"TX", lat:31.5493, lng:-97.1162},
+  {rank:"1001",name:"Binghamton University SUNY",                      city:"Binghamton",       state:"NY", lat:42.0897, lng:-75.9679},
+  {rank:"1001",name:"Brigham Young University",                        city:"Provo",            state:"UT", lat:40.2506, lng:-111.6493},
+  {rank:"1001",name:"The City College of New York",                    city:"New York City",    state:"NY", lat:40.8195, lng:-73.9499},
+  {rank:"1001",name:"Clark University",                                city:"Worcester",        state:"MA", lat:42.2508, lng:-71.8237},
+  {rank:"1001",name:"William & Mary",                                  city:"Williamsburg",     state:"VA", lat:37.2707, lng:-76.7075},
+  {rank:"1001",name:"Florida Atlantic University",                     city:"Boca Raton",       state:"FL", lat:26.3742, lng:-80.1019},
+  {rank:"1001",name:"Fordham University",                              city:"New York City",    state:"NY", lat:40.8604, lng:-73.8855},
+  {rank:"1001",name:"Howard University",                               city:"Washington D.C.",  state:"DC", lat:38.9226, lng:-77.0197},
+  {rank:"1001",name:"Indiana University Indianapolis",                 city:"Indianapolis",     state:"IN", lat:39.7748, lng:-86.1761},
+  {rank:"1001",name:"Kent State University",                           city:"Kent",             state:"OH", lat:41.1516, lng:-81.3468},
+  {rank:"1001",name:"Loyola University Chicago",                       city:"Chicago",          state:"IL", lat:41.9992, lng:-87.6586},
+  {rank:"1001",name:"Mississippi State University",                    city:"Starkville",       state:"MS", lat:33.4562, lng:-88.7956},
+  {rank:"1001",name:"Northern Arizona University",                     city:"Flagstaff",        state:"AZ", lat:35.1827, lng:-111.6566},
+  {rank:"1001",name:"Ohio University",                                 city:"Athens",           state:"OH", lat:39.3267, lng:-82.1021},
+  {rank:"1001",name:"San Diego State University",                      city:"San Diego",        state:"CA", lat:32.7752, lng:-117.0730},
+  {rank:"1001",name:"Southern Methodist University",                   city:"Dallas",           state:"TX", lat:32.8412, lng:-96.7849},
+  {rank:"1001",name:"University of Texas at Arlington",                city:"Arlington",        state:"TX", lat:32.7299, lng:-97.1148},
+  {rank:"1001",name:"University of Alabama at Birmingham",             city:"Birmingham",       state:"AL", lat:33.5031, lng:-86.8003},
+  {rank:"1001",name:"University of Arkansas Fayetteville",             city:"Fayetteville",     state:"AR", lat:36.0682, lng:-94.1741},
+  {rank:"1001",name:"University of Denver",                            city:"Denver",           state:"CO", lat:39.6781, lng:-104.9617},
+  {rank:"1001",name:"University of Idaho",                             city:"Moscow",           state:"ID", lat:46.7267, lng:-117.0122},
+  {rank:"1001",name:"University of Louisville",                        city:"Louisville",       state:"KY", lat:38.2137, lng:-85.7587},
+  {rank:"1001",name:"University of Mississippi",                       city:"Oxford",           state:"MS", lat:34.3657, lng:-89.5398},
+  {rank:"1001",name:"University of Missouri, Kansas City",             city:"Kansas City",      state:"MO", lat:39.0389, lng:-94.5773},
+  {rank:"1001",name:"University of Nevada - Reno",                     city:"Reno",             state:"NV", lat:39.5436, lng:-119.8162},
+  {rank:"1001",name:"University of New Hampshire",                     city:"Durham",           state:"NH", lat:43.1340, lng:-70.9350},
+  {rank:"1001",name:"University of North Carolina at Charlotte",       city:"Charlotte",        state:"NC", lat:35.3077, lng:-80.7338},
+  {rank:"1001",name:"University of Rhode Island",                      city:"Kingston",         state:"RI", lat:41.4802, lng:-71.5286},
+  {rank:"1001",name:"University of Texas at San Antonio",              city:"San Antonio",      state:"TX", lat:29.5830, lng:-98.6190},
+  {rank:"1001",name:"University of Toledo",                            city:"Toledo",           state:"OH", lat:41.6638, lng:-83.6131},
+  {rank:"1001",name:"University of Tulsa",                             city:"Tulsa",            state:"OK", lat:36.1509, lng:-95.9535},
+  {rank:"1001",name:"University of Vermont",                           city:"Burlington",       state:"VT", lat:44.4775, lng:-73.1958},
+  {rank:"1001",name:"University of Wyoming",                           city:"Laramie",          state:"WY", lat:41.3143, lng:-105.5666},
+  {rank:"1001",name:"Utah State University",                           city:"Logan",            state:"UT", lat:41.7436, lng:-111.8135},
+  {rank:"1001",name:"West Virginia University",                        city:"Morgantown",       state:"WV", lat:39.6350, lng:-79.9545},
+  {rank:"1201",name:"California Polytechnic State University",         city:"San Luis Obispo",  state:"CA", lat:35.3050, lng:-120.6625},
+  {rank:"1201",name:"Marquette University",                            city:"Milwaukee",        state:"WI", lat:43.0384, lng:-87.9335},
+  {rank:"1201",name:"Miami University",                                city:"Oxford",           state:"OH", lat:39.5091, lng:-84.7312},
+  {rank:"1201",name:"New Mexico State University",                     city:"Las Cruces",       state:"NM", lat:32.2797, lng:-106.7443},
+  {rank:"1201",name:"Portland State University",                       city:"Portland",         state:"OR", lat:45.5118, lng:-122.6832},
+  {rank:"1201",name:"Pratt Institute",                                 city:"New York City",    state:"NY", lat:40.6896, lng:-73.9629},
+  {rank:"1201",name:"Seattle University",                              city:"Seattle",          state:"WA", lat:47.6087, lng:-122.3200},
+  {rank:"1201",name:"University of Memphis",                           city:"Memphis",          state:"TN", lat:35.1186, lng:-89.9378},
+  {rank:"1201",name:"University of North Carolina at Greensboro",      city:"Greensboro",       state:"NC", lat:36.0681, lng:-79.8137},
+  {rank:"1201",name:"University of San Diego",                         city:"San Diego",        state:"CA", lat:32.7724, lng:-117.1904},
+  {rank:"1201",name:"University of San Francisco",                     city:"San Francisco",    state:"CA", lat:37.7765, lng:-122.4503},
+  {rank:"1201",name:"University of South Alabama",                     city:"Mobile",           state:"AL", lat:30.6947, lng:-88.1963},
+  {rank:"1201",name:"University of Texas El Paso",                     city:"El Paso",          state:"TX", lat:31.7669, lng:-106.5014},
+  {rank:"1201",name:"University of Wisconsin Milwaukee",               city:"Milwaukee",        state:"WI", lat:43.0754, lng:-87.8803},
+  {rank:"1201",name:"Western Michigan University",                     city:"Kalamazoo",        state:"MI", lat:42.2836, lng:-85.6045},
+  {rank:"1401",name:"Central Michigan University",                     city:"Mount Pleasant",   state:"MI", lat:43.5978, lng:-84.7675},
+  {rank:"1401",name:"Cleveland State University",                      city:"Cleveland",        state:"OH", lat:41.5022, lng:-81.6750},
+  {rank:"1401",name:"San Francisco State University",                  city:"San Francisco",    state:"CA", lat:37.7220, lng:-122.4788},
+  {rank:"1401",name:"University of Hawaii at Hilo",                    city:"Hilo",             state:"HI", lat:19.7024, lng:-155.0847},
+  {rank:"1401",name:"University of Missouri Saint Louis",              city:"St. Louis",        state:"MO", lat:38.7085, lng:-90.3118},
+  {rank:"1401",name:"University of the Pacific",                       city:"Stockton",         state:"CA", lat:37.9779, lng:-121.3105},
+];
+
+// ─── Tier Config ─────────────────────────────────────────────────────────────
+
+const TIERS = [
+  { label: "Top 10",    color: "#FFD700", range: [1, 10],    key: "top10"    },
+  { label: "11 – 50",  color: "#FF6B6B", range: [11, 50],   key: "top50"    },
+  { label: "51 – 100", color: "#4ECDC4", range: [51, 100],  key: "top100"   },
+  { label: "101 – 200",color: "#45B7D1", range: [101, 200], key: "top200"   },
+  { label: "201 – 500",color: "#96CEB4", range: [201, 500], key: "top500"   },
+  { label: "501 – 1000",color: "#C3A6D1",range: [501, 1000],key: "top1000"  },
+  { label: "1000+",    color: "#94a3b8", range: [1001, Infinity], key: "top1001" },
+];
+
+function getTier(rankStr) {
+  const n = parseInt(rankStr.replace(/[^\d]/g, "")) || 9999;
+  return TIERS.find(t => n >= t.range[0] && n <= t.range[1]) || TIERS[TIERS.length - 1];
+}
+
+// ─── State ────────────────────────────────────────────────────────────────────
+
+const shortlist = new Set();
+let activeFilters = new Set();
+let searchQuery = "";
+let markers = [];
+let map;
+let openPopup = null;
+
+// ─── Map Init ─────────────────────────────────────────────────────────────────
+
+function initMap() {
+  map = L.map("map", {
+    center: [38.5, -96],
+    zoom: 4,
+    minZoom: 3,
+    maxZoom: 12,
+    zoomControl: true,
+    maxBounds: [[-10, -180], [75, -50]],
+  });
+
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: '© <a href="https://carto.com/">CARTO</a>',
+    subdomains: "abcd",
+    maxZoom: 19,
+  }).addTo(map);
+
+  buildLegend();
+  buildFilterChips();
+  buildMarkers();
+}
+
+// ─── Legend ───────────────────────────────────────────────────────────────────
+
+function buildLegend() {
+  const el = document.getElementById("legend");
+  el.innerHTML = TIERS.map(t => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${t.color}"></div>
+      <span>${t.label}</span>
+    </div>
+  `).join("");
+}
+
+// ─── Filter Chips ─────────────────────────────────────────────────────────────
+
+function buildFilterChips() {
+  const el = document.getElementById("filter-chips");
+  el.innerHTML = TIERS.map(t => `
+    <div class="filter-chip" id="chip-${t.key}"
+         style="background:${t.color}22; color:${t.color};"
+         onclick="toggleFilter('${t.key}')">
+      ${t.label}
+    </div>
+  `).join("");
+}
+
+function toggleFilter(key) {
+  if (activeFilters.has(key)) {
+    activeFilters.delete(key);
+    document.getElementById(`chip-${key}`).classList.remove("active");
+  } else {
+    activeFilters.add(key);
+    document.getElementById(`chip-${key}`).classList.add("active");
+  }
+  applyFilters();
+}
+
+// ─── Markers ──────────────────────────────────────────────────────────────────
+
+function buildMarkers() {
+  markers.forEach(m => map.removeLayer(m.marker));
+  markers = [];
+
+  UNIVERSITIES.forEach(u => {
+    const tier = getTier(u.rank);
+    const isShortlisted = shortlist.has(u.name);
+
+    const radius = getRankRadius(u.rank);
+
+    const circle = L.circleMarker([u.lat, u.lng], {
+      radius,
+      fillColor: tier.color,
+      color: isShortlisted ? "#fff" : tier.color,
+      weight: isShortlisted ? 2.5 : 1,
+      opacity: isShortlisted ? 1 : 0.7,
+      fillOpacity: isShortlisted ? 0.95 : 0.75,
+    });
+
+    const popupContent = buildPopupHTML(u, tier, isShortlisted);
+    const popup = L.popup({
+      closeButton: true,
+      autoClose: true,
+      className: "custom-popup",
+      maxWidth: 260,
+      offset: [0, -4],
+    }).setContent(popupContent);
+
+    circle.bindPopup(popup);
+
+    circle.on("mouseover", function() {
+      this.setStyle({ fillOpacity: 1, weight: 2.5 });
+      this.openPopup();
+    });
+
+    circle.on("mouseout", function(e) {
+      const related = e.originalEvent && e.originalEvent.relatedTarget;
+      if (related && related.closest && related.closest(".leaflet-popup")) return;
+      this.setStyle({
+        fillOpacity: shortlist.has(u.name) ? 0.95 : 0.75,
+        weight: shortlist.has(u.name) ? 2.5 : 1,
+      });
+    });
+
+    circle.addTo(map);
+    markers.push({ marker: circle, university: u, tier });
+  });
+
+  applyFilters();
+}
+
+function getRankRadius(rankStr) {
+  const n = parseInt(rankStr.replace(/[^\d]/g, "")) || 9999;
+  if (n <= 10)   return 10;
+  if (n <= 50)   return 8;
+  if (n <= 100)  return 7;
+  if (n <= 200)  return 6;
+  if (n <= 500)  return 5;
+  if (n <= 1000) return 4.5;
+  return 4;
+}
+
+function buildPopupHTML(u, tier, isShortlisted) {
+  const rankLabel = u.rank.includes("-") || parseInt(u.rank) >= 1000
+    ? `Rank ${u.rank}` : `Rank #${u.rank}`;
+  return `
+    <div class="popup-content">
+      <div class="popup-rank" style="color:${tier.color}">${rankLabel}</div>
+      <div class="popup-name">${u.name}</div>
+      <div class="popup-city">${u.city}, ${u.state}</div>
+      <button class="popup-btn ${isShortlisted ? "remove" : "add"}"
+              onclick="toggleShortlist('${u.name.replace(/'/g, "\\'")}')">
+        ${isShortlisted ? "✓ Remove from Shortlist" : "+ Add to Shortlist"}
+      </button>
+    </div>
+  `;
+}
+
+function refreshMarkerStyle(name) {
+  const m = markers.find(m => m.university.name === name);
+  if (!m) return;
+  const isShortlisted = shortlist.has(name);
+  m.marker.setStyle({
+    color: isShortlisted ? "#fff" : m.tier.color,
+    weight: isShortlisted ? 2.5 : 1,
+    fillOpacity: isShortlisted ? 0.95 : 0.75,
+  });
+  // Update popup content
+  m.marker.getPopup().setContent(buildPopupHTML(m.university, m.tier, isShortlisted));
+}
+
+// ─── Filtering ────────────────────────────────────────────────────────────────
+
+function applyFilters() {
+  let visible = 0;
+  markers.forEach(({ marker, university, tier }) => {
+    const matchesTier = activeFilters.size === 0 || activeFilters.has(tier.key);
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q ||
+      university.name.toLowerCase().includes(q) ||
+      university.city.toLowerCase().includes(q) ||
+      university.state.toLowerCase().includes(q);
+
+    if (matchesTier && matchesSearch) {
+      map.addLayer(marker);
+      visible++;
+    } else {
+      map.removeLayer(marker);
+    }
+  });
+  document.getElementById("visible-count").textContent = visible;
+}
+
+// ─── Shortlist ────────────────────────────────────────────────────────────────
+
+function toggleShortlist(name) {
+  if (shortlist.has(name)) {
+    shortlist.delete(name);
+    showToast(`Removed from shortlist`);
+  } else {
+    shortlist.add(name);
+    showToast(`Added to shortlist`);
+  }
+  refreshMarkerStyle(name);
+  renderShortlist();
+  updateStats();
+}
+
+function clearShortlist() {
+  if (shortlist.size === 0) return;
+  const names = [...shortlist];
+  shortlist.clear();
+  names.forEach(n => refreshMarkerStyle(n));
+  renderShortlist();
+  updateStats();
+  showToast("Shortlist cleared");
+}
+
+function renderShortlist() {
+  const scroll = document.getElementById("shortlist-scroll");
+  const empty = document.getElementById("shortlist-empty");
+  const count = document.getElementById("shortlist-count");
+
+  count.textContent = shortlist.size;
+
+  if (shortlist.size === 0) {
+    scroll.innerHTML = "";
+    empty.style.display = "flex";
+    scroll.appendChild(empty);
+    document.getElementById("export-btn").disabled = true;
+    document.getElementById("export-btn").textContent = "Export Shortlist (0)";
+    return;
+  }
+
+  document.getElementById("export-btn").disabled = false;
+  document.getElementById("export-btn").textContent = `Export Shortlist (${shortlist.size})`;
+
+  const items = UNIVERSITIES
+    .filter(u => shortlist.has(u.name))
+    .sort((a, b) => {
+      const ra = parseInt(a.rank.replace(/[^\d]/g, "")) || 9999;
+      const rb = parseInt(b.rank.replace(/[^\d]/g, "")) || 9999;
+      return ra - rb;
+    });
+
+  const html = items.map(u => {
+    const tier = getTier(u.rank);
+    const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${tier.color};margin-right:4px"></span>`;
+    return `
+      <div class="shortlist-item">
+        <div class="shortlist-rank">#${u.rank}</div>
+        <div class="shortlist-info">
+          <div class="shortlist-name">${dot}${u.name}</div>
+          <div class="shortlist-city">${u.city}, ${u.state}</div>
+        </div>
+        <button class="remove-btn" onclick="toggleShortlist('${u.name.replace(/'/g, "\\'")}')" title="Remove">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  scroll.innerHTML = html;
+}
+
+function updateStats() {
+  document.getElementById("shortlist-stat").textContent = shortlist.size;
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+
+function exportShortlist() {
+  const items = UNIVERSITIES
+    .filter(u => shortlist.has(u.name))
+    .sort((a, b) => {
+      const ra = parseInt(a.rank.replace(/[^\d]/g, "")) || 9999;
+      const rb = parseInt(b.rank.replace(/[^\d]/g, "")) || 9999;
+      return ra - rb;
+    });
+
+  const csv = ["Rank,University,City,State"]
+    .concat(items.map(u => `"${u.rank}","${u.name}","${u.city}","${u.state}"`))
+    .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "university_shortlist.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("Shortlist exported as CSV");
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+document.getElementById("search-input").addEventListener("input", e => {
+  searchQuery = e.target.value;
+  applyFilters();
+});
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+
+window.addEventListener("DOMContentLoaded", initMap);
+</script>
+</body>
+</html>
