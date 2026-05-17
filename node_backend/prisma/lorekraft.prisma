@@ -1,16 +1,24 @@
 model char_image {
   id             Int           @id @default(autoincrement())
-  race_id        Int
-  character_type CharacterType
+  race_persona_id Int
   url            String
   alt            String?
   created_at     DateTime      @default(now())
 
-  race      race       @relation(fields: [race_id], references: [id], onDelete: Cascade)
+  race_persona race_persona @relation(fields: [race_persona_id], references: [id], onDelete: Cascade)
   familiars familiar[]
 
-  @@unique([race_id, character_type, url])
-  @@index([race_id])
+  @@unique([race_persona_id, url])
+  @@index([race_persona_id])
+}
+
+model race_persona {
+  id          Int      @id @default(autoincrement())
+  race_id     Int
+  character_type CharacterType
+
+  @@unique([race_id, character_type])
+
 }
 
 model race {
@@ -54,10 +62,12 @@ model race_affinity {
 }
 
 model race_skill {
-  id           Int         @id @default(autoincrement())
-  race_id      Int
-  ability_type AbilityType
-  skill_name   String
+  id             Int         @id @default(autoincrement())
+  race_id        Int
+  ability_type   AbilityType
+  cooldown_time  Float       @default(1) // cooldown in secs, 0 for passive skills
+  cooldown_turns Int         @default(2) // cooldown in turns, 0 for passive skills
+  skill_name     String
 
   race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
 
@@ -165,10 +175,12 @@ model player_affinity {
 }
 
 model player_skill {
-  id           Int         @id @default(autoincrement())
-  player_id    Int
-  ability_type AbilityType
-  skill_name   String
+  id             Int         @id @default(autoincrement())
+  player_id      Int
+  ability_type   AbilityType
+  cooldown_time  Float       @default(1) // cooldown in secs, 0 for passive skills
+  cooldown_turns Int         @default(2) // cooldown in turns, 0 for passive skills
+  skill_name     String
 
   player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
 
