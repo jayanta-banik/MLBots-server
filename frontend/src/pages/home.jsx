@@ -8,6 +8,24 @@ import SurfaceCard from '../components/surface_card.jsx';
 
 function HomePage({ onLogout, user }) {
   const navigate = useNavigate();
+  const upcomingProjects = [
+    {
+      title: 'Vectorize repo',
+      description: 'Codebase indexing and semantic retrieval workspace for faster engineering search and context lookup.',
+    },
+    {
+      title: 'Apprentice (LLM memory management tool)',
+      description: 'Memory workflow tooling for storing, retrieving, and curating long-term LLM context safely.',
+    },
+    {
+      title: 'MCP tool collection',
+      description: 'A curated set of Model Context Protocol utilities for common automation and integration flows.',
+    },
+    {
+      title: 'Lorekraft (DND-like game)',
+      description: 'Narrative-first world-building and campaign gameplay inspired by tabletop role-playing systems.',
+    },
+  ];
 
   return (
     <Container component={motion.div} layout maxWidth={false} disableGutters sx={{ width: '100%', px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 }, overflowX: 'clip' }}>
@@ -74,6 +92,30 @@ function HomePage({ onLogout, user }) {
             </Stack>
           </SurfaceCard>
         </ButtonBase>
+
+        <SurfaceCard tone="secondary" delay={0.14}>
+          <Stack spacing={2}>
+            <Chip label="Roadmap" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
+            <Typography variant="h2" sx={{ fontSize: { xs: '1.6rem', md: '2rem' } }}>
+              Coming soon
+            </Typography>
+            <Stack spacing={1.5}>
+              {upcomingProjects.map((project, index) => (
+                <SurfaceCard key={project.title} tone={index % 2 === 0 ? 'primary' : 'secondary'} delay={0.18 + index * 0.04}>
+                  <Stack spacing={1}>
+                    <Chip label="Coming soon" color={index % 2 === 0 ? 'primary' : 'secondary'} variant="outlined" sx={{ alignSelf: 'flex-start' }} />
+                    <Typography variant="h3" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>
+                      {project.title}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                      {project.description}
+                    </Typography>
+                  </Stack>
+                </SurfaceCard>
+              ))}
+            </Stack>
+          </Stack>
+        </SurfaceCard>
       </Stack>
     </Container>
   );

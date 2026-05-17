@@ -3,6 +3,13 @@ generator client {
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
+generator erd {
+  // yarn add -D prisma-erd-generator @mermaid-js/mermaid-cli puppeteer
+  provider        = "prisma-erd-generator"
+  output          = "../ERD.svg"
+  puppeteerConfig = "puppeteerConfig.json"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
