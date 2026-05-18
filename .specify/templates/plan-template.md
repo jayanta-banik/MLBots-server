@@ -86,10 +86,28 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - Confirm the plan stays within existing subproject patterns and avoids drive-by
   refactors, extra architectural layers, nested patterns, and needless
   variable-copy rewrites.
+- Confirm working variable names, function names, and stable identifiers stay
+  unchanged unless a rename is required for the requested functionality,
+  correctness, or compatibility.
 - Confirm the implementation strategy creates the minimal changes needed to
   achieve the requested behavior and adapts surrounding callers before
   replacing an established shared utility, model, middleware, or contract
   surface.
+- Confirm additive modification is preferred over rewriting working code into a
+  more complicated equivalent, and that no semantic change is introduced
+  without an explicit functionality change.
+- Confirm Prisma query shape prefers `include` over `select` unless `select` is
+  required to avoid exposing PII or internal-only data.
+- Confirm timestamps such as `created_at` and `updated_at` are treated as safe
+  metadata unless feature-specific evidence says otherwise.
+- Confirm service files are kept only when they own distinct business
+  behavior, orchestration, or cross-model workflow; if logic only serializes,
+  normalizes, or rearranges object structure, route-to-model plus helper files
+  should be preferred instead.
+- Confirm helper files live in the exact same folder as the file that calls
+  them, stay local to that folder rather than one level up or down, and are
+  introduced only for logic used by a single calling file unless broader
+  sharing is explicitly required.
 - Confirm file names and folder names remain `snake_case`, Python identifiers
   remain `snake_case`, Node identifiers use `camelCase` or `PascalCase` as
   appropriate, and constants use `UPPER_SNAKE_CASE`.
@@ -100,7 +118,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
   relative path.
 - Confirm frontend changes use Vite, Redux where shared application state is
   involved, and responsive behavior for both desktop and mobile.
-- Confirm touched UI apps will run `yarn lint` and `yarn test`, or that the
+- Confirm touched UI apps will run `yarn lint --fix` and `yarn test`, or that the
   plan explicitly adds minimal test support or documents manual verification
   when a test command is missing.
 - Confirm timestamp behavior in UI code uses `moment`, motion changes use
@@ -108,6 +126,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
   the app theme and shared component strategy.
 - Confirm every contract change is identified, including HTTP payloads,
   generated assets, or deployment-facing behavior.
+- Confirm any `select` usage introduced by the plan is justified by PII or
+  internal-data minimization needs.
 - Confirm observability impact is covered, including request logging, error
   visibility, or health signal changes.
 - Confirm verification is proportional to risk and names the automated or

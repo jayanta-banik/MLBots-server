@@ -1,43 +1,87 @@
 model char_image {
   id             Int           @id @default(autoincrement())
-  race_persona_id Int
-  url            String
-  alt            String?
-  created_at     DateTime      @default(now())
-
-  race_persona race_persona @relation(fields: [race_persona_id], references: [id], onDelete: Cascade)
-  familiars familiar[]
-
-  @@unique([race_persona_id, url])
-  @@index([race_persona_id])
-}
-
-model race_persona {
-  id          Int      @id @default(autoincrement())
-  race_id     Int
+  race_id        Int
   character_type CharacterType
 
-  @@unique([race_id, character_type])
+  url        String
+  alt        String?
+  created_at DateTime @default(now())
 
+  race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
+
+  @@unique([race_id, character_type, url])
+  @@index([race_id])
 }
 
-model race {
+model character_class {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model magic_item {
+  id               Int            @id @default(autoincrement())
+  player_id        Int?
+  name             String
+  description      String?
+  attribute_agment AttributeType?
+  attribute_bonus  Float          @default(0.0)
+  ability_type     AbilityType
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+
+  player player? @relation(fields: [player_id], references: [id], onDelete: SetNull)
+
+  @@index([player_id])
+}
+
+model occupation {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  players                 player[]
-  char_images             char_image[]
-  race_attributes         race_attribute[]
-  race_affinities         race_affinity[]
-  race_skills             race_skill[]
-  race_resistances        race_resistance[]
-  race_magic_attributions race_magic_attribution[]
+  players                   player[]
+  player_side_jobs          player_side_job[]
+  player_side_job_histories player_side_job_history[]
 }
 
-model race_attribute {
+model race {
+  id              Int             @id @default(autoincrement())
+  name            String          @unique
+  character_types CharacterType[] @default([])
+  description     String?
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+
+  players          player[]
+  char_images      char_image[]
+  race_attributes  race_attributes[]
+  race_affinity    race_affinity[]
+  race_skills      race_skills[]
+  race_resistances race_resistances[]
+  evolution_from   race_evolutions[]  @relation("evolution_from")
+  evolution_to     race_evolutions[]  @relation("evolution_to")
+  player_familiars player_familiars[]
+}
+
+model race_affinity {
+  id              Int          @id @default(autoincrement())
+  race_id         Int
+  affinity_type   AffinityType
+  affinity_target String
+  value           Float        @default(0.14) // default affinity bonus is 14%, can be adjusted based on playtesting and balance needs
+
+  race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
+
+  @@unique([race_id, affinity_type, affinity_target])
+  @@index([race_id])
+}
+
+model race_attributes {
   id             Int           @id @default(autoincrement())
   race_id        Int
   attribute_type AttributeType
@@ -49,33 +93,33 @@ model race_attribute {
   @@index([race_id])
 }
 
-model race_affinity {
-  id              Int          @id @default(autoincrement())
-  race_id         Int
-  affinity_type   AffinityType
-  affinity_target String
+model race_evolutions {
+  id Int @id @default(autoincrement())
 
-  race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
+  from_race_id Int
+  to_race_id   Int
 
-  @@unique([race_id, affinity_type, affinity_target])
-  @@index([race_id])
+  from_race                 race                        @relation("evolution_from", fields: [from_race_id], references: [id])
+  to_race                   race                        @relation("evolution_to", fields: [to_race_id], references: [id])
+  race_evolution_conditions race_evolution_conditions[]
+
+  @@unique([from_race_id, to_race_id])
+  @@index([from_race_id])
+  @@index([to_race_id])
 }
 
-model race_skill {
-  id             Int         @id @default(autoincrement())
-  race_id        Int
-  ability_type   AbilityType
-  cooldown_time  Float       @default(1) // cooldown in secs, 0 for passive skills
-  cooldown_turns Int         @default(2) // cooldown in turns, 0 for passive skills
-  skill_name     String
+model race_evolution_conditions {
+  id              Int                      @id @default(autoincrement())
+  evolution_id    Int
+  condition_type  evolution_condition_type
+  condition_value String
 
-  race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
+  evolution race_evolutions @relation(fields: [evolution_id], references: [id], onDelete: Cascade)
 
-  @@unique([race_id, skill_name])
-  @@index([race_id])
+  @@index([evolution_id])
 }
 
-model race_resistance {
+model race_resistances {
   id      Int            @id @default(autoincrement())
   race_id Int
   kind    ResistanceKind
@@ -88,54 +132,42 @@ model race_resistance {
   @@index([race_id])
 }
 
-model race_magic_attribution {
-  id      Int          @id @default(autoincrement())
-  race_id Int
-  element MagicElement
-  potency Float        @default(1.0)
+model race_skills {
+  id             Int   @id @default(autoincrement())
+  race_id        Int
+  skills_id      Int
+  cooldown_time  Float @default(1) // cooldown in secs, 0 for passive skills
+  cooldown_turns Int   @default(2) // cooldown in turns, 0 for passive skills
 
-  race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
+  race  race   @relation(fields: [race_id], references: [id], onDelete: Cascade)
+  skill skills @relation(fields: [skills_id], references: [id], onDelete: Cascade)
 
-  @@unique([race_id, element])
+  @@unique([race_id, skills_id])
   @@index([race_id])
 }
 
-model familiar {
-  id            Int      @id @default(autoincrement())
-  char_image_id Int?
-  name          String   @unique
-  description   String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  char_image char_image? @relation(fields: [char_image_id], references: [id])
-
-  players player[]
-}
-
-model occupation {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  description String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  players          player[]
-  player_side_jobs player_side_job[]
+model skills {
+  id             Int          @id @default(autoincrement())
+  name           String       @unique
+  description    String?
+  ability_type   AbilityType
+  cooldown_time  Float        @default(1) // cooldown in secs, 0 for passive skills
+  cooldown_turns Int          @default(2) // cooldown in turns, 0 for passive skills
+  raceSkills     race_skills[]
 }
 
 model player {
-  id            Int      @id @default(autoincrement())
-  race_id       Int
-  familiar_id   Int?
-  occupation_id Int?
-  name          String
-  level         Int      @default(1)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  id                 Int      @id @default(autoincrement())
+  race_id            Int
+  player_familiar_id Int?
+  occupation_id      Int?
+  name               String
+  level              Int      @default(1)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
 
   race                      race                       @relation(fields: [race_id], references: [id], onDelete: Restrict)
-  familiar                  familiar?                  @relation(fields: [familiar_id], references: [id], onDelete: SetNull)
+  player_familiars          player_familiars?          @relation(fields: [player_familiar_id], references: [id], onDelete: SetNull)
   occupation                occupation?                @relation(fields: [occupation_id], references: [id], onDelete: SetNull)
   player_attributes         player_attribute[]
   player_affinities         player_affinity[]
@@ -144,22 +176,14 @@ model player {
   player_magic_attributions player_magic_attribution[]
   player_side_jobs          player_side_job[]
   magic_items               magic_item[]
+  playerClass               player_class?              @relation(fields: [player_classId], references: [id])
+  player_classId            Int?
+  playerSideJobHistories    player_side_job_history[]
+  playerInventories         player_inventory[]
 
   @@index([race_id])
-  @@index([familiar_id])
+  @@index([player_familiar_id])
   @@index([occupation_id])
-}
-
-model player_attribute {
-  id             Int           @id @default(autoincrement())
-  player_id      Int
-  attribute_type AttributeType
-  value          Float         @default(0.0)
-
-  player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
-
-  @@unique([player_id, attribute_type])
-  @@index([player_id])
 }
 
 model player_affinity {
@@ -174,17 +198,61 @@ model player_affinity {
   @@index([player_id])
 }
 
-model player_skill {
-  id             Int         @id @default(autoincrement())
+model player_attribute {
+  id             Int           @id @default(autoincrement())
   player_id      Int
-  ability_type   AbilityType
-  cooldown_time  Float       @default(1) // cooldown in secs, 0 for passive skills
-  cooldown_turns Int         @default(2) // cooldown in turns, 0 for passive skills
-  skill_name     String
+  attribute_type AttributeType
+  value          Float         @default(0.0)
 
   player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
 
-  @@unique([player_id, skill_name])
+  @@unique([player_id, attribute_type])
+  @@index([player_id])
+}
+
+model player_class {
+  id         Int      @id @default(autoincrement())
+  player_id  Int
+  class_id   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  players player[]
+}
+
+model player_familiars {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  race_id     Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  race    race     @relation(fields: [race_id], references: [id], onDelete: Cascade)
+  players player[]
+}
+
+model player_inventory {
+  id        Int    @id @default(autoincrement())
+  player_id Int
+  item_name String
+  quantity  Int    @default(1)
+
+  player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
+
+  @@unique([player_id, item_name])
+  @@index([player_id])
+}
+
+model player_magic_attribution {
+  id        Int          @id @default(autoincrement())
+  player_id Int
+  element   MagicElement
+  potency   Float        @default(1.0)
+
+  player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
+
+  @@unique([player_id, element])
   @@index([player_id])
 }
 
@@ -199,18 +267,6 @@ model player_resistance {
   player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
 
   @@unique([player_id, kind, element, detail])
-  @@index([player_id])
-}
-
-model player_magic_attribution {
-  id        Int          @id @default(autoincrement())
-  player_id Int
-  element   MagicElement
-  potency   Float        @default(1.0)
-
-  player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
-
-  @@unique([player_id, element])
   @@index([player_id])
 }
 
@@ -231,23 +287,53 @@ model player_side_job {
   @@index([occupation_id])
 }
 
-model magic_item {
-  id           Int         @id @default(autoincrement())
-  player_id    Int?
-  name         String
-  description  String?
-  ability_type AbilityType
-  created_at   DateTime    @default(now())
-  updated_at   DateTime    @updatedAt
+model player_side_job_history {
+  id                Int      @id @default(autoincrement())
+  player_id         Int
+  occupation_id     Int
+  salary_multiplier Float    @default(0.5)
+  buff_multiplier   Float    @default(0.5)
+  started_at        DateTime
+  ended_at          DateTime
 
-  player player? @relation(fields: [player_id], references: [id], onDelete: SetNull)
+  player     player     @relation(fields: [player_id], references: [id], onDelete: Cascade)
+  occupation occupation @relation(fields: [occupation_id], references: [id], onDelete: Restrict)
 
+  @@index([player_id])
+  @@index([occupation_id])
+}
+
+model player_skill {
+  id             Int         @id @default(autoincrement())
+  player_id      Int
+  ability_type   AbilityType
+  cooldown_time  Float       @default(1) // cooldown in secs, 0 for passive skills
+  cooldown_turns Int         @default(2) // cooldown in turns, 0 for passive skills
+  skill_name     String
+
+  player player @relation(fields: [player_id], references: [id], onDelete: Cascade)
+
+  @@unique([player_id, skill_name])
   @@index([player_id])
 }
 
 // ---------------------------------------------------------------------------
 // Enums
 // ---------------------------------------------------------------------------
+
+enum AbilityType {
+  REGULAR
+  HEAVY
+  UNIQUE
+  PASSIVE
+}
+
+enum AffinityType {
+  ELEMENTAL // player or race has an affinity for a specific magic element, e.g. "Fire" or "Water"
+  WEAPON // player or race has an affinity for a specific weapon type, e.g. "Swords" or "Bows"
+  SPELL // player has an affinity for a specific spell or spell type, e.g. "Fireball" or "Healing Spells"
+  SKILL // player has an affinity for a specific skill or skill type, e.g. "Stealth" or "Swordsmanship"
+}
 
 enum AttributeType {
   STRENGTH
@@ -262,8 +348,10 @@ enum AttributeType {
 enum CharacterType {
   PLAYER
   ENEMY
+  BOSS
   NPC
   FAMILIAR
+  SUPPORT_CHARACTER
 }
 
 enum MagicElement {
@@ -274,20 +362,6 @@ enum MagicElement {
   AETHER
   LIGHT
   DARK
-}
-
-enum AbilityType {
-  REGULAR
-  HEAVY
-  UNIQUE
-  PASSIVE
-}
-
-enum AffinityType {
-  ELEMENTAL
-  WEAPON
-  SPELL
-  SKILL
 }
 
 enum ResistanceKind {
@@ -304,4 +378,12 @@ enum ResistanceKind {
   NECROTIC
   RADIANT
   LEVEL_NULL // immunity to level-drain / nullification effects
+}
+
+enum evolution_condition_type {
+  LEVEL
+  ITEM
+  AFFINITY
+  ATTRIBUTE
+  TIME_OF_DAY
 }

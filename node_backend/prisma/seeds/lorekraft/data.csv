@@ -1,61 +1,36 @@
-entity_type,race_name,character_type,name,description,attribute_type,value,affinity_type,affinity_target,ability_type,skill_name,cooldown_turns,cooldown_time,resistance_kind,resistance_detail,resistance_amount,magic_element,magic_potency,image_url,image_alt
-race,Pureblood,PLAYER,Pureblood,"Proud-arrogant noble descended from an ancient lineage untouched by magical corruption. Elitist, protective of legacy, and convinced of inherent superiority.",,,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,STRENGTH,7,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,AGILITY,6,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,PHYSICAL_DEFENSE,9,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,MAGICAL_DEFENSE,7,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,MANA,4,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,INTELLIGENCE,8,,,,,,,,,,,,,
-race_attribute,Pureblood,PLAYER,,,COURAGE,8,,,,,,,,,,,,,
-race_affinity,Pureblood,PLAYER,,,,WEAPON,Ancestral Spear,,,,,,,,,,,,
-race_skill,Pureblood,PLAYER,,,,,,REGULAR,Noble Strike,0,1,,,,,,,,
-race_skill,Pureblood,PLAYER,,,,,,HEAVY,Bloodline Fury,2,2,,,,,,,,
-race_skill,Pureblood,PLAYER,,,,,,UNIQUE,Unyielding Heritage,0,0,,,,,,,,
-race_skill,Pureblood,PLAYER,,,,,,PASSIVE,Noble Resistance,0,0,,,,,,,,
-race_resistance,Pureblood,PLAYER,,,,,,,,,,STATUS_EFFECT,"Charm, fear, and similar noble-will tested conditions",0.5,,,,
-race_affinity,Pureblood,PLAYER,,,,SKILL,"Inspire nearby allies; charm resistance +50%",,,,,,,,,,,,
-race,Pureblood,ENEMY,Pureblood,"Proud-arrogant noble descended from an ancient lineage untouched by magical corruption. Elitist, protective of legacy, and convinced of inherent superiority.",,,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,STRENGTH,7,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,AGILITY,6,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,PHYSICAL_DEFENSE,9,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,MAGICAL_DEFENSE,7,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,MANA,4,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,INTELLIGENCE,8,,,,,,,,,,,,,
-race_attribute,Pureblood,ENEMY,,,COURAGE,8,,,,,,,,,,,,,
-race_affinity,Pureblood,ENEMY,,,,WEAPON,Ancestral Spear,,,,,,,,,,,,
-race_skill,Pureblood,ENEMY,,,,,,REGULAR,Noble Strike,0,1,,,,,,,,
-race_skill,Pureblood,ENEMY,,,,,,HEAVY,Bloodline Fury,2,2,,,,,,,,
-race_skill,Pureblood,ENEMY,,,,,,UNIQUE,Unyielding Heritage,0,0,,,,,,,,
-race_skill,Pureblood,ENEMY,,,,,,PASSIVE,Noble Resistance,0,0,,,,,,,,
-race_resistance,Pureblood,ENEMY,,,,,,,,,,STATUS_EFFECT,"Charm, fear, and similar noble-will tested conditions",0.5,,,,
-race_affinity,Pureblood,ENEMY,,,,SKILL,"Inspire nearby allies; charm resistance +50%",,,,,,,,,,,,
-race,Wendigo,ENEMY,Wendigo,"Former human transformed by cannibalism in a cursed forest into a monstrous predator driven by hunger and lingering torment.",,,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,STRENGTH,8,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,AGILITY,7,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,PHYSICAL_DEFENSE,9,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,MAGICAL_DEFENSE,5,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,MANA,3,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,INTELLIGENCE,5,,,,,,,,,,,,,
-race_attribute,Wendigo,ENEMY,,,COURAGE,4,,,,,,,,,,,,,
-race_affinity,Wendigo,ENEMY,,,,WEAPON,Claws of Hunger,,,,,,,,,,,,
-race_skill,Wendigo,ENEMY,,,,,,REGULAR,Ravenous Bite,0,1,,,,,,,,
-race_skill,Wendigo,ENEMY,,,,,,HEAVY,Howl of Despair,2,2,,,,,,,,
-race_skill,Wendigo,ENEMY,,,,,,UNIQUE,Flesh Frenzy,0,0,,,,,,,,
-race_skill,Wendigo,ENEMY,,,,,,PASSIVE,Hunger Unending,0,0,,,,,,,,
-race_resistance,Wendigo,ENEMY,,,,,,,,,,STATUS_EFFECT,Fear-based effects are dulled by cursed hunger,0.25,,,,
-race_affinity,Wendigo,ENEMY,,,,ELEMENTAL,Icebound frenzy in snowstorm or freezing terrain,,,,,,,,,,,,
-race,Boss Wendigo,ENEMY,Boss Wendigo,"A larger and more deliberate Wendigo variant that dominates frozen hunting grounds with relentless predation.",,,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,STRENGTH,9,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,AGILITY,7,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,PHYSICAL_DEFENSE,10,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,MAGICAL_DEFENSE,6,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,MANA,3,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,INTELLIGENCE,6,,,,,,,,,,,,,
-race_attribute,Boss Wendigo,ENEMY,,,COURAGE,6,,,,,,,,,,,,,
-race_affinity,Boss Wendigo,ENEMY,,,,WEAPON,Claws of Hunger,,,,,,,,,,,,
-race_skill,Boss Wendigo,ENEMY,,,,,,REGULAR,Ravenous Bite,0,1,,,,,,,,
-race_skill,Boss Wendigo,ENEMY,,,,,,HEAVY,Howl of Despair,2,2,,,,,,,,
-race_skill,Boss Wendigo,ENEMY,,,,,,UNIQUE,Flesh Frenzy,0,0,,,,,,,,
-race_skill,Boss Wendigo,ENEMY,,,,,,PASSIVE,Hunger Unending,0,0,,,,,,,,
-race_resistance,Boss Wendigo,ENEMY,,,,,,,,,,STATUS_EFFECT,Fear-based effects are dulled by cursed hunger,0.25,,,,
-race_affinity,Boss Wendigo,ENEMY,,,,ELEMENTAL,Icebound frenzy in snowstorm or freezing terrain,,,,,,,,,,,,
+Pureblood (Player or Enemy)
+
+
+Background: The Pureblood is a proud-arrogant noble, descended from an ancient lineage untouched by magical corruption. Arrogant and elitist, they believe in their inherent superiority and will stop at nothing to protect their legacy.
+Attributes:
+Strength: 7
+Agility: 6
+Defense: 8 (Physical Defense: 9, Magical Defense: 7)
+Magic: 4
+Intelligence: 8
+Weapon of Choice: Ancestral Spear – A finely crafted spear passed down through generations, imbued with minor protective enchantments.
+Abilities:
+Noble Strike (Regular): A powerful thrust that ignores 25% of the enemy's armor.
+Bloodline Fury (Heavy, 2-turn reload): Increases Pureblood’s Strength and Agility by 4 for the next 3 turns, at the cost of reducing Defense by 2.
+Unyielding Heritage (Unique Circumstance - Facing a family rival): When facing an enemy who shares blood or history, Pureblood's attack power increases by 50% for the duration of the battle.
+Passive Ability: Noble Resistance
+The Pureblood's noble heritage grants them resistance to status effects like charm and fear. They gain an advantage on saving throws against such conditions and can inspire nearby allies, increasing their resistance to charm by 50%.
+
+Wendigo (Enemy or Boss)
+
+Background: Once a human, the Wendigo was transformed into a monstrous creature after resorting to cannibalism in a cursed forest. Now, it roams the wilderness, driven by an insatiable hunger for flesh and the torment of its former humanity.
+Attributes:
+Strength: 8
+Agility: 7
+Defense: 7 (Physical Defense: 9, Magical Defense: 5)
+Magic: 3
+Intelligence: 5
+Weapon of Choice: Claws of Hunger – The Wendigo’s razor-sharp claws can rend through flesh and armor alike.
+Abilities:
+Ravenous Bite (Regular): Deals a ferocious bite to the enemy, restoring 10% of the Wendigo's health.
+Howl of Despair (Heavy, 2-turn reload): Lets out a terrifying howl that reduces the defense and agility of all enemies for 3 turns.
+Flesh Frenzy (Unique Circumstance - In a snowstorm or freezing environment): The Wendigo enters a frenzy, gaining double attack speed for 3 turns in cold environments.
+Passive Ability: Hunger Unending
+The Wendigo’s insatiable hunger allows it to restore 2% of its health for every enemy that is defeated within its sight. If it personally kills the enemy,  half the health is restored.
+
+Quickstep (Player or Support Character)

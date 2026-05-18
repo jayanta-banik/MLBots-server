@@ -192,6 +192,27 @@ or the user instead of guessing.
   achieve the requested behavior and SHOULD adapt surrounding callers before
   replacing an established shared utility, model, middleware, or contract
   surface.
+- **FR-XXX**: The implementation MUST preserve existing variable names,
+  function names, and stable internal identifiers unless a rename is required
+  by the requested functionality, correctness, or compatibility.
+- **FR-XXX**: The implementation MUST prefer additive modification over
+  rewriting working code into a more complicated equivalent, and MUST NOT
+  introduce semantic changes without an explicit functionality change.
+- **FR-XXX**: Prisma queries SHOULD prefer `include` over `select` unless
+  `select` is required to avoid exposing PII or internal-only data.
+- **FR-XXX**: `created_at`, `updated_at`, and equivalent creation/update
+  timestamps MUST be treated as safe metadata unless feature-specific evidence
+  says otherwise.
+- **FR-XXX**: Service files MUST be kept only when they own distinct business
+  behavior, orchestration, or cross-model workflow.
+- **FR-XXX**: If a service file only serializes, normalizes, or rearranges
+  object structure, the implementation MUST avoid that service layer, prefer
+  direct model calls from the router where appropriate, and move reusable pure
+  shape-conversion logic into a helper file.
+- **FR-XXX**: Helper files MUST live in the exact same folder as the file that
+  calls them, MUST remain local to that folder rather than one level up or
+  down, and SHOULD be introduced only for logic used by a single calling file
+  unless broader sharing is explicitly required.
 - **FR-XXX**: File names and folder names MUST remain `snake_case` across Node
   and Python code.
 - **FR-XXX**: Python code MUST use `snake_case`, Node code MUST use

@@ -41,6 +41,7 @@ const loginUserHandler = async (req, res) => {
   if (payload instanceof Error) return send_error(res, payload);
 
   res.locals.auth = { userId: payload.userId };
+  res.locals.userRole = payload.user.role;
   res.locals.token = payload.token;
 
   return res.json(payload);

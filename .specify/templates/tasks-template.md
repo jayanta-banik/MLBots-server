@@ -55,11 +55,17 @@ for low-risk wiring/doc changes only, explicitly documented manual checks.
 - [ ] T000C Inventory PHI/PII touchpoints, secret boundaries, logging surfaces, and any publicly exposed assets such as files in `static`
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
-- [ ] T003 [P] Configure linting and formatting tools
+- [ ] T003 [P] Configure linting and formatting tools, defaulting JavaScript/frontend lint execution to `yarn lint --fix`
 - [ ] T00X Document affected runtime layers and contract surfaces for this feature
 - [ ] T00X Confirm the branch follows `feat/NNN-short-name` for feature work or `bugfix/short-name` for bug work and remains short-lived
 - [ ] T00X Confirm the planned change stays within existing subproject patterns and avoids drive-by refactors
 - [ ] T00X Confirm the planned implementation creates the minimal changes needed to achieve the requested behavior and adapts surrounding callers before replacing established shared surfaces
+- [ ] T00X Confirm working variable names, function names, and stable identifiers remain unchanged unless a rename is required for requested functionality, correctness, or compatibility
+- [ ] T00X Confirm additive modification is preferred over rewriting working code into a more complicated equivalent and that no semantic change is introduced without an explicit functionality change
+- [ ] T00X Confirm Prisma query shape prefers `include` over `select` unless `select` is required to avoid exposing PII or internal-only data
+- [ ] T00X Confirm timestamps such as `created_at` and `updated_at` are treated as safe metadata unless feature-specific evidence says otherwise
+- [ ] T00X Confirm service files are only introduced or retained when they own distinct business behavior, orchestration, or cross-model workflow; otherwise prefer route-to-model calls plus helper files for reusable shape conversion
+- [ ] T00X Confirm helper files live in the exact same folder as their calling file, stay local to that folder, and are introduced only for logic used by a single calling file unless broader sharing is explicitly required
 - [ ] T00X Confirm only synthetic data is used in prompts, tests, fixtures, screenshots, and examples
 - [ ] T00X If `frontend` or `admin` is in scope, review `.specify/memory/ui_standards.md` and capture the MUI, Redux, motion, Moment, and shared-component rules
 - [ ] T00X Confirm naming conventions, import paths, and `snake_case` file paths
@@ -83,7 +89,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T009 Setup environment configuration management
 - [ ] T00X Confirm observability and deployment touchpoints for changed layers
 - [ ] T00X Confirm logs, telemetry, analytics, and debug output do not capture PHI/PII or secrets
-- [ ] T00X For touched UI apps, run `yarn lint` and `yarn test`, or add minimal test support / document manual verification if the app does not yet expose tests
+- [ ] T00X For touched UI apps, run `yarn lint --fix` and `yarn test`, or add minimal test support / document manual verification if the app does not yet expose tests
 - [ ] T00X Create or update PostgreSQL migrations and Prisma or SQLAlchemy data models as required
 - [ ] T00X Add or update Vite and Redux frontend scaffolding when frontend work is in scope
 - [ ] T00X Record the points during implementation where constitution and learnings must be re-reviewed
@@ -220,9 +226,26 @@ Examples of foundational tasks (adjust based on your project):
   the change affects behavior, contracts, build output, or deployment flow
 - Unclear behavior MUST be resolved from source-of-truth artifacts or explicit
   user clarification, not guessed during implementation
+- Working variable names, function names, and stable identifiers MUST remain
+  unchanged unless a rename is required for requested functionality,
+  correctness, or compatibility
+- Prefer additive modification over rewriting working code into a more
+  complicated equivalent, and do not introduce semantic changes without an
+  explicit functionality change
+- Prisma query shape SHOULD prefer `include` over `select` unless `select` is
+  required to avoid exposing PII or internal-only data
+- `created_at`, `updated_at`, and equivalent timestamps are safe metadata
+  unless feature-specific evidence says otherwise
+- Service files belong only where they own distinct business behavior,
+  orchestration, or cross-model workflow; if logic only serializes,
+  normalizes, or rearranges object structure, prefer route-to-model calls and
+  helper files
+- Helper files belong in the exact same folder as the file that calls them,
+  stay local to that folder, and should be introduced only for logic used by a
+  single calling file unless broader sharing is explicitly required
 - Use synthetic data only in tests, fixtures, examples, screenshots, and debug
   workflows
-- Touched UI apps MUST satisfy the lint/test/manual-verification rule and keep
+- Touched UI apps MUST satisfy the `yarn lint --fix`/test/manual-verification rule and keep
   design consistent with the shared theme and component strategy
 - File and folder paths MUST remain `snake_case`
 - Python identifiers MUST remain `snake_case`; Node identifiers MUST use
@@ -232,8 +255,9 @@ Examples of foundational tasks (adjust based on your project):
 - Node internal imports MUST use the alias conventions except for local helper
   files that can use relative imports
 - Frontend work MUST account for Vite, Redux, and responsive desktop/mobile behavior
-- Models before services
-- Services before endpoints
+- Models before services when a service layer is actually required
+- Endpoints may call models directly when a service layer would only serialize,
+  normalize, or rearrange object structure
 - Core implementation before integration
 - Keep the codebase runnable at each migration checkpoint
 - Story complete before moving to next priority

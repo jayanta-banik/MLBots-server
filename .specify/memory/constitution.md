@@ -1,24 +1,21 @@
 <!--
 Sync Impact Report
-Version change: 2.1.0 -> 2.2.0
+Version change: 2.3.1 -> 2.4.0
 Modified principles:
-- VI. Privacy, Security, and Compliance Override All Other Goals -> VI. Privacy, Security, and Compliance Override All Other Goals
+- IV. Existing Patterns Win By Default -> IV. Existing Patterns Win By Default
 Added sections:
-- VII. Agent Memory Preflight Is Mandatory
-- Governance escalation triggers and amendment review requirements
+- None
 Removed sections:
 - None
 Templates requiring updates:
-Version change: 2.2.0 -> 2.2.1
-- ✅ updated /home/pi/MLBots-server/.specify/templates/spec-template.md
-- II. Minimal Diffs Keep Risk Local -> II. Minimal Diffs Keep Risk Local
-- ✅ updated /home/pi/MLBots-server/.specify/memory/README.md
-- None
+- ✅ updated .specify/templates/constitution-template.md
+- ✅ updated .specify/templates/plan-template.md
+- ✅ updated .specify/templates/spec-template.md
+- ✅ updated .specify/templates/tasks-template.md
+- ✅ no command templates present under .specify/templates/commands/
 Follow-up TODOs:
 - None
 -->
-
-- ✅ updated /home/pi/MLBots-server/.specify/templates/spec-template.md
 
 # MLBots-server Constitution
 
@@ -46,7 +43,12 @@ SHOULD adapt surrounding callers before replacing an established shared
 utility, model, middleware, or contract surface. Agents SHOULD fix only the
 root cause inside the scoped area. Agents MAY record follow-up work as explicit
 TODOs, but MUST NOT bundle that work into the same change set unless the spec
-requests it.
+requests it. Agents MUST preserve existing variable names, function names, and
+other working identifiers unless a rename is required for the requested
+functionality, a correctness fix, or a necessary compatibility update. Agents
+MUST prefer additive modification over replacing working code with a more
+complicated equivalent, and MUST NOT introduce semantic changes without an
+explicit functionality change in the spec or user request.
 
 ### III. Incremental Migrations Preserve Operability
 
@@ -69,8 +71,18 @@ composition in `frontend` and `admin`, state management and API access flows,
 Express middleware, services, error responses, and any serverless mapping or
 handler conventions already present in the repository. Agents SHOULD avoid
 introducing new frameworks, extra architectural layers, deeply nested patterns,
-or unnecessary variable redefinitions and copies. Consistency is a safety
-feature in this monorepo, so deviation requires explicit spec authority.
+or unnecessary variable redefinitions and copies. If something already works,
+agents MUST NOT rewrite it into a more complicated form unless the requested
+functionality requires that change. Service files MUST exist only when they own
+distinct business behavior, orchestration, or cross-model workflow. If a
+service file only serializes, normalizes, or rearranges object structure,
+agents MUST avoid that service layer, call the model directly from the router
+when appropriate, and move pure shape-conversion logic into a helper file when
+that logic still needs reuse. Helper files MUST live in the exact same folder
+as the file that calls them, MUST be local to that folder rather than one level
+up or down, and SHOULD be introduced only for logic used by a single calling
+file unless the spec explicitly requires broader sharing. Consistency is a
+safety feature in this monorepo, so deviation requires explicit spec authority.
 
 ### V. Delivery Stays Layered, Incremental, and Deployable
 
@@ -119,6 +131,9 @@ the change because it bypasses repository-specific safety and consistency rules.
   explicitly changes them.
 - Existing validation behavior, units, rounding, timestamps, and interpretation
   rules MUST be preserved unless the spec explicitly changes them.
+- Existing variable names, function names, and stable internal identifiers MUST
+  be preserved unless a rename is required by the requested functionality,
+  correctness, or compatibility.
 - Real PHI/PII MUST NOT appear in prompts, logs, tests, fixtures, screenshots,
   sample payloads, or debugging output; synthetic data is required.
 - Logging, analytics, and telemetry MUST NOT capture PHI-bearing request
@@ -143,6 +158,9 @@ the change because it bypasses repository-specific safety and consistency rules.
   current module.
 - JavaScript and frontend package workflows MUST use Yarn for commands,
   documentation, and generated instructions.
+- When running lint in JavaScript or frontend work, the default lint command
+  SHOULD be `yarn lint --fix` unless there is a task-specific reason to avoid
+  auto-fixing.
 - Python commands in bash MAY assume the repository virtual environment is
   already activated through shell startup configuration.
 - Python service commands MUST be run from the repository root.
@@ -164,6 +182,13 @@ the change because it bypasses repository-specific safety and consistency rules.
 - PostgreSQL is the required database stack for persistent application data.
 - Node persistence code MUST go through Prisma.
 - Python persistence code MUST go through SQLAlchemy.
+- Prisma queries SHOULD prefer `include` over `select` when the included fields
+  do not expose PII or internal-only data.
+- Prisma queries MUST prefer `select` when the alternative would expose PII,
+  secrets, or internal-only information that should stay hidden from the
+  calling layer.
+- `created_at`, `updated_at`, and equivalent creation/update timestamps MAY be
+  treated as safe metadata and do not by themselves require `select`.
 - Public API payloads SHOULD stay consistent in naming and shape across Node and
   Python layers when they represent the same concept; any intentional mismatch
   MUST be called out in the spec.
@@ -186,6 +211,9 @@ the change because it bypasses repository-specific safety and consistency rules.
   short-lived `bugfix/short-name` branch.
 - Each spec and plan MUST call out any naming convention, import-path, or data
   layer impact when Node or Python code is introduced or reorganized.
+- Each spec and plan MUST call out Prisma query-shape choices when a change
+  introduces or updates `select` or `include`, especially when the reason is
+  PII or internal-data minimization.
 - Each spec and plan MUST call out runtime invocation changes, frontend state
   management impact, and responsive behavior expectations when frontend work is
   involved.
@@ -265,4 +293,4 @@ Escalation triggers (agents MUST stop and ask a human):
 - Privacy, PHI/PII handling, or secret-management implications are unclear.
 - The change proposes or requires amending this constitution.
 
-**Version**: 2.2.1 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-04-26
+**Version**: 2.4.0 | **Ratified**: 2026-04-20 | **Last Amended**: 2026-05-17

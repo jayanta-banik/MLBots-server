@@ -9,6 +9,9 @@ import { clear_auth_error, logout, session_expired } from './features/auth/auth_
 import { bootstrap_auth } from './features/auth/auth_thunks.js';
 import AboutPage from './pages/about.jsx';
 import HomePage from './pages/home.jsx';
+import LoreKraftPage from './pages/lorekraft.jsx';
+import LoreKraftAdminPage from './pages/lorekraft_admin.jsx';
+import LoreKraftRacesPage from './pages/lorekraft_races.jsx';
 import PortfolioPage from './pages/portfolio.jsx';
 import TrackingUniPage from './pages/tracking_uni.jsx';
 import VisualizeModelPage from './pages/visualize_model.jsx';
@@ -23,6 +26,7 @@ function AuthShell() {
   const authToken = useSelector(select_auth_token);
   const isAuthenticated = useSelector(select_is_authenticated);
   const authUser = useSelector(select_auth_user);
+  const isAdmin = authUser?.role === 'ADMIN';
 
   useEffect(() => {
     if (authStatus === 'idle') {
@@ -86,8 +90,15 @@ function AuthShell() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/home" element={isAuthenticated ? <HomePage user={authUser} onLogout={() => dispatch(logout())} /> : <Navigate to="/welcome" replace />} />
+        <Route path="/lorekraft" element={isAuthenticated ? <LoreKraftPage user={authUser} /> : <Navigate to="/welcome" replace />} />
         <Route path="/tracking-uni" element={isAuthenticated ? <TrackingUniPage /> : <Navigate to="/welcome" replace />} />
         <Route path="/Visualize/Model" element={isAuthenticated ? <VisualizeModelPage /> : <Navigate to="/welcome" replace />} />
+        <Route path="/lorekraft/admin" element={isAuthenticated ? isAdmin ? <LoreKraftAdminPage /> : <Navigate to="/home" replace /> : <Navigate to="/welcome" replace />} />
+        <Route
+          path="/lorekraft/admin/characters"
+          element={isAuthenticated ? isAdmin ? <Navigate to="/lorekraft/admin/races" replace /> : <Navigate to="/home" replace /> : <Navigate to="/welcome" replace />}
+        />
+        <Route path="/lorekraft/admin/races" element={isAuthenticated ? isAdmin ? <LoreKraftRacesPage /> : <Navigate to="/home" replace /> : <Navigate to="/welcome" replace />} />
       </Routes>
     </Stack>
   );

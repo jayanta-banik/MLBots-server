@@ -37,7 +37,7 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 22,
+    borderRadius: 6,
   },
   typography: {
     fontFamily: '"Segoe UI", "Helvetica Neue", Arial, sans-serif',

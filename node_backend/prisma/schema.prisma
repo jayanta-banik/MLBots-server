@@ -33,6 +33,7 @@ model audit_logs {
 model users {
   id         Int          @id @default(autoincrement())
   email      String       @unique
+  role       UserRole     @default(USER)
   first_name String?
   last_name  String?
   dob        DateTime?
@@ -70,4 +71,9 @@ model publications {
   publication_date DateTime?
   faculties_id     String?   @db.VarChar(255)
   created_at       DateTime  @default(now()) @db.Timestamptz(0)
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }

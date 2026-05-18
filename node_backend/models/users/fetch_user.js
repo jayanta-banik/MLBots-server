@@ -15,6 +15,7 @@ export default async function fetchUser({ email, id, username, includePassword =
       first_name: true,
       is_active: true,
       last_name: true,
+      role: true,
       username: true,
       password: includePassword,
       created_at: true,

@@ -90,8 +90,10 @@ export function verifyPassword(password, storedValue) {
   return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(computedHash, 'hex'));
 }
 
-export function createAuthToken({ id, email, dob }) {
-  return jwt.sign({ sub: id, email, dob: dob ? dob.toISOString().slice(0, 10) : null }, getAuthSecret(), { expiresIn: '2d' });
+export function createAuthToken({ id, email, dob, role }) {
+  return jwt.sign({ sub: id, email, dob: dob ? dob.toISOString().slice(0, 10) : null, role }, getAuthSecret(), {
+    expiresIn: '2d',
+  });
 }
 
 export function verifyAuthToken(token) {

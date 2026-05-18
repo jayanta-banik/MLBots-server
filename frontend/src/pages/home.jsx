@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-import { ButtonBase, Chip, Container, Stack, Typography } from '@mui/material';
+import { Button, ButtonBase, Chip, Container, Stack, Typography } from '@mui/material';
 
 import HomeTopBar from '../components/home_top_bar.jsx';
 import SurfaceCard from '../components/surface_card.jsx';
 
 function HomePage({ onLogout, user }) {
   const navigate = useNavigate();
+  const isAdmin = user?.role === 'ADMIN';
   const upcomingProjects = [
     {
       title: 'Vectorize repo',
@@ -20,10 +21,6 @@ function HomePage({ onLogout, user }) {
     {
       title: 'MCP tool collection',
       description: 'A curated set of Model Context Protocol utilities for common automation and integration flows.',
-    },
-    {
-      title: 'Lorekraft (DND-like game)',
-      description: 'Narrative-first world-building and campaign gameplay inspired by tabletop role-playing systems.',
     },
   ];
 
@@ -93,7 +90,40 @@ function HomePage({ onLogout, user }) {
           </SurfaceCard>
         </ButtonBase>
 
-        <SurfaceCard tone="secondary" delay={0.14}>
+        <SurfaceCard
+          tone="secondary"
+          delay={0.14}
+          sx={{
+            width: '100%',
+            transition: 'transform 160ms ease, box-shadow 160ms ease',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: 6,
+            },
+          }}
+        >
+          <Stack spacing={1.5}>
+            <Chip label="Game project" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
+            <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.25rem' } }}>
+              LoreKraft
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '60ch', lineHeight: 1.75 }}>
+              Narrative-first world-building and campaign gameplay inspired by tabletop role-playing systems, with a separate admin surface for protected project management workflows.
+            </Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+              <Button variant="contained" color="secondary" onClick={() => navigate('/lorekraft')}>
+                Open LoreKraft
+              </Button>
+              {isAdmin ? (
+                <Button variant="outlined" color="secondary" onClick={() => navigate('/lorekraft/admin')}>
+                  Open admin
+                </Button>
+              ) : null}
+            </Stack>
+          </Stack>
+        </SurfaceCard>
+
+        <SurfaceCard tone="secondary" delay={0.18}>
           <Stack spacing={2}>
             <Chip label="Roadmap" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
             <Typography variant="h2" sx={{ fontSize: { xs: '1.6rem', md: '2rem' } }}>
@@ -101,7 +131,7 @@ function HomePage({ onLogout, user }) {
             </Typography>
             <Stack spacing={1.5}>
               {upcomingProjects.map((project, index) => (
-                <SurfaceCard key={project.title} tone={index % 2 === 0 ? 'primary' : 'secondary'} delay={0.18 + index * 0.04}>
+                <SurfaceCard key={project.title} tone={index % 2 === 0 ? 'primary' : 'secondary'} delay={0.22 + index * 0.04}>
                   <Stack spacing={1}>
                     <Chip label="Coming soon" color={index % 2 === 0 ? 'primary' : 'secondary'} variant="outlined" sx={{ alignSelf: 'flex-start' }} />
                     <Typography variant="h3" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' } }}>

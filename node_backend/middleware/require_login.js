@@ -14,7 +14,8 @@ export function requireLogin(req, res, next) {
 
   res.locals.auth = {
     token,
-    user_id: Number(payload.sub),
+    userId: Number(payload.sub),
   };
+  res.locals.userRole = payload.role;
   next();
 }
