@@ -57,17 +57,6 @@ export function serializeRace(race) {
   };
 }
 
-export function serializeSkill(skill) {
-  return {
-    id: skill.id,
-    name: skill.name,
-    description: skill.description,
-    abilityType: skill.ability_type,
-    cooldownTime: skill.cooldown_time,
-    cooldownTurns: skill.cooldown_turns,
-  };
-}
-
 function normalizeCharacterTypes(payload) {
   const inputValues = Array.isArray(payload?.characterTypes) ? payload.characterTypes : payload?.characterType ? [payload.characterType] : [];
   const characterTypes = [...new Set(inputValues.filter((value) => CHARACTER_TYPES.includes(value)))];

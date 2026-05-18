@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { createRace, fetchRaces, fetchSkills } from '#models/lorekraft';
 import { send_error } from '#utils/error_utils';
-import { normalizeRacePayload, serializeRace } from '#utils/lorekraft_race_helper';
+import { normalizeRacePayload, serializeRace } from './lorekraft_admin_helper.js';
 
 const routes = Router({ mergeParams: true });
 
