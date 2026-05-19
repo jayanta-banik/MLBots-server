@@ -3,10 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import PictureInPictureAltOutlinedIcon from '@mui/icons-material/PictureInPictureAltOutlined';
 import SpaceDashboardOutlinedIcon from '@mui/icons-material/SpaceDashboardOutlined';
 import ViewAgendaOutlinedIcon from '@mui/icons-material/ViewAgendaOutlined';
-import { Box, Button, ButtonBase, Chip, Collapse, Divider, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Button, ButtonBase, Chip, Collapse, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 import SurfaceCard from '../components/surface_card.jsx';
+import FloatingRosterView from './lorekraft_race_roster_floating.jsx';
 import { COLLAPSED_RACE_HEIGHT, EXPANDED_RACE_HEIGHT, formatEnumLabel, parseScore, RACE_CARD_SPACING, ROSTER_MAX_HEIGHT, ROSTER_MIN_HEIGHT, ROSTER_OVERSCAN_PX } from './lorekraft_races_helpers.js';
 import { AttributeMeter, ChevronToggleButton, DetailList } from './lorekraft_races_ui.jsx';
 
@@ -39,12 +40,12 @@ function RaceTitleBlock({ race, tone = 'secondary' }) {
 
   return (
     <Stack spacing={0.75} sx={{ minWidth: 0 }}>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.25} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.25} alignItems={{ xs: 'flex-start', md: 'center' }} sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h3" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' }, minWidth: 0 }}>
           {race.name}
         </Typography>
         {race.characterTypes.length ? (
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
             {race.characterTypes.map((characterType) => (
               <Chip key={`${race.id}-${characterType}`} label={formatEnumLabel(characterType)} color={tone} variant="outlined" />
             ))}
@@ -72,32 +73,6 @@ function RaceArtwork({ race, minHeight = 160 }) {
           : 'linear-gradient(145deg, rgba(30,58,47,0.12), rgba(23,37,61,0.16))',
       }}
     />
-  );
-}
-
-function ViewModeButton({ active, children, disabled = false, label, onClick, tooltip }) {
-  const button = (
-    <IconButton
-      size="small"
-      aria-label={label}
-      disabled={disabled}
-      onClick={onClick}
-      sx={{
-        border: (theme) => `1px solid ${alpha(theme.palette.secondary.main, active ? 0.32 : 0.14)}`,
-        backgroundColor: active ? (theme) => alpha(theme.palette.secondary.main, 0.14) : 'transparent',
-        color: active ? 'secondary.main' : 'text.secondary',
-      }}
-    >
-      {children}
-    </IconButton>
-  );
-
-  if (!tooltip) return button;
-
-  return (
-    <Tooltip title={tooltip}>
-      <span>{button}</span>
-    </Tooltip>
   );
 }
 
@@ -220,7 +195,9 @@ function RaceDetailContent({ race }) {
                   <Typography component="span" variant="caption" sx={{ color: getAbilityTypeColor(skill.abilityType), fontWeight: 700 }}>
                     {formatEnumLabel(skill.abilityType || 'UNKNOWN')}
                   </Typography>
-                  {' · '}Cooldown {skill.cooldownTime ?? 0}s / {skill.cooldownTurns ?? 0} turns
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.7 }}>
+                  Cooldown {skill.cooldownTime ?? 0}s / {skill.cooldownTurns ?? 0} turns
                 </Typography>
               </Box>
             )}
@@ -281,8 +258,12 @@ function RaceDetailContent({ race }) {
                 </Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.7 }}>
                   {parseScore(resistance.amount) ?? 0}/100
-                  {resistance.detail ? ` · ${resistance.detail}` : ''}
                 </Typography>
+                {resistance.detail ? (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.7 }}>
+                    {resistance.detail}
+                  </Typography>
+                ) : null}
               </Box>
             )}
           />
@@ -368,12 +349,187 @@ function getVirtualizedRaceWindow({ getRaceHeight, races, rosterScrollTop, roste
   };
 }
 
+function getAlternatingTone(index) {
+  return index % 2 === 0 ? 'primary' : 'secondary';
+}
+
+function getSelectedTone(isSelected, index) {
+  return isSelected ? 'secondary' : getAlternatingTone(index);
+}
+
+function CardRosterView({ bottomSpacerHeight, expandedRaceIds, onToggleRaceCard, registerRaceCardNode, rosterScrollRef, onRosterScroll, startIndex, topSpacerHeight, visibleRaces }) {
+  return (
+    <Box
+      ref={rosterScrollRef}
+      onScroll={onRosterScroll}
+      sx={{
+        maxHeight: ROSTER_MAX_HEIGHT,
+        minHeight: ROSTER_MIN_HEIGHT,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        pr: 0.5,
+      }}
+    >
+      <Box sx={{ height: topSpacerHeight }} />
+      {visibleRaces.map((race, visibleIndex) => {
+        const raceIndex = startIndex + visibleIndex;
+
+        return (
+          <Box key={race.id} ref={registerRaceCardNode(race.id)} sx={{ pb: `${RACE_CARD_SPACING}px` }}>
+            <SurfaceCard tone={getAlternatingTone(raceIndex)} delay={0}>
+              <Stack spacing={2}>
+                <Stack spacing={1.5}>
+                  <Stack spacing={1}>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <ChevronToggleButton isOpen={expandedRaceIds.includes(race.id)} label={`Toggle ${race.name} card`} onClick={() => onToggleRaceCard(race.id)} />
+                      <RaceTitleBlock race={race} tone={getAlternatingTone(raceIndex)} />
+                    </Stack>
+                  </Stack>
+                </Stack>
+
+                <Collapse in={expandedRaceIds.includes(race.id)}>
+                  <RaceDetailContent race={race} />
+                </Collapse>
+              </Stack>
+            </SurfaceCard>
+          </Box>
+        );
+      })}
+      <Box sx={{ height: bottomSpacerHeight }} />
+    </Box>
+  );
+}
+
+function SectionalRosterView({
+  clampedSectionalPage,
+  onNextPage,
+  onPreviousPage,
+  races,
+  sectionalPageCount,
+  sectionalVisibleRaces,
+  sectionalVisibleRacesEnd,
+  sectionalVisibleRacesStart,
+  selectedSectionalRace,
+  onSelectRace,
+}) {
+  return (
+    <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', xl: 'minmax(0, 0.92fr) minmax(0, 1.08fr)' }, minHeight: ROSTER_MIN_HEIGHT }}>
+      <Stack spacing={1.5} sx={{ minWidth: 0 }}>
+        <Stack direction="row" alignItems="center" spacing={1.5} sx={{ width: '100%', minHeight: 32, justifyContent: 'space-between' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', minHeight: 32, lineHeight: 1.2 }}>
+            Showing {sectionalVisibleRaces.length ? sectionalVisibleRacesStart + 1 : 0}-{Math.min(sectionalVisibleRacesEnd, races.length)} of {races.length}
+          </Typography>
+          <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0, minHeight: 32, justifyContent: 'space-between' }}>
+            <Button variant="text" color="secondary" size="small" disabled={clampedSectionalPage === 0} onClick={onPreviousPage} sx={{ minHeight: 32, py: 0.5 }}>
+              Prev
+            </Button>
+            <Button variant="text" color="secondary" size="small" disabled={clampedSectionalPage >= sectionalPageCount - 1} onClick={onNextPage} sx={{ minHeight: 32, py: 0.5 }}>
+              Next
+            </Button>
+          </Stack>
+        </Stack>
+        <Box sx={{ display: 'grid', gap: 1.25, gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' }, alignContent: 'start' }}>
+          {sectionalVisibleRaces.map((race, index) => (
+            <SurfaceCard key={race.id} tone={getSelectedTone(selectedSectionalRace?.id === race.id, index)} delay={0}>
+              <ButtonBase onClick={() => onSelectRace(race.id)} sx={{ width: '100%', display: 'block', textAlign: 'left', borderRadius: 3, overflow: 'hidden' }}>
+                <Stack spacing={1.25}>
+                  <RaceArtwork race={race} minHeight={108} />
+                  <Typography variant="body2" sx={{ fontWeight: 600, px: 0.5, pb: 0.5 }}>
+                    {race.name}
+                  </Typography>
+                </Stack>
+              </ButtonBase>
+            </SurfaceCard>
+          ))}
+        </Box>
+      </Stack>
+
+      <SurfaceCard tone="primary" delay={0}>
+        <Stack spacing={1.5} sx={{ height: '100%' }}>
+          {selectedSectionalRace ? <RaceTitleBlock race={selectedSectionalRace} tone="secondary" /> : null}
+          {!selectedSectionalRace ? (
+            <Typography variant="h3" sx={{ fontSize: { xs: '1.3rem', md: '1.5rem' } }}>
+              Race details
+            </Typography>
+          ) : null}
+          <Box sx={{ maxHeight: ROSTER_MAX_HEIGHT, overflowY: 'auto', pr: 0.5 }}>
+            <RaceDetailContent key={selectedSectionalRace?.id ?? 'empty-race'} race={selectedSectionalRace} />
+          </Box>
+        </Stack>
+      </SurfaceCard>
+    </Box>
+  );
+}
+
+function RosterViewSwitcher({
+  bottomSpacerHeight,
+  clampedSectionalPage,
+  onNextSectionalPage,
+  onPreviousSectionalPage,
+  onSelectFloatingRace,
+  onSelectSectionalRace,
+  onToggleRaceCard,
+  races,
+  registerRaceCardNode,
+  rosterScrollRef,
+  rosterViewMode,
+  selectedFloatingRace,
+  selectedSectionalRace,
+  sectionalPageCount,
+  sectionalVisibleRaces,
+  sectionalVisibleRacesEnd,
+  sectionalVisibleRacesStart,
+  startIndex,
+  topSpacerHeight,
+  visibleRaces,
+  expandedRaceIds,
+  onRosterScroll,
+}) {
+  if (rosterViewMode === 'card') {
+    return (
+      <CardRosterView
+        bottomSpacerHeight={bottomSpacerHeight}
+        expandedRaceIds={expandedRaceIds}
+        onToggleRaceCard={onToggleRaceCard}
+        registerRaceCardNode={registerRaceCardNode}
+        rosterScrollRef={rosterScrollRef}
+        onRosterScroll={onRosterScroll}
+        startIndex={startIndex}
+        topSpacerHeight={topSpacerHeight}
+        visibleRaces={visibleRaces}
+      />
+    );
+  }
+
+  if (rosterViewMode === 'sectional') {
+    return (
+      <SectionalRosterView
+        clampedSectionalPage={clampedSectionalPage}
+        onNextPage={onNextSectionalPage}
+        onPreviousPage={onPreviousSectionalPage}
+        races={races}
+        sectionalPageCount={sectionalPageCount}
+        sectionalVisibleRaces={sectionalVisibleRaces}
+        sectionalVisibleRacesEnd={sectionalVisibleRacesEnd}
+        sectionalVisibleRacesStart={sectionalVisibleRacesStart}
+        selectedSectionalRace={selectedSectionalRace}
+        onSelectRace={onSelectSectionalRace}
+      />
+    );
+  }
+
+  return <FloatingRosterView onSelectFloatingRace={onSelectFloatingRace} races={races} selectedFloatingRace={selectedFloatingRace} />;
+}
+
 export default function LoreKraftRaceRoster({ expandedRaceIds, isLoading, isRaceRosterOpen, onCollapseAllRaceCards, onExpandAllRaceCards, onSetIsRaceRosterOpen, onToggleRaceCard, races }) {
   const rosterScrollRef = useRef(null);
   const raceResizeObserversRef = useRef(new Map());
+  const raceCardNodesRef = useRef(new Map());
+  const raceCardRefCallbacksRef = useRef(new Map());
   const [rosterViewMode, setRosterViewMode] = useState('card');
   const [sectionalPage, setSectionalPage] = useState(0);
   const [selectedSectionalRaceId, setSelectedSectionalRaceId] = useState(null);
+  const [selectedFloatingRaceId, setSelectedFloatingRaceId] = useState(null);
   const [measuredRaceHeights, setMeasuredRaceHeights] = useState({});
   const [rosterScrollTop, setRosterScrollTop] = useState(0);
   const [rosterViewportHeight, setRosterViewportHeight] = useState(0);
@@ -402,6 +558,8 @@ export default function LoreKraftRaceRoster({ expandedRaceIds, isLoading, isRace
     () => () => {
       raceResizeObserversRef.current.forEach((observer) => observer.disconnect());
       raceResizeObserversRef.current.clear();
+      raceCardNodesRef.current.clear();
+      raceCardRefCallbacksRef.current.clear();
     },
     [],
   );
@@ -419,13 +577,19 @@ export default function LoreKraftRaceRoster({ expandedRaceIds, isLoading, isRace
   }
 
   function handleChangeRosterViewMode(nextViewMode) {
-    if (nextViewMode === 'floating') return;
-
     setRosterViewMode(nextViewMode);
   }
 
   function registerRaceCardNode(raceId) {
-    return (node) => {
+    if (raceCardRefCallbacksRef.current.has(raceId)) {
+      return raceCardRefCallbacksRef.current.get(raceId);
+    }
+
+    const callback = (node) => {
+      const previousNode = raceCardNodesRef.current.get(raceId);
+
+      if (previousNode === node) return;
+
       const existingObserver = raceResizeObserversRef.current.get(raceId);
 
       if (existingObserver) {
@@ -433,7 +597,12 @@ export default function LoreKraftRaceRoster({ expandedRaceIds, isLoading, isRace
         raceResizeObserversRef.current.delete(raceId);
       }
 
-      if (!node) return;
+      if (!node) {
+        raceCardNodesRef.current.delete(raceId);
+        return;
+      }
+
+      raceCardNodesRef.current.set(raceId, node);
 
       const updateHeight = () => {
         const nextHeight = Math.ceil(node.getBoundingClientRect().height) + RACE_CARD_SPACING;
@@ -459,6 +628,10 @@ export default function LoreKraftRaceRoster({ expandedRaceIds, isLoading, isRace
       resizeObserver.observe(node);
       raceResizeObserversRef.current.set(raceId, resizeObserver);
     };
+
+    raceCardRefCallbacksRef.current.set(raceId, callback);
+
+    return callback;
   }
 
   const { endIndex, startIndex, topSpacerHeight, totalHeight, visibleHeight } = getVirtualizedRaceWindow({
@@ -476,144 +649,101 @@ export default function LoreKraftRaceRoster({ expandedRaceIds, isLoading, isRace
   const sectionalVisibleRacesEnd = sectionalVisibleRacesStart + SECTIONAL_PAGE_SIZE;
   const sectionalVisibleRaces = races.slice(sectionalVisibleRacesStart, sectionalVisibleRacesEnd);
   const selectedSectionalRace = sectionalVisibleRaces.find((race) => race.id === selectedSectionalRaceId) ?? sectionalVisibleRaces[0] ?? null;
+  const selectedFloatingRace = races.find((race) => race.id === selectedFloatingRaceId) ?? races[0] ?? null;
+  const handlePreviousSectionalPage = () => setSectionalPage((currentPage) => Math.max(currentPage - 1, 0));
+  const handleNextSectionalPage = () => setSectionalPage((currentPage) => Math.min(currentPage + 1, sectionalPageCount - 1));
 
   return (
     <Stack spacing={2}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }}>
-        <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ width: '100%', minWidth: 0, justifyContent: 'space-between' }}>
+        <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap" sx={{ minWidth: 0, flex: 1 }}>
           <ChevronToggleButton isOpen={isRaceRosterOpen} label="Toggle race roster section" onClick={() => onSetIsRaceRosterOpen((currentValue) => !currentValue)} />
-          <Typography variant="h2" sx={{ fontSize: { xs: '1.6rem', md: '2rem' } }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, lineHeight: 1 }}>
             Race roster
           </Typography>
-        </Stack>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25} alignItems={{ xs: 'flex-start', sm: 'center' }}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Button variant="text" color="secondary" onClick={onExpandAllRaceCards} disabled={!races.length || !isRaceRosterOpen || rosterViewMode !== 'card'}>
-              Expand all
-            </Button>
-            <Button variant="text" color="secondary" onClick={onCollapseAllRaceCards} disabled={!races.length || !isRaceRosterOpen || rosterViewMode !== 'card'}>
-              Collapse all
-            </Button>
-          </Stack>
+          <Button variant="text" color="secondary" onClick={onExpandAllRaceCards} disabled={!races.length || !isRaceRosterOpen || rosterViewMode !== 'card'} sx={{ alignSelf: 'center' }}>
+            Expand all
+          </Button>
+          <Button variant="text" color="secondary" onClick={onCollapseAllRaceCards} disabled={!races.length || !isRaceRosterOpen || rosterViewMode !== 'card'} sx={{ alignSelf: 'center' }}>
+            Collapse all
+          </Button>
           <Chip label={`${races.length} ${races.length === 1 ? 'race' : 'races'}`} color="secondary" variant="outlined" />
-          <Stack direction="row" spacing={0.75} alignItems="center">
-            <ViewModeButton active={rosterViewMode === 'card'} label="Card view" onClick={() => handleChangeRosterViewMode('card')} tooltip="Card view">
+        </Stack>
+        <Stack direction="row" spacing={1.25} alignItems="center" sx={{ ml: 'auto', flexShrink: 0, justifyContent: 'flex-end' }}>
+          <ToggleButtonGroup
+            exclusive
+            value={rosterViewMode}
+            onChange={(_, nextViewMode) => {
+              if (!nextViewMode) return;
+
+              handleChangeRosterViewMode(nextViewMode);
+            }}
+            aria-label="Roster view mode"
+            size="small"
+            sx={{
+              ml: { xs: 0, sm: 'auto' },
+              borderRadius: 999,
+              backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.88),
+              border: (theme) => `1px solid ${alpha(theme.palette.secondary.main, 0.14)}`,
+              boxShadow: (theme) => `0 10px 24px ${alpha(theme.palette.secondary.main, 0.08)}`,
+              '& .MuiToggleButtonGroup-grouped': {
+                border: 0,
+                borderRadius: '999px !important',
+                px: 1.2,
+                py: 0.55,
+                color: 'text.secondary',
+                textTransform: 'none',
+                gap: 0.5,
+              },
+              '& .Mui-selected': {
+                color: 'secondary.main',
+                backgroundColor: (theme) => alpha(theme.palette.secondary.main, 0.12),
+              },
+              '& .MuiToggleButtonGroup-grouped:not(:first-of-type)': {
+                ml: 0.25,
+              },
+            }}
+          >
+            <ToggleButton value="card" aria-label="Card view">
               <ViewAgendaOutlinedIcon fontSize="small" />
-            </ViewModeButton>
-            <ViewModeButton active={rosterViewMode === 'sectional'} label="Sectional view" onClick={() => handleChangeRosterViewMode('sectional')} tooltip="Sectional view">
+            </ToggleButton>
+            <ToggleButton value="sectional" aria-label="Sectional view">
               <SpaceDashboardOutlinedIcon fontSize="small" />
-            </ViewModeButton>
-            <ViewModeButton active={false} disabled label="Floating display" onClick={() => {}} tooltip="Floating display coming soon">
+            </ToggleButton>
+            <ToggleButton value="floating" aria-label="Floating display">
               <PictureInPictureAltOutlinedIcon fontSize="small" />
-            </ViewModeButton>
-          </Stack>
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Stack>
       </Stack>
       <Collapse in={isRaceRosterOpen}>
         <Stack spacing={1.5} sx={{ pt: 0.5 }}>
           {isLoading ? <Typography color="text.secondary">Loading races...</Typography> : null}
           {!isLoading && !races.length ? <Typography color="text.secondary">No races yet. Add the first one above.</Typography> : null}
-          {rosterViewMode === 'card' ? (
-            <Box
-              ref={rosterScrollRef}
-              onScroll={handleRosterScroll}
-              sx={{
-                maxHeight: ROSTER_MAX_HEIGHT,
-                minHeight: ROSTER_MIN_HEIGHT,
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                pr: 0.5,
-              }}
-            >
-              <Box sx={{ height: topSpacerHeight }} />
-              {visibleRaces.map((race, visibleIndex) => {
-                const raceIndex = startIndex + visibleIndex;
-
-                return (
-                  <Box key={race.id} ref={registerRaceCardNode(race.id)} sx={{ pb: `${RACE_CARD_SPACING}px` }}>
-                    <SurfaceCard tone={raceIndex % 2 === 0 ? 'primary' : 'secondary'} delay={0}>
-                      <Stack spacing={2}>
-                        <Stack spacing={1.5}>
-                          <Stack spacing={1}>
-                            <Stack direction="row" spacing={0.5} alignItems="center">
-                              <ChevronToggleButton isOpen={expandedRaceIds.includes(race.id)} label={`Toggle ${race.name} card`} onClick={() => onToggleRaceCard(race.id)} />
-                              <RaceTitleBlock race={race} tone={raceIndex % 2 === 0 ? 'primary' : 'secondary'} />
-                            </Stack>
-                          </Stack>
-                        </Stack>
-
-                        <Collapse in={expandedRaceIds.includes(race.id)}>
-                          <RaceDetailContent race={race} />
-                        </Collapse>
-                      </Stack>
-                    </SurfaceCard>
-                  </Box>
-                );
-              })}
-              <Box sx={{ height: bottomSpacerHeight }} />
-            </Box>
-          ) : (
-            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', xl: 'minmax(0, 0.92fr) minmax(0, 1.08fr)' }, minHeight: ROSTER_MIN_HEIGHT }}>
-              <Stack spacing={1.5} sx={{ minWidth: 0 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1.5} sx={{ minHeight: 32 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.2 }}>
-                    Showing {sectionalVisibleRaces.length ? sectionalVisibleRacesStart + 1 : 0}-{Math.min(sectionalVisibleRacesEnd, races.length)} of {races.length}
-                  </Typography>
-                  <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0 }}>
-                    <Button
-                      variant="text"
-                      color="secondary"
-                      size="small"
-                      disabled={clampedSectionalPage === 0}
-                      onClick={() => setSectionalPage((currentPage) => Math.max(currentPage - 1, 0))}
-                      sx={{ minHeight: 32, py: 0.5 }}
-                    >
-                      Prev
-                    </Button>
-                    <Button
-                      variant="text"
-                      color="secondary"
-                      size="small"
-                      disabled={clampedSectionalPage >= sectionalPageCount - 1}
-                      onClick={() => setSectionalPage((currentPage) => Math.min(currentPage + 1, sectionalPageCount - 1))}
-                      sx={{ minHeight: 32, py: 0.5 }}
-                    >
-                      Next
-                    </Button>
-                  </Stack>
-                </Stack>
-                <Box sx={{ display: 'grid', gap: 1.25, gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' }, alignContent: 'start' }}>
-                  {sectionalVisibleRaces.map((race, index) => (
-                    <SurfaceCard key={race.id} tone={selectedSectionalRace?.id === race.id ? 'secondary' : index % 2 === 0 ? 'primary' : 'secondary'} delay={0}>
-                      <ButtonBase onClick={() => setSelectedSectionalRaceId(race.id)} sx={{ width: '100%', display: 'block', textAlign: 'left', borderRadius: 3, overflow: 'hidden' }}>
-                        <Stack spacing={1.25}>
-                          <RaceArtwork race={race} minHeight={108} />
-                          <Typography variant="body2" sx={{ fontWeight: 600, px: 0.5, pb: 0.5 }}>
-                            {race.name}
-                          </Typography>
-                        </Stack>
-                      </ButtonBase>
-                    </SurfaceCard>
-                  ))}
-                </Box>
-              </Stack>
-
-              <SurfaceCard tone="primary" delay={0}>
-                <Stack spacing={1.5} sx={{ height: '100%' }}>
-                  {selectedSectionalRace ? (
-                    <RaceTitleBlock race={selectedSectionalRace} tone="secondary" />
-                  ) : (
-                    <Typography variant="h3" sx={{ fontSize: { xs: '1.3rem', md: '1.5rem' } }}>
-                      Race details
-                    </Typography>
-                  )}
-                  <Box sx={{ maxHeight: ROSTER_MAX_HEIGHT, overflowY: 'auto', pr: 0.5 }}>
-                    <RaceDetailContent key={selectedSectionalRace?.id ?? 'empty-race'} race={selectedSectionalRace} />
-                  </Box>
-                </Stack>
-              </SurfaceCard>
-            </Box>
-          )}
+          <RosterViewSwitcher
+            bottomSpacerHeight={bottomSpacerHeight}
+            clampedSectionalPage={clampedSectionalPage}
+            onNextSectionalPage={handleNextSectionalPage}
+            onPreviousSectionalPage={handlePreviousSectionalPage}
+            onSelectFloatingRace={setSelectedFloatingRaceId}
+            onSelectSectionalRace={setSelectedSectionalRaceId}
+            onToggleRaceCard={onToggleRaceCard}
+            races={races}
+            registerRaceCardNode={registerRaceCardNode}
+            rosterScrollRef={rosterScrollRef}
+            rosterViewMode={rosterViewMode}
+            selectedFloatingRace={selectedFloatingRace}
+            selectedSectionalRace={selectedSectionalRace}
+            sectionalPageCount={sectionalPageCount}
+            sectionalVisibleRaces={sectionalVisibleRaces}
+            sectionalVisibleRacesEnd={sectionalVisibleRacesEnd}
+            sectionalVisibleRacesStart={sectionalVisibleRacesStart}
+            startIndex={startIndex}
+            topSpacerHeight={topSpacerHeight}
+            visibleRaces={visibleRaces}
+            expandedRaceIds={expandedRaceIds}
+            onRosterScroll={handleRosterScroll}
+          />
         </Stack>
       </Collapse>
     </Stack>

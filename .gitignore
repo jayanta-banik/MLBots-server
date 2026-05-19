@@ -7,4 +7,7 @@ dist/
 temp/
 logs/
 
+static/media/images/
+static/media/videos/
+
 .env.local

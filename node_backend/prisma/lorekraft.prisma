@@ -2,10 +2,9 @@ model char_image {
   id             Int           @id @default(autoincrement())
   race_id        Int
   character_type CharacterType
-
-  url        String
-  alt        String?
-  created_at DateTime @default(now())
+  url            String
+  alt            String?
+  created_at     DateTime      @default(now())
 
   race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
 

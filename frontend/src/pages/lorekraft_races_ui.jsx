@@ -37,7 +37,7 @@ export function AttributeMeter({ label, value }) {
           <Box
             key={`${label}-${index}`}
             sx={{
-              height: 12,
+              height: 3,
               borderRadius: 999,
               backgroundColor: index < filledBoxCount ? filledColor : 'rgba(120, 128, 140, 0.22)',
             }}
