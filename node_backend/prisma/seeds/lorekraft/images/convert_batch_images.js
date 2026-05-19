@@ -1,7 +1,12 @@
+/* eslint-disable no-console */
 // scripts/save-batch-images.js
 import prisma from '#prisma';
+import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import readline from 'node:readline';
+
+import ProgressBar from 'progress';
 
 const inputFile = process.argv[2] || './output.jsonl';
 const outputDir = process.argv[3] || '/home/ubuntu/projects/MLBots-server/static/media/images/lorekraft/';
@@ -10,16 +15,44 @@ function safeFileName(name) {
   return name.replaceAll(/[^\w.-]+/g, '_');
 }
 
+function getCharacterTypeFromCustomId(customId) {
+  return customId.endsWith('_1') ? 'PLAYER' : 'NPC';
+}
+
+function getAltFromCustomId(customId) {
+  return customId.split('_').slice(2, -1).join(' ');
+}
+
 async function main() {
   await fs.mkdir(outputDir, { recursive: true });
 
-  const content = await fs.readFile(inputFile, 'utf8');
-  const lines = content.split(/\r?\n/).filter(Boolean);
+  const { size: totalBytes } = await fs.stat(inputFile);
+  const inputStream = createReadStream(inputFile, { encoding: 'utf8' });
+  const lineReader = readline.createInterface({
+    input: inputStream,
+    crlfDelay: Infinity,
+  });
+  const progressBar = new ProgressBar('processing [:bar] :percent :etas saved=:saved skipped=:skipped lines=:lines', {
+    total: Math.max(totalBytes, 1),
+    width: 30,
+    complete: '=',
+    incomplete: ' ',
+  });
 
+  let processedLines = 0;
   let saved = 0;
   let skipped = 0;
 
-  for (const [index, line] of lines.entries()) {
+  for await (const line of lineReader) {
+    processedLines += 1;
+    progressBar.tick(Buffer.byteLength(line, 'utf8') + 1, {
+      lines: processedLines,
+      saved,
+      skipped,
+    });
+
+    if (!line) continue;
+
     try {
       const row = JSON.parse(line);
 
@@ -29,7 +62,7 @@ async function main() {
 
       if (!customId || statusCode !== 200 || !b64) {
         skipped++;
-        console.warn(`Skipped line ${index + 1}: missing custom_id or image data`);
+        console.warn(`Skipped line ${processedLines}: missing custom_id or image data`);
         continue;
       }
 
@@ -41,27 +74,42 @@ async function main() {
 
       const data = {
         race_id: Number(fileName.split('_')[1]),
-        character_type: fileName.split('_').pop() === '1' ? 'PLAYER' : 'NPC',
+        character_type: getCharacterTypeFromCustomId(customId),
         url: `https://resources.mlbots.in/media/images/lorekraft/${fileName}`,
-        alt: fileName.split('_').slice(2, -1).join(' '),
+        alt: getAltFromCustomId(customId),
       };
       await prisma.char_image.create({ data });
 
       saved++;
-      console.log(`Saved: ${filePath}`);
     } catch (err) {
       skipped++;
-      console.warn(`Skipped line ${index + 1}: ${err.message}`);
+      console.warn(`Skipped line ${processedLines}: ${err.message}`);
     }
+
+    progressBar.update(progressBar.curr, {
+      lines: processedLines,
+      saved,
+      skipped,
+    });
+  }
+
+  if (!progressBar.complete) {
+    progressBar.update(progressBar.total, {
+      lines: processedLines,
+      saved,
+      skipped,
+    });
   }
 
   console.log({
     inputFile,
     outputDir,
-    totalLines: lines.length,
+    totalLines: processedLines,
     saved,
     skipped,
   });
+
+  await prisma.$disconnect();
 }
 
 main().catch((err) => {

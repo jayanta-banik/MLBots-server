@@ -122,7 +122,7 @@ async function main() {
 
     'highly detailed fantasy concept art, painterly rendering, intricate costume design, ornate weapons, expressive character silhouette, premium artbook style',
 
-    'isekai anime style, shonen jump, generic fantasy anime protagonist design, simple cel shading, low-detail clothing, slightly bright magical aura effects, overpowered RPG adventurer vibe, light novel cover aesthetic, cheap seasonal anime quality, exaggerated anime expressions, basic fantasy town or dungeon atmosphere, colorful but slightly flat rendering, anime MMORPG intro scene energy',
+    'isekai less details, simple anime arts style, shonen jump, generic fantasy anime protagonist design, simple cel shading, low-detail clothing, slightly bright magical aura effects, overpowered RPG adventurer vibe, light novel cover aesthetic, cheap seasonal anime quality, exaggerated anime expressions, basic fantasy town or dungeon atmosphere, colorful but slightly flat rendering, anime MMORPG intro scene energy',
 
     // 'extremely pixelated retro fantasy game art, 8-bit and 16-bit RPG sprite aesthetic, chunky visible pixels, minecraft-inspired blocky design, low-resolution fantasy character, simple animation frame look, old-school SNES and NES RPG vibe, minimal shading, tiny sprite proportions, retro dungeon crawler style, intentionally low fidelity, pixel-perfect retro game appearance',
 

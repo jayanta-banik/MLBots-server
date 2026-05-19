@@ -2,13 +2,12 @@ model char_image {
   id             Int           @id @default(autoincrement())
   race_id        Int
   character_type CharacterType
-  url            String
+  url            String        @unique
   alt            String?
   created_at     DateTime      @default(now())
 
   race race @relation(fields: [race_id], references: [id], onDelete: Cascade)
 
-  @@unique([race_id, character_type, url])
   @@index([race_id])
 }
 
