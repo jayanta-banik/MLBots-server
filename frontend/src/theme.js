@@ -96,6 +96,15 @@ const theme = createTheme({
         },
       },
     },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#fffdf8',
+          backgroundImage: 'none',
+          backdropFilter: 'none',
+        },
+      },
+    },
     MuiChip: {
       styleOverrides: {
         root: {

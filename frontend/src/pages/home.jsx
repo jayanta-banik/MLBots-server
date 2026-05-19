@@ -123,6 +123,36 @@ function HomePage({ onLogout, user }) {
           </Stack>
         </SurfaceCard>
 
+        {isAdmin ? (
+          <SurfaceCard
+            tone="primary"
+            delay={0.16}
+            sx={{
+              width: '100%',
+              transition: 'transform 160ms ease, box-shadow 160ms ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 6,
+              },
+            }}
+          >
+            <Stack spacing={1.5}>
+              <Chip label="Admin tools" color="primary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />
+              <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.25rem' } }}>
+                Docs
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '60ch', lineHeight: 1.75 }}>
+                Open the backend API documentation and Swagger surface for protected reference and endpoint inspection.
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Button variant="contained" color="primary" href="/api/docs">
+                  Open docs
+                </Button>
+              </Stack>
+            </Stack>
+          </SurfaceCard>
+        ) : null}
+
         <SurfaceCard tone="secondary" delay={0.18}>
           <Stack spacing={2}>
             <Chip label="Roadmap" color="secondary" variant="outlined" sx={{ alignSelf: 'flex-start' }} />

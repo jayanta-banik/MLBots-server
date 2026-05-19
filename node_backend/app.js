@@ -1,3 +1,5 @@
+import path from 'path';
+
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
@@ -6,8 +8,9 @@ import { trim_all } from 'request_trimmer';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
+import auditLogger from '#middleware/audit_logger';
 import consoleLogger from '#middleware/console_logger';
-import auditLogger from './middleware/audit_logger.js';
+
 import apiRoutes from './routes/index.js';
 import './utils/env_loader.js';
 
@@ -16,8 +19,17 @@ const specs = swaggerJsdoc({
   definition: {
     openapi: '3.0.0',
     info: { title: 'MLBots API', version: process.env.VERSION },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
   },
-  apis: ['./routes/index.js'],
+  apis: [path.join(process.cwd(), 'app.js'), path.join(process.cwd(), 'routes/**/*.js')],
 });
 
 app.use(bodyParser.json({ limit: '5mb' }));
@@ -33,6 +45,32 @@ app.use(
 );
 
 // Health Check Endpoint
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     tags:
+ *       - System
+ *     summary: Basic process health check.
+ *     responses:
+ *       200:
+ *         description: Service is reachable.
+ */
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+/**
+ * @openapi
+ * /status:
+ *   get:
+ *     tags:
+ *       - System
+ *     summary: Runtime status with environment metadata.
+ *     responses:
+ *       200:
+ *         description: Service status payload.
+ */
 app.get('/status', (req, res) => {
   res.status(200).json({
     ENV: process.env.ENV,
@@ -42,6 +80,17 @@ app.get('/status', (req, res) => {
 });
 
 // Endpoint to test error handling
+/**
+ * @openapi
+ * /api/error:
+ *   post:
+ *     tags:
+ *       - System
+ *     summary: Development-only error trigger endpoint.
+ *     responses:
+ *       500:
+ *         description: Forced error response.
+ */
 app.post('/api/error', () => {
   throw new Error('This is a test error');
 });

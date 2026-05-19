@@ -6,7 +6,7 @@ import globals from 'globals';
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/coverage/**', '**/.nyc_output/**'],
+    ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/coverage/**', '**/.nyc_output/**', '**/prisma/migrations/**', '**/prisma/seeds/**'],
   },
   pluginJs.configs.recommended,
   {

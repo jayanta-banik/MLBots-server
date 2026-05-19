@@ -173,7 +173,7 @@ async function loadExistingUniversities(names) {
     const key = normalizeKey(row.name);
 
     if (existingByName.has(key)) {
-      throw new Error(`Duplicate university records already exist in the database for \"${row.name}\".`);
+      throw new Error(`Duplicate university records already exist in the database for "${row.name}".`);
     }
 
     existingByName.set(key, row);

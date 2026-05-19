@@ -1,12 +1,12 @@
-import { AffinityType, AttributeType, CharacterType, MagicElement, ResistanceKind, evolution_condition_type } from '@prisma/client';
+import { AffinityType, AttributeType, CharacterType, EvolutionConditionType, MagicElement, ResistanceType } from '@prisma/client';
 
 import { createError } from '#utils/error_utils';
 
 const ATTRIBUTE_TYPES = Object.values(AttributeType);
 const CHARACTER_TYPES = Object.values(CharacterType);
-const EVOLUTION_CONDITION_TYPES = Object.values(evolution_condition_type);
+const EVOLUTION_CONDITION_TYPES = Object.values(EvolutionConditionType);
 const MAGIC_ELEMENTS = Object.values(MagicElement);
-const RESISTANCE_KINDS = Object.values(ResistanceKind);
+const RESISTANCE_KINDS = Object.values(ResistanceType);
 
 function parseNumericValue(value, fallbackValue = 0) {
   const parsedValue = Number(value);
@@ -18,7 +18,8 @@ export function serializeRace(race) {
   return {
     id: race.id,
     name: race.name,
-    characterTypes: race.character_types,
+    characterTypes: race.race_character_type.map((entry) => entry.character_type).filter(Boolean),
+    raceTypes: race.race_types.map((entry) => entry.type).filter(Boolean),
     description: race.description,
     createdAt: race.created_at,
     imageUrl: race.char_images[0]?.url ?? '',
@@ -50,9 +51,16 @@ export function serializeRace(race) {
       cooldownTurns: skill.cooldown_turns,
     })),
     resistances: race.race_resistances.map((resistance) => ({
-      kind: resistance.kind,
-      detail: resistance.detail,
+      kind: resistance.type,
+      detail: resistance.description ?? resistance.name,
+      name: resistance.name,
       amount: resistance.amount,
+    })),
+    weaknesses: race.race_weaknesses.map((weakness) => ({
+      kind: weakness.type,
+      detail: weakness.description ?? weakness.name,
+      name: weakness.name,
+      amount: weakness.amount,
     })),
   };
 }

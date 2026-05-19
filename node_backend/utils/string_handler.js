@@ -2,7 +2,15 @@ export const toCamelCase = (str) => str.replace(/^([^_]*)/, (_, firstWord) => fi
 
 export const toSnakeCase = (str) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
-export const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+export const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+export const titleCase = (str) => 
+  //  trim split by space, underscore, or hyphen, then capitalize each word and join with space
+  str
+    .trim()
+    .split(/[\s_-]+/)
+    .map((word) => capitalize(word))
+    .join(' ')
+;
 
 export const formatAmountWithCommas = (num) => {
   // round num to 2 decimal places

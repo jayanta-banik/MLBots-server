@@ -1,0 +1,201 @@
+Gorgon (Enemy Boss)
+Background: Gorgons are monstrous beings with the ability to turn creatures to stone with their gaze. They are often depicted as humanoid creatures with snakes for hair and have a fierce, predatory nature.
+Attributes:
+Strength: 8
+Agility: 7
+Defense: 8 (Physical Defense: 9, Magical Defense: 7)
+Magic: 7
+Intelligence: 7
+Weapon of Choice: Petrifying Gaze – The Gorgon’s gaze can turn any creature to stone upon direct eye contact.
+Abilities:
+Petrify (Regular): The Gorgon attempts to turn an enemy to stone with her gaze. On a failed saving throw, the target begins to turn to stone and becomes immobilized.
+Snakes’ Bite (Heavy, 2-turn reload): The Gorgon’s snakes lash out, biting all nearby enemies and poisoning them dealing damage over time.
+Stone Form (Unique Circumstance - When in danger): The Gorgon can temporarily turn herself to stone, becoming immune to all damage for one turn.
+Passive Ability: Petrifying Aura – Enemies within 10 feet of the Gorgon must make a saving throw for each turn or begin to feel sluggish. If failed to make a saving throw for the next turn will be stuned, loosing that turn
+
+
+
+Trickster (Loki) (Player or Enemy)
+Background: Loki is the god of mischief and trickery, known for his cunning, illusions, and shapeshifting abilities. He delights in causing chaos and confusion, often for his own amusement.
+Attributes:
+Strength: 6
+Agility: 8
+Defense: 7 (Physical Defense: 6, Magical Defense: 9)
+Magic: 9
+Intelligence: 10
+Weapon of Choice: Illusions and Deception – Loki rarely engages in direct combat, preferring to use illusions and trickery to outwit his opponents.
+Abilities:
+Shapeshift (Regular): Loki changes his form to mimic another creature or person, gaining their abilities for 1 turn.
+Mass Confusion (Heavy, 2-turn reload): Loki creates a series of illusions that confuse all enemies, causing them to attack one another for 1 turn.
+Divine Trickery (Unique Circumstance - When outnumbered): Loki can bend reality, swapping positions with any other creature or object on the battlefield.
+Passive Ability: Master of Illusions – Loki is immune to all illusions and enchantments, and he can see through others’ deceptions effortlessly.
+
+
+
+Siren (Enemy)
+Background: Sirens are dangerous, aquatic creatures known for their enchanting songs, which lure sailors to their deaths. Though beautiful in appearance, they are predatory and vicious once their prey is close enough.
+Attributes:
+Strength: 5
+Agility: 8
+Defense: 6 (Physical Defense: 5, Magical Defense: 7)
+Magic: 8
+Intelligence: 7
+Weapon of Choice: Enchanted Voice – The Siren uses her magical voice to charm and manipulate her enemies, leading them to danger or causing them to attack one another.
+Abilities:
+Luring Song (Regular): The Siren sings a haunting melody, charming a target and drawing them closer.
+Vicious Claws (Heavy, 2-turn reload): The Siren reveals her true form, attacking with her claws and dealing high damage to nearby enemies.
+Drowning Song (Unique Circumstance - When near water): The Siren can manipulate water with her voice, dragging enemies below the surface to drown them.
+Passive Ability: Aquatic Charm – Gains advantage on all charm and persuasion checks made against humanoids.
+
+
+
+Reaper (Enemy Boss)
+Background: The Reaper is the embodiment of death itself, tasked with collecting the souls of the dead. Wielding a massive scythe, the Reaper is an unstoppable force that comes for all mortals in the end.
+Attributes:
+Strength: 10
+Agility: 6
+Defense: 9 (Physical Defense: 8, Magical Defense: 10)
+Magic: 9
+Intelligence: 8
+Weapon of Choice: Scythe of Souls – The Reaper’s scythe is a weapon of pure death energy, capable of severing the soul from the body.
+Abilities:
+Soul Harvest (Regular): The Reaper strikes with its scythe, instantly killing weak enemies or dealing massive necrotic damage to stronger foes.
+Death’s Embrace (Heavy, 2-turn reload): The Reaper summons a vortex of necrotic energy, pulling all enemies toward it and dealing massive damage over time.
+Unstoppable Fate (Unique Circumstance - When an enemy attempts to flee): The Reaper can teleport to any fleeing enemy, guaranteeing a critical strike.
+Passive Ability: Immortal – The Reaper cannot be killed or permanently destroyed, as it is the embodiment of death.
+
+
+
+Aqrabuamelu (Enemy)
+Background: The Aqrabuamelu, or Scorpion Men, are fierce desert-dwelling warriors with the body of a scorpion and the torso of a human. They are known for their venomous stingers and their skill in battle.
+Attributes:
+Strength: 8
+Agility: 7
+Defense: 8 (Physical Defense: 9, Magical Defense: 6)
+Magic: 4
+Intelligence: 6
+Weapon of Choice: Venomous Stinger – The Aqrabuamelu’s stinger delivers a potent venom that weakens or paralyzes enemies.
+Abilities:
+Venom Strike (Regular): The Aqrabuamelu strikes with its stinger, dealing poison damage over time and slowing the target.
+Desert Ambush (Heavy, 2-turn reload): The Aqrabuamelu burrows into the sand, becoming invisible for 1 turn and ambushing enemies from below.
+Sandstorm Fury (Unique Circumstance - When in desert terrain): The Aqrabuamelu summons a sandstorm that blinds enemies and deals damage over time.
+Passive Ability: Venomous Resilience – The Aqrabuamelu is immune to all forms of poison and venom-based attacks.
+
+
+
+Garkain (Enemy)
+Background: Garkains are vampiric monsters that lurk in dark forests and caves. Known for their bat-like wings and grotesque appearance, they attack travelers and drink their blood, often leaving their victims drained and weak.
+Attributes:
+Strength: 7
+Agility: 8
+Defense: 6 (Physical Defense: 6, Magical Defense: 5)
+Magic: 4
+Intelligence: 5
+Weapon of Choice: Vampiric Bite – Garkains drain the life force from their victims, replenishing their own strength.
+Abilities:
+Winged Assault (Regular): The Garkain flies toward its target, attacking with its claws and dealing bleeding damage.
+Blood Feast (Heavy, 2-turn reload): The Garkain bites a target, draining their health and healing itself for the amount drained.
+Echo Location (Unique Circumstance - When in darkness): The Garkain can use its echolocation to detect hidden or invisible creatures.
+Passive Ability: Nocturnal Hunter – Gains advantage on all attacks and perception checks made in darkness.
+
+
+
+Nadubi (Enemy)
+Background: Nadubi are demonic entities that are often summoned to wreak havoc on the mortal world. They are cruel, sadistic creatures that take pleasure in causing suffering and destruction.
+Attributes:
+Strength: 8
+Agility: 6
+Defense: 7 (Physical Defense: 7, Magical Defense: 7)
+Magic: 7
+Intelligence: 6
+Weapon of Choice: Hellish Fire – Nadubi can summon fire from the underworld to burn their enemies, leaving little behind but ash.
+Abilities:
+Hellfire Blast (Regular): The Nadubi hurls a ball of hellfire at a target, dealing fire and necrotic damage.
+Infernal Summon (Heavy, 2-turn reload): The Nadubi calls forth lesser demons from the underworld to aid in battle.
+Demonic Frenzy (Unique Circumstance - When blood is spilled): The Nadubi enters a frenzy, increasing its attack power and speed for 2 turns.
+Passive Ability: Infernal Resistance – Nadubi take half damage from fire and necrotic attacks.
+
+
+
+Do-S (Monster Princess) (Enemy)
+Background: Do-S is a humanoid monster with the ability to control others using her cursed whip. She takes pleasure in bending others to her will, making them fight for her or do her bidding.
+Attributes:
+Strength: 6
+Agility: 7
+Defense: 6 (Physical Defense: 6, Magical Defense: 7)
+Magic: 7
+Intelligence: 7
+Weapon of Choice: Cursed Whip – Do-S uses her whip to control others, making them her thralls and forcing them to fight for her.
+Abilities:
+Thrall Command (Regular): Do-S strikes an enemy with her whip, charming them and forcing them to fight for her for 1 turn.
+Domination Lash (Heavy, 2-turn reload): Do-S can control multiple enemies at once, making them her thralls for 2 turns.
+Charm of Pain (Unique Circumstance - When injured): Do-S can use her pain to fuel her power, increasing her magic and defense for 2 turns.
+Passive Ability: Master Manipulator – Do-S gains advantage on all charm and intimidation checks.
+
+
+
+The Great Old One (Cthulhu Mythos) (Enemy Boss)
+Background: The Great Old Ones are ancient, incomprehensible beings of immense power. Their very presence can drive mortals mad, and they exist beyond the understanding of the physical world. Cthulhu, one of the most well-known Great Old Ones, is a terrifying entity that sleeps beneath the ocean, waiting for the time to rise again.
+Attributes:
+Strength: 10
+Agility: 4
+Defense: 10 (Physical Defense: 9, Magical Defense: 10)
+Magic: 10
+Intelligence: 10
+Weapon of Choice: Mind and Madness – The Great Old One uses its psychic powers to drive enemies insane, bending reality and manipulating time and space.
+Abilities:
+Psychic Scream (Regular): The Great Old One emits a psychic blast, causing enemies to take massive psychic damage and suffer from madness.
+Reality Warp (Heavy, 2-turn reload): The Great Old One warps reality around it, causing time to slow or reverse for all other creatures, while it moves freely.
+Cosmic Dread (Unique Circumstance - When awakened): The Great Old One can cause all creatures within range to experience overwhelming terror, forcing them to flee or fall into madness.
+Passive Ability: Eldritch Horror – All creatures that come within 30 feet of the Great Old One must make a saving throw or be driven mad.
+
+
+
+Ceremorphus (Enemy or Boss)
+Background: Ceremorphosis is the process by which a Mind Flayer tadpole transforms a host into a Mind Flayer. Ceremorphus is the terrifying intermediate form between the host’s transformation and full Mind Flayer status. It is a twisted abomination with the powers of both the host and the developing Mind Flayer.
+Attributes:
+Strength: 8
+Agility: 6
+Defense: 7 (Physical Defense: 7, Magical Defense: 8)
+Magic: 7
+Intelligence: 8
+Weapon of Choice: Psychic Tentacles – The Ceremorphus uses psychic energy to attack and control its enemies.
+Abilities:
+Mind Blast (Regular): The Ceremorphus unleashes a psychic blast that stuns and damages nearby enemies.
+Psionic Domination (Heavy, 2-turn reload): The Ceremorphus controls the mind of an enemy, forcing them to fight for it for 2 turns.
+Transmutation (Unique Circumstance - When critically injured): The Ceremorphus undergoes rapid transformation, healing itself and becoming more like a full Mind Flayer, gaining enhanced abilities.
+Passive Ability: Psionic Shield – The Ceremorphus has resistance to all psychic damage and advantage on saving throws against mental effects.
+
+
+
+Mind Flayer (Enemy or Boss)
+Background: Mind Flayers, also known as Illithids, are powerful psionic beings that seek to dominate and enslave others. They feed on the brains of sentient creatures, using their psionic abilities to control their thralls and expand their influence.
+Attributes:
+Strength: 5
+Agility: 7
+Defense: 7 (Physical Defense: 6, Magical Defense: 9)
+Magic: 9
+Intelligence: 10
+Weapon of Choice: Psionics and Tentacles – The Mind Flayer uses its psionic powers to control and attack its enemies, while its tentacles drain the life from those unfortunate enough to be captured.
+Abilities:
+Mind Blast (Regular): The Mind Flayer releases a wave of psionic energy that stuns and damages all enemies within a radius.
+Dominate Monster (Heavy, 2-turn reload): The Mind Flayer takes control of a powerful enemy, forcing them to fight for it for 2 turns.
+Extract Brain (Unique Circumstance - When an enemy is stunned): The Mind Flayer can remove and consume the brain of a stunned enemy, instantly killing them and regaining health.
+Passive Ability: Psionic Mastery – The Mind Flayer is immune to all charm, fear, and mental effects, and can detect the thoughts of all creatures within 60 feet.
+
+
+
+Genasi (Fire, Water, Air, Earth) (Player or Support Character)
+Background: Genasi are elemental beings, the offspring of mortals and elemental creatures. Each Genasi is tied to one of the four elements, granting them powers related to their elemental heritage.
+Attributes:
+Strength: 6
+Agility: 6
+Defense: 7 (Physical Defense: 7, Magical Defense: 6)
+Magic: 8
+Intelligence: 7
+Weapon of Choice: Elemental Fists –Weapon of Choice: Elemental Fists – Each Genasi channels their element through their body, allowing them to strike with their elemental powers (fire, water, air, or earth).
+Abilities:
+Elemental Strike (Regular): The Genasi delivers a powerful punch infused with their element (Fire: burns target, Water: chills/slows target, Air: knocks target back, Earth: stuns target).
+Elemental Surge (Heavy, 2-turn reload): The Genasi summons the power of their element to unleash a devastating area attack (Fire: flame burst, Water: tidal wave, Air: windstorm, Earth: earthquake).
+Elemental Form (Unique Circumstance - When in their respective environment): The Genasi transforms into a pure elemental form, gaining immunity to their element for 3 turns and dealing enhanced damage based on their element.
+Passive Ability: Elemental Affinity – The Genasi takes reduced damage from attacks that correspond to their element (Fire Genasi: fire, Water Genasi: cold, Air Genasi: lightning, Earth Genasi: bludgeoning).

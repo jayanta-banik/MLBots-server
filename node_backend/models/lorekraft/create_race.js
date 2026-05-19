@@ -12,6 +12,16 @@ function buildCharImages({ characterTypes, imageUrl, name }) {
   };
 }
 
+function buildCharacterTypes(characterTypes) {
+  if (!characterTypes.length) return undefined;
+
+  return {
+    create: characterTypes.map((characterType) => ({
+      character_type: characterType,
+    })),
+  };
+}
+
 function buildEvolutions(evolutions) {
   if (!evolutions.length) return undefined;
 
@@ -76,12 +86,12 @@ function buildResistances(resistances) {
 export default async function createRace({ affinities, attributes, characterTypes, description, evolutions, imageUrl, name, resistances, skills }) {
   return prisma.race.create({
     data: {
-      character_types: characterTypes,
       description,
       char_images: buildCharImages({ characterTypes, imageUrl, name }),
       evolution_to: buildEvolutions(evolutions),
       race_attributes: buildAttributes(attributes),
       race_affinity: buildAffinities(affinities),
+      race_character_type: buildCharacterTypes(characterTypes),
       race_skills: buildSkills(skills),
       race_resistances: buildResistances(resistances),
       name,
@@ -93,7 +103,10 @@ export default async function createRace({ affinities, attributes, characterType
       _count: { select: { players: true } },
       race_affinity: true,
       race_attributes: true,
+      race_character_type: true,
       race_resistances: true,
+      race_types: true,
+      race_weaknesses: true,
       evolution_to: {
         include: {
           from_race: true,
