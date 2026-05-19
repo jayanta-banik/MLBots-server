@@ -6,13 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-try:
-    from PIL import Image
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit(
-        'Pillow is required to run this script. Install it with: pip install Pillow'
-    ) from exc
-
+from PIL import Image
 
 DEFAULT_DIRECTORY = Path('/home/ubuntu/projects/MLBots-server/static/media/images/lorekraft')
 
