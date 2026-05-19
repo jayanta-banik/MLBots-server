@@ -12,6 +12,7 @@ import HomePage from './pages/home.jsx';
 import LoreKraftPage from './pages/lorekraft.jsx';
 import LoreKraftAdminPage from './pages/lorekraft_admin.jsx';
 import LoreKraftRacesPage from './pages/lorekraft_races.jsx';
+import PhdDashboardPage from './pages/phd_dashboard.jsx';
 import PortfolioPage from './pages/portfolio.jsx';
 import TrackingUniPage from './pages/tracking_uni.jsx';
 import VisualizeModelPage from './pages/visualize_model.jsx';
@@ -92,6 +93,7 @@ function AuthShell() {
         <Route path="/home" element={isAuthenticated ? <HomePage user={authUser} onLogout={() => dispatch(logout())} /> : <Navigate to="/welcome" replace />} />
         <Route path="/lorekraft" element={isAuthenticated ? <LoreKraftPage user={authUser} /> : <Navigate to="/welcome" replace />} />
         <Route path="/tracking-uni" element={isAuthenticated ? <TrackingUniPage /> : <Navigate to="/welcome" replace />} />
+        <Route path="/tracking-uni/phd-dashboard" element={isAuthenticated ? <PhdDashboardPage /> : <Navigate to="/welcome" replace />} />
         <Route path="/Visualize/Model" element={isAuthenticated ? <VisualizeModelPage /> : <Navigate to="/welcome" replace />} />
         <Route path="/lorekraft/admin" element={isAuthenticated ? isAdmin ? <LoreKraftAdminPage /> : <Navigate to="/home" replace /> : <Navigate to="/welcome" replace />} />
         <Route

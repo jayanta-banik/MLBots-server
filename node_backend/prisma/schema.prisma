@@ -47,7 +47,7 @@ model users {
 
 model universities {
   id         Int         @id @default(autoincrement())
-  name       String      @db.VarChar(255)
+  name       String      @unique @db.VarChar(255)
   location   String      @db.VarChar(100)
   state      String      @db.VarChar(100)
   created_at DateTime    @default(now()) @db.Timestamptz(0)

@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MLBots PhD Outreach Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; margin: 2px; }
+    .status-pending  { background:#854d0e22; color:#fbbf24; border:1px solid #854d0e66; }
+    .status-drafting { background:#1e3a5f; color:#60a5fa; border:1px solid #2563eb66; }
+    .status-sent     { background:#14532d22; color:#4ade80; border:1px solid #16a34a66; }
+    .status-replied  { background:#134e4a22; color:#2dd4bf; border:1px solid #0d947866; }
+    .status-skipped  { background:#450a0a22; color:#f87171; border:1px solid #dc262666; }
+    .card-selected   { border-color: #1e3a2f !important; background: #17253d !important; }
+    .tab-active      { background:#1e3a2f; color:#fff; }
+    .tab-inactive    { color:#94a3b8; }
+    .tab-inactive:hover { color:#e2e8f0; background:#17253d; }
+    textarea:focus   { outline: none; border-color: #1e3a2f; }
+    .relevance-high   { background: #14532d44; color: #4ade80; }
+    .relevance-med    { background: #713f1244; color: #fb923c; }
+    .relevance-low    { background: #1e293b; color: #64748b; }
+    .paper-card:hover { background: #1e293b; }
+    input:focus { outline:none; border-color:#1e3a2f; }
+    select:focus { outline:none; border-color:#1e3a2f; }
+    .score-bar { height: 4px; border-radius: 2px; background: #1e293b; overflow: hidden; }
+    .score-fill { height: 100%; background: linear-gradient(90deg, #1e3a2f, #39506f); border-radius: 2px; }
+    .copied-flash { animation: flash 0.3s ease; }
+    @keyframes flash { 0%{background:#4ade8033} 100%{background:transparent} }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="flex items-center justify-between px-5 py-3 bg-slate-900 border-b border-slate-800 flex-shrink-0">
+  <div class="flex items-center gap-3">
+    <span class="text-xl">🤖</span>
+    <div>
+      <div class="font-semibold text-white text-sm">MLBots PhD Outreach Dashboard</div>
+      <div class="text-xs text-slate-400">MLBots campaign workspace</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-6">
+    <div class="flex gap-4 text-xs text-slate-400">
+      <span>Total <strong class="text-white" id="stat-total">0</strong></span>
+      <span>Pending <strong class="text-yellow-400" id="stat-pending">0</strong></span>
+      <span>Sent <strong class="text-green-400" id="stat-sent">0</strong></span>
+      <span>Replied <strong class="text-teal-400" id="stat-replied">0</strong></span>
+      <span>Skipped <strong class="text-red-400" id="stat-skipped">0</strong></span>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="text-xs text-slate-400">Today: <strong id="today-count" class="text-white">0</strong>/5</div>
+      <div class="w-28 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+        <div id="today-bar" class="h-full bg-indigo-500 rounded-full transition-all" style="width:0%"></div>
+      </div>
+    </div>
+    <button onclick="toggleDailyQueue()" id="queue-btn"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs font-medium text-white transition-colors">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      Daily Queue
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════ MAIN LAYOUT ═══════════════════════ -->
+<div class="flex flex-1 overflow-hidden">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="w-56 bg-slate-900 border-r border-slate-800 flex flex-col flex-shrink-0 overflow-y-auto">
+    <div class="p-4 space-y-4">
+
+      <!-- Search -->
+      <div>
+        <input id="search-input" type="text" placeholder="Search faculty..."
+          oninput="renderList()"
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 transition-colors" />
+      </div>
+
+      <!-- Filter: Status -->
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">Status</div>
+        <div class="space-y-1">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="filter-status" value="all" checked onchange="renderList()" class="accent-indigo-500" />
+            <span class="text-xs text-slate-300">All</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="filter-status" value="pending" onchange="renderList()" class="accent-indigo-500" />
+            <span class="text-xs text-yellow-400">Pending</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="filter-status" value="drafting" onchange="renderList()" class="accent-indigo-500" />
+            <span class="text-xs text-blue-400">Drafting</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="filter-status" value="sent" onchange="renderList()" class="accent-indigo-500" />
+            <span class="text-xs text-green-400">Sent</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="filter-status" value="replied" onchange="renderList()" class="accent-indigo-500" />
+            <span class="text-xs text-teal-400">Replied</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="filter-status" value="skipped" onchange="renderList()" class="accent-indigo-500" />
+            <span class="text-xs text-red-400">Skipped</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Filter: University -->
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">University</div>
+        <select id="filter-uni" onchange="renderList()"
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 transition-colors">
+          <option value="all">All Universities</option>
+          <option value="UCLA">UCLA</option>
+        </select>
+      </div>
+
+      <!-- Filter: Department -->
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">Department</div>
+        <select id="filter-dept" onchange="renderList()"
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 transition-colors">
+          <option value="all">All Departments</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Statistics & Data Science">Statistics & Data Science</option>
+        </select>
+      </div>
+
+      <!-- Filter: Relevance -->
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">Relevance</div>
+        <select id="filter-rel" onchange="renderList()"
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 transition-colors">
+          <option value="all">All</option>
+          <option value="high">High</option>
+          <option value="med">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+
+      <!-- My Profile -->
+      <div class="border-t border-slate-800 pt-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider mb-3">My Profile</div>
+
+        <!-- Resume upload -->
+        <div class="mb-3">
+          <div class="text-xs text-slate-400 mb-1.5">Resume / CV</div>
+          <label id="resume-label"
+            class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-slate-800 transition-colors group">
+            <input type="file" id="resume-input" accept=".pdf,.doc,.docx" class="hidden" onchange="handleResumeUpload(event)" />
+            <svg id="resume-icon" class="w-4 h-4 text-slate-500 group-hover:text-indigo-400 mb-1 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            <span id="resume-filename" class="text-xs text-slate-500 group-hover:text-slate-300 transition-colors">Upload PDF / DOC</span>
+          </label>
+          <div id="resume-uploaded" class="hidden mt-1.5 flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-3 h-3 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span id="resume-name-display" class="text-xs text-green-400 truncate max-w-28"></span>
+            </div>
+            <button onclick="clearResume()" class="text-xs text-slate-500 hover:text-red-400 transition-colors ml-1 flex-shrink-0">✕</button>
+          </div>
+        </div>
+
+        <!-- Research description -->
+        <div>
+          <div class="text-xs text-slate-400 mb-1.5">Research Background</div>
+          <textarea id="my-description"
+            rows="5"
+            oninput="saveMyDescription()"
+            placeholder="Describe your research background, interests, and what you're looking for in a PhD advisor. Used to personalize AI-generated email drafts."
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-600 resize-none transition-colors leading-relaxed"></textarea>
+          <div id="desc-saved" class="text-xs text-slate-600 mt-1 opacity-0 transition-opacity">Saved</div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ── FACULTY LIST ── -->
+  <div class="w-80 flex flex-col border-r border-slate-800 flex-shrink-0 overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
+      <span class="text-xs text-slate-400"><span id="list-count">0</span> faculty</span>
+      <span id="queue-badge" class="hidden text-xs text-indigo-400 font-medium">Daily Queue Mode</span>
+    </div>
+    <div id="faculty-list" class="flex-1 overflow-y-auto space-y-1 p-2">
+      <!-- Cards injected here -->
+    </div>
+  </div>
+
+  <!-- ── PROFILE PANEL ── -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Empty state -->
+    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-slate-600">
+      <svg class="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+      </svg>
+      <div class="text-sm">Select a faculty member to view their profile</div>
+    </div>
+
+    <!-- Profile content -->
+    <div id="profile-panel" class="flex-1 flex flex-col overflow-hidden hidden">
+
+      <!-- Profile header -->
+      <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex-shrink-0">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-1">
+              <h2 id="p-name" class="text-lg font-semibold text-white"></h2>
+              <span id="p-status-chip" class="tag text-xs"></span>
+              <span id="p-relevance-chip" class="tag text-xs"></span>
+            </div>
+            <div class="flex items-center gap-4 text-xs text-slate-400 mb-2">
+              <span id="p-dept"></span>
+              <span class="text-slate-600">•</span>
+              <span id="p-uni"></span>
+              <span class="text-slate-600">•</span>
+              <span>Rank #<span id="p-rank"></span></span>
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+              <a id="p-email-link" href="#" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1" onclick="return false;">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span id="p-email"></span>
+              </a>
+              <a id="p-scholar-link" href="#" target="_blank"
+                class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                Google Scholar
+              </a>
+              <a id="p-bio-link" href="#" target="_blank"
+                class="text-slate-400 hover:text-slate-300 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                Faculty Bio
+              </a>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 text-center">
+            <div>
+              <div class="text-2xl font-bold text-white" id="p-hindex">—</div>
+              <div class="text-xs text-slate-500">h-index</div>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-white" id="p-citations">—</div>
+              <div class="text-xs text-slate-500">citations</div>
+            </div>
+          </div>
+        </div>
+        <!-- Research tags -->
+        <div id="p-tags" class="flex flex-wrap gap-1 mt-3"></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex border-b border-slate-800 flex-shrink-0 bg-slate-950">
+        <button onclick="switchTab('papers')" id="tab-papers"
+          class="px-5 py-3 text-xs font-medium transition-colors rounded-none tab-active">
+          Papers
+        </button>
+        <button onclick="switchTab('email')" id="tab-email"
+          class="px-5 py-3 text-xs font-medium transition-colors rounded-none tab-inactive">
+          Email Composer
+        </button>
+        <button onclick="switchTab('notes')" id="tab-notes"
+          class="px-5 py-3 text-xs font-medium transition-colors rounded-none tab-inactive">
+          Notes
+        </button>
+      </div>
+
+      <!-- Papers tab -->
+      <div id="tab-content-papers" class="flex-1 overflow-y-auto p-5">
+        <div class="flex gap-2 mb-4">
+          <button onclick="switchPaperSet('last5')" id="pset-last5"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-white transition-colors">
+            Last 5 Papers
+          </button>
+          <button onclick="switchPaperSet('topCited')" id="pset-topCited"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 transition-colors">
+            Top 3 Cited (3yr)
+          </button>
+          <button onclick="switchPaperSet('firstAuthor')" id="pset-firstAuthor"
+            class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 transition-colors">
+            Top 2 First-Author
+          </button>
+        </div>
+        <div id="papers-container" class="space-y-3"></div>
+      </div>
+
+      <!-- Email tab -->
+      <div id="tab-content-email" class="flex-1 overflow-y-auto p-5 hidden">
+        <div class="mb-3 flex items-center justify-between">
+          <div class="text-xs text-slate-400">Compose your email to <strong id="email-recipient" class="text-white"></strong></div>
+          <button onclick="generateDraft()"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            AI Draft
+          </button>
+        </div>
+
+        <div class="mb-3">
+          <label class="text-xs text-slate-500 block mb-1">Subject</label>
+          <input id="email-subject" type="text"
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 transition-colors"
+            placeholder="PhD Inquiry — [Your Name], [Your University]" />
+        </div>
+
+        <div class="mb-3">
+          <label class="text-xs text-slate-500 block mb-1">Body</label>
+          <textarea id="email-body" rows="14"
+            oninput="saveDraft()"
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 resize-none transition-colors leading-relaxed"
+            placeholder="Write your personalized email here..."></textarea>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="copyEmail()"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-xs font-medium text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <span id="copy-btn-label">Copy to Clipboard</span>
+          </button>
+          <button onclick="markStatus('sent')"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-700 hover:bg-green-600 text-xs font-medium text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Mark as Sent
+          </button>
+          <button onclick="markStatus('replied')"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-700 hover:bg-teal-600 text-xs font-medium text-white transition-colors">
+            Got a Reply
+          </button>
+          <button onclick="markStatus('skipped')"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-medium text-slate-400 transition-colors ml-auto">
+            Skip
+          </button>
+        </div>
+      </div>
+
+      <!-- Notes tab -->
+      <div id="tab-content-notes" class="flex-1 overflow-y-auto p-5 hidden">
+        <label class="text-xs text-slate-500 block mb-2">Private notes about this professor</label>
+        <textarea id="notes-body" rows="12"
+          oninput="saveNotes()"
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 resize-none transition-colors leading-relaxed"
+          placeholder="e.g. Met at NeurIPS 2024. Interested in multimodal reasoning. Prefers brief cold emails..."></textarea>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ DATA ═══════════════════════ -->
+<script>
+const TODAY = new Date('2025-09-01'); // simulated today for scoring
+
+const FACULTY = [
+  {
+    id: 1,
+    name: "Wei Wang",
+    email: "weiwang@cs.ucla.edu",
+    department: "Computer Science",
+    university: "UCLA",
+    universityRank: 46,
+    bioUrl: "https://samueli.ucla.edu/people/wei-wang/",
+    scholarUrl: "https://scholar.google.com/citations?user=WeiwangUCLA",
+    hIndex: 52,
+    totalCitations: 18420,
+    relevance: "high",
+    tags: ["Machine Learning", "Database Systems", "Graph Neural Networks", "Big Data", "Data Mining"],
+    status: "pending",
+    notes: "",
+    emailDraft: "",
+    emailSubject: "",
+    papers: {
+      last5: [
+        { title: "ENIGMA: Efficient Graph Neural Networks for Graph-Level Matching", year: 2024, venue: "VLDB 2024", citations: 87, doi: "#", firstAuthor: false },
+        { title: "Scalable Data Integration with Large Language Models", year: 2024, venue: "SIGMOD 2024", citations: 43, doi: "#", firstAuthor: true },
+        { title: "Learned Query Optimization for Distributed Databases", year: 2023, venue: "VLDB 2023", citations: 156, doi: "#", firstAuthor: false },
+        { title: "Graph Attention Networks for Knowledge Graph Completion", year: 2023, venue: "NeurIPS 2023", citations: 201, doi: "#", firstAuthor: false },
+        { title: "Contrastive Learning for Cross-Modal Data Retrieval", year: 2023, venue: "ICDE 2023", citations: 98, doi: "#", firstAuthor: true },
+      ],
+      topCited: [
+        { title: "Graph Attention Networks for Knowledge Graph Completion", year: 2023, venue: "NeurIPS 2023", citations: 201, doi: "#", firstAuthor: false },
+        { title: "Learned Query Optimization for Distributed Databases", year: 2023, venue: "VLDB 2023", citations: 156, doi: "#", firstAuthor: false },
+        { title: "ENIGMA: Efficient Graph Neural Networks for Graph-Level Matching", year: 2024, venue: "VLDB 2024", citations: 87, doi: "#", firstAuthor: false },
+      ],
+      firstAuthor: [
+        { title: "Scalable Data Integration with Large Language Models", year: 2024, venue: "SIGMOD 2024", citations: 43, score: 0.82, doi: "#", firstAuthor: true },
+        { title: "Contrastive Learning for Cross-Modal Data Retrieval", year: 2023, venue: "ICDE 2023", citations: 98, score: 0.71, doi: "#", firstAuthor: true },
+      ]
+    }
+  },
+  {
+    id: 2,
+    name: "Miryung Kim",
+    email: "miryung@cs.ucla.edu",
+    department: "Computer Science",
+    university: "UCLA",
+    universityRank: 46,
+    bioUrl: "https://samueli.ucla.edu/people/miryung-kim/",
+    scholarUrl: "https://scholar.google.com/citations?user=MiryungKimUCLA",
+    hIndex: 31,
+    totalCitations: 6840,
+    relevance: "high",
+    tags: ["LLM for Code", "Software Engineering", "Automated Program Repair", "AI-assisted Development"],
+    status: "drafting",
+    notes: "Lab website mentions open positions for Fall 2026. Check her recent ICSE papers.",
+    emailDraft: "Dear Professor Kim,\n\nI am writing to express my strong interest in joining your research group as a PhD student...\n\n[Add personalized paragraph about her LLM-for-code work here]\n\nI believe my background in [your background] aligns well with your group's focus on AI-assisted software development.\n\nThank you for your time.\n\nBest regards,\n[Your Name]",
+    emailSubject: "PhD Inquiry — Prospective Student Interest in LLM-Assisted Software Engineering",
+    papers: {
+      last5: [
+        { title: "LLM-Assisted Bug Detection in Large Codebases", year: 2024, venue: "ICSE 2024", citations: 67, doi: "#", firstAuthor: false },
+        { title: "Automated Program Repair with Transformer Models", year: 2024, venue: "FSE 2024", citations: 89, doi: "#", firstAuthor: true },
+        { title: "Understanding Developer Behavior in ML Pipelines", year: 2023, venue: "ICSE 2023", citations: 45, doi: "#", firstAuthor: false },
+        { title: "Code Change Intelligence: Mining Software Repositories", year: 2023, venue: "MSR 2023", citations: 134, doi: "#", firstAuthor: false },
+        { title: "Neural Code Search for API Documentation", year: 2022, venue: "TSE 2022", citations: 178, doi: "#", firstAuthor: true },
+      ],
+      topCited: [
+        { title: "Neural Code Search for API Documentation", year: 2022, venue: "TSE 2022", citations: 178, doi: "#", firstAuthor: true },
+        { title: "Code Change Intelligence: Mining Software Repositories", year: 2023, venue: "MSR 2023", citations: 134, doi: "#", firstAuthor: false },
+        { title: "Automated Program Repair with Transformer Models", year: 2024, venue: "FSE 2024", citations: 89, doi: "#", firstAuthor: true },
+      ],
+      firstAuthor: [
+        { title: "Automated Program Repair with Transformer Models", year: 2024, venue: "FSE 2024", citations: 89, score: 0.88, doi: "#", firstAuthor: true },
+        { title: "Neural Code Search for API Documentation", year: 2022, venue: "TSE 2022", citations: 178, score: 0.65, doi: "#", firstAuthor: true },
+      ]
+    }
+  },
+  {
+    id: 3,
+    name: "Glenn Reinman",
+    email: "reinman@cs.ucla.edu",
+    department: "Computer Science",
+    university: "UCLA",
+    universityRank: 46,
+    bioUrl: "https://samueli.ucla.edu/people/glenn-reinman/",
+    scholarUrl: "https://scholar.google.com/citations?user=GlennReinmanUCLA",
+    hIndex: 28,
+    totalCitations: 4210,
+    relevance: "med",
+    tags: ["Computer Architecture", "ML Acceleration", "Memory Systems", "Neural Network Hardware"],
+    status: "pending",
+    notes: "",
+    emailDraft: "",
+    emailSubject: "",
+    papers: {
+      last5: [
+        { title: "Approximate Computing for Neural Network Inference", year: 2024, venue: "MICRO 2024", citations: 34, doi: "#", firstAuthor: false },
+        { title: "Cache-Aware Deep Learning Acceleration", year: 2023, venue: "ISCA 2023", citations: 56, doi: "#", firstAuthor: true },
+        { title: "Memory Hierarchy Optimization for Transformer Models", year: 2023, venue: "HPCA 2023", citations: 78, doi: "#", firstAuthor: false },
+        { title: "DRAM Scheduling for ML Workloads", year: 2022, venue: "MICRO 2022", citations: 92, doi: "#", firstAuthor: true },
+        { title: "Prefetching Strategies for Graph Neural Networks", year: 2022, venue: "ISCA 2022", citations: 45, doi: "#", firstAuthor: false },
+      ],
+      topCited: [
+        { title: "DRAM Scheduling for ML Workloads", year: 2022, venue: "MICRO 2022", citations: 92, doi: "#", firstAuthor: true },
+        { title: "Memory Hierarchy Optimization for Transformer Models", year: 2023, venue: "HPCA 2023", citations: 78, doi: "#", firstAuthor: false },
+        { title: "Cache-Aware Deep Learning Acceleration", year: 2023, venue: "ISCA 2023", citations: 56, doi: "#", firstAuthor: true },
+      ],
+      firstAuthor: [
+        { title: "Cache-Aware Deep Learning Acceleration", year: 2023, venue: "ISCA 2023", citations: 56, score: 0.74, doi: "#", firstAuthor: true },
+        { title: "DRAM Scheduling for ML Workloads", year: 2022, venue: "MICRO 2022", citations: 92, score: 0.61, doi: "#", firstAuthor: true },
+      ]
+    }
+  },
+  {
+    id: 4,
+    name: "Amit Sahai",
+    email: "sahai@cs.ucla.edu",
+    department: "Computer Science",
+    university: "UCLA",
+    universityRank: 46,
+    bioUrl: "https://samueli.ucla.edu/people/amit-sahai/",
+    scholarUrl: "https://scholar.google.com/citations?user=AmitSahaiUCLA",
+    hIndex: 65,
+    totalCitations: 31800,
+    relevance: "med",
+    tags: ["Cryptography", "Zero-Knowledge Proofs", "LLM Output Verification", "Secure Computation"],
+    status: "sent",
+    notes: "Sent on 2025-08-15. Very famous in crypto. Mentioned LLM verification in recent talk.",
+    emailDraft: "Dear Professor Sahai,\n\nI am reaching out regarding your recent work on zero-knowledge proofs for LLM output verification, which I found particularly exciting from a trustworthy AI perspective...",
+    emailSubject: "PhD Inquiry — Interest in ZK-Proofs for LLM Verification",
+    papers: {
+      last5: [
+        { title: "Zero-Knowledge Proofs for LLM Output Verification", year: 2024, venue: "CRYPTO 2024", citations: 23, doi: "#", firstAuthor: false },
+        { title: "Obfuscation-Based Privacy for Federated AI Systems", year: 2024, venue: "STOC 2024", citations: 11, doi: "#", firstAuthor: true },
+        { title: "Secure Multi-Party Computation for Federated Learning", year: 2023, venue: "CCS 2023", citations: 89, doi: "#", firstAuthor: false },
+        { title: "Functional Encryption and its Applications to ML Privacy", year: 2023, venue: "EUROCRYPT 2023", citations: 234, doi: "#", firstAuthor: true },
+        { title: "Indistinguishability Obfuscation: Theory and Practice", year: 2022, venue: "JACM 2022", citations: 445, doi: "#", firstAuthor: false },
+      ],
+      topCited: [
+        { title: "Indistinguishability Obfuscation: Theory and Practice", year: 2022, venue: "JACM 2022", citations: 445, doi: "#", firstAuthor: false },
+        { title: "Functional Encryption and its Applications to ML Privacy", year: 2023, venue: "EUROCRYPT 2023", citations: 234, doi: "#", firstAuthor: true },
+        { title: "Secure Multi-Party Computation for Federated Learning", year: 2023, venue: "CCS 2023", citations: 89, doi: "#", firstAuthor: false },
+      ],
+      firstAuthor: [
+        { title: "Functional Encryption and its Applications to ML Privacy", year: 2023, venue: "EUROCRYPT 2023", citations: 234, score: 0.92, doi: "#", firstAuthor: true },
+        { title: "Obfuscation-Based Privacy for Federated AI Systems", year: 2024, venue: "STOC 2024", citations: 11, score: 0.68, doi: "#", firstAuthor: true },
+      ]
+    }
+  }
+];
+
+// ═══════════════════════ STATE ═══════════════════════
+let selectedId = null;
+let currentPaperSet = 'last5';
+let dailyQueueMode = false;
+let dailyQueue = [];
+
+// ═══════════════════════ INIT ═══════════════════════
+function init() {
+  updateStats();
+  renderList();
+}
+
+function getFaculty(id) {
+  return FACULTY.find(f => f.id === id);
+}
+
+// ═══════════════════════ STATS ═══════════════════════
+function updateStats() {
+  document.getElementById('stat-total').textContent = FACULTY.length;
+  document.getElementById('stat-pending').textContent = FACULTY.filter(f=>f.status==='pending').length;
+  document.getElementById('stat-sent').textContent = FACULTY.filter(f=>f.status==='sent').length;
+  document.getElementById('stat-replied').textContent = FACULTY.filter(f=>f.status==='replied').length;
+  document.getElementById('stat-skipped').textContent = FACULTY.filter(f=>f.status==='skipped').length;
+
+  // today progress (simulated: count 'sent' as today for demo)
+  const sentCount = FACULTY.filter(f=>f.status==='sent').length;
+  const capped = Math.min(sentCount, 5);
+  document.getElementById('today-count').textContent = capped;
+  document.getElementById('today-bar').style.width = (capped/5*100)+'%';
+}
+
+// ═══════════════════════ FILTER ═══════════════════════
+function getFilters() {
+  const status = document.querySelector('input[name="filter-status"]:checked')?.value || 'all';
+  const uni = document.getElementById('filter-uni').value;
+  const dept = document.getElementById('filter-dept').value;
+  const rel = document.getElementById('filter-rel').value;
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  return { status, uni, dept, rel, search };
+}
+
+function filterFaculty(list) {
+  const f = getFilters();
+  return list.filter(fac => {
+    if (f.status !== 'all' && fac.status !== f.status) return false;
+    if (f.uni !== 'all' && fac.university !== f.uni) return false;
+    if (f.dept !== 'all' && fac.department !== f.dept) return false;
+    if (f.rel !== 'all' && fac.relevance !== f.rel) return false;
+    if (f.search && !fac.name.toLowerCase().includes(f.search) &&
+        !fac.tags.join(' ').toLowerCase().includes(f.search)) return false;
+    return true;
+  });
+}
+
+// ═══════════════════════ DAILY QUEUE ═══════════════════════
+function toggleDailyQueue() {
+  dailyQueueMode = !dailyQueueMode;
+  const btn = document.getElementById('queue-btn');
+  const badge = document.getElementById('queue-badge');
+  if (dailyQueueMode) {
+    dailyQueue = FACULTY.filter(f => f.status === 'pending').slice(0, 5);
+    btn.classList.remove('bg-emerald-700','hover:bg-emerald-600');
+    btn.classList.add('bg-sky-700','hover:bg-sky-600');
+    badge.classList.remove('hidden');
+  } else {
+    dailyQueue = [];
+    btn.classList.add('bg-emerald-700','hover:bg-emerald-600');
+    btn.classList.remove('bg-sky-700','hover:bg-sky-600');
+    badge.classList.add('hidden');
+  }
+  renderList();
+}
+
+// ═══════════════════════ RENDER LIST ═══════════════════════
+function renderList() {
+  const container = document.getElementById('faculty-list');
+  const source = dailyQueueMode ? dailyQueue : filterFaculty(FACULTY);
+  document.getElementById('list-count').textContent = source.length;
+  container.innerHTML = '';
+
+  if (source.length === 0) {
+    container.innerHTML = '<div class="text-xs text-slate-600 text-center py-8">No faculty match your filters.</div>';
+    return;
+  }
+
+  source.forEach(fac => {
+    const card = document.createElement('div');
+    const isSelected = fac.id === selectedId;
+    card.className = `p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'card-selected border-indigo-600' : 'border-slate-800 bg-slate-900 hover:bg-slate-800 hover:border-slate-700'}`;
+    card.onclick = () => selectFaculty(fac.id);
+
+    const relClass = fac.relevance === 'high' ? 'relevance-high' : fac.relevance === 'med' ? 'relevance-med' : 'relevance-low';
+    const relLabel = fac.relevance === 'high' ? '↑ High' : fac.relevance === 'med' ? '~ Med' : '↓ Low';
+
+    card.innerHTML = `
+      <div class="flex items-start justify-between mb-1.5">
+        <div class="font-medium text-sm text-white leading-tight">${fac.name}</div>
+        <div class="flex gap-1 ml-2 flex-shrink-0">
+          <span class="tag status-${fac.status}">${fac.status}</span>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 mb-2">${fac.department} • ${fac.university}</div>
+      <div class="flex flex-wrap gap-1">
+        <span class="tag ${relClass}">${relLabel}</span>
+        ${fac.tags.slice(0,2).map(t=>`<span class="tag" style="background:#1e293b;color:#94a3b8;border:1px solid #334155">${t}</span>`).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ═══════════════════════ SELECT FACULTY ═══════════════════════
+function selectFaculty(id) {
+  selectedId = id;
+  const fac = getFaculty(id);
+  renderList();
+
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('profile-panel').classList.remove('hidden');
+
+  document.getElementById('p-name').textContent = fac.name;
+  document.getElementById('p-dept').textContent = fac.department;
+  document.getElementById('p-uni').textContent = fac.university;
+  document.getElementById('p-rank').textContent = fac.universityRank;
+  document.getElementById('p-email').textContent = fac.email;
+  document.getElementById('p-email-link').href = 'mailto:' + fac.email;
+  document.getElementById('p-scholar-link').href = fac.scholarUrl;
+  document.getElementById('p-bio-link').href = fac.bioUrl;
+  document.getElementById('p-hindex').textContent = fac.hIndex;
+  document.getElementById('p-citations').textContent = fac.totalCitations.toLocaleString();
+
+  const sc = document.getElementById('p-status-chip');
+  sc.className = `tag status-${fac.status}`;
+  sc.textContent = fac.status;
+
+  const rc = document.getElementById('p-relevance-chip');
+  rc.className = `tag ${fac.relevance === 'high' ? 'relevance-high' : fac.relevance === 'med' ? 'relevance-med' : 'relevance-low'}`;
+  rc.textContent = fac.relevance === 'high' ? '↑ High relevance' : fac.relevance === 'med' ? '~ Medium relevance' : '↓ Low relevance';
+
+  const tagsEl = document.getElementById('p-tags');
+  tagsEl.innerHTML = fac.tags.map(t =>
+    `<span class="tag" style="background:#1e293b;color:#94a3b8;border:1px solid #334155">${t}</span>`
+  ).join('');
+
+  document.getElementById('email-recipient').textContent = fac.name;
+  document.getElementById('email-body').value = fac.emailDraft || '';
+  document.getElementById('email-subject').value = fac.emailSubject || '';
+  document.getElementById('notes-body').value = fac.notes || '';
+
+  switchTab('papers');
+  switchPaperSet('last5');
+}
+
+// ═══════════════════════ TABS ═══════════════════════
+function switchTab(tab) {
+  ['papers','email','notes'].forEach(t => {
+    const btn = document.getElementById(`tab-${t}`);
+    const content = document.getElementById(`tab-content-${t}`);
+    if (t === tab) {
+      btn.className = 'px-5 py-3 text-xs font-medium transition-colors rounded-none tab-active';
+      content.classList.remove('hidden');
+    } else {
+      btn.className = 'px-5 py-3 text-xs font-medium transition-colors rounded-none tab-inactive';
+      content.classList.add('hidden');
+    }
+  });
+}
+
+// ═══════════════════════ PAPERS ═══════════════════════
+function switchPaperSet(set) {
+  currentPaperSet = set;
+  ['last5','topCited','firstAuthor'].forEach(s => {
+    const btn = document.getElementById(`pset-${s}`);
+    if (s === set) {
+      btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 text-white transition-colors';
+    } else {
+      btn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-slate-800 transition-colors';
+    }
+  });
+  renderPapers();
+}
+
+function renderPapers() {
+  if (!selectedId) return;
+  const fac = getFaculty(selectedId);
+  const papers = fac.papers[currentPaperSet];
+  const container = document.getElementById('papers-container');
+  container.innerHTML = '';
+
+  const setLabels = { last5: 'Most Recent', topCited: 'Top Cited (Last 3 Years)', firstAuthor: 'Top First-Author (Scored)' };
+  const desc = document.createElement('div');
+  desc.className = 'text-xs text-slate-500 mb-3';
+  desc.textContent = setLabels[currentPaperSet];
+  container.appendChild(desc);
+
+  papers.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'paper-card p-3 rounded-lg border border-slate-800 transition-colors';
+
+    let scoreHtml = '';
+    if (p.score !== undefined) {
+      const pct = Math.round(p.score * 100);
+      scoreHtml = `
+        <div class="mt-2">
+          <div class="flex justify-between text-xs text-slate-500 mb-1">
+            <span>Score (4×recency + 6×citations)</span><span class="text-indigo-400 font-medium">${p.score.toFixed(2)}</span>
+          </div>
+          <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1">
+          <div class="text-xs font-medium text-slate-200 leading-snug mb-1">
+            <a href="${p.doi}" class="hover:text-indigo-400 transition-colors">${p.title}</a>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-slate-500">
+            <span>${p.venue}</span>
+            <span class="text-slate-600">•</span>
+            <span>${p.year}</span>
+            ${p.firstAuthor ? '<span class="text-indigo-400 font-medium">First Author</span>' : ''}
+          </div>
+          ${scoreHtml}
+        </div>
+        <div class="text-right flex-shrink-0">
+          <div class="text-sm font-bold text-white">${p.citations}</div>
+          <div class="text-xs text-slate-500">citations</div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+// ═══════════════════════ EMAIL ACTIONS ═══════════════════════
+function saveDraft() {
+  if (!selectedId) return;
+  const fac = getFaculty(selectedId);
+  fac.emailDraft = document.getElementById('email-body').value;
+  fac.emailSubject = document.getElementById('email-subject').value;
+  if (fac.status === 'pending') {
+    fac.status = 'drafting';
+    updateStats();
+    renderList();
+    const sc = document.getElementById('p-status-chip');
+    sc.className = 'tag status-drafting';
+    sc.textContent = 'drafting';
+  }
+}
+
+function saveNotes() {
+  if (!selectedId) return;
+  getFaculty(selectedId).notes = document.getElementById('notes-body').value;
+}
+
+function copyEmail() {
+  if (!selectedId) return;
+  const subj = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+  const text = subj ? `Subject: ${subj}\n\n${body}` : body;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn-label');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy to Clipboard'; }, 2000);
+  });
+}
+
+function markStatus(newStatus) {
+  if (!selectedId) return;
+  const fac = getFaculty(selectedId);
+  fac.status = newStatus;
+  updateStats();
+  renderList();
+  const sc = document.getElementById('p-status-chip');
+  sc.className = `tag status-${newStatus}`;
+  sc.textContent = newStatus;
+
+  if (newStatus === 'sent' || newStatus === 'replied' || newStatus === 'skipped') {
+    const source = dailyQueueMode ? dailyQueue : filterFaculty(FACULTY);
+    const idx = source.findIndex(f => f.id === selectedId);
+    const next = source[idx + 1];
+    if (next) { setTimeout(() => selectFaculty(next.id), 300); }
+  }
+}
+
+function generateDraft() {
+  if (!selectedId) return;
+  const fac = getFaculty(selectedId);
+  const topPaper = fac.papers.firstAuthor[0] || fac.papers.last5[0];
+  const draft = `Dear Professor ${fac.name.split(' ').slice(-1)[0]},
+
+I am writing to express my strong interest in joining your research group as a PhD student. I recently read your paper "${topPaper.title}" (${topPaper.year}), and I found your approach to ${fac.tags[0].toLowerCase()} particularly compelling.
+
+[Add 2-3 sentences connecting your background to their specific research.]
+
+I am particularly drawn to your group's work on ${fac.tags.slice(0, 2).join(' and ')}, and I believe there is strong alignment with my research interests.
+
+I would be grateful for the opportunity to discuss potential PhD positions in your group. I have attached my CV and research statement for your consideration.
+
+Thank you for your time.
+
+Best regards,
+[Your Name]
+[Your Institution]
+[Your Email]`;
+
+  document.getElementById('email-body').value = draft;
+  document.getElementById('email-subject').value = `PhD Inquiry — ${fac.tags[0]} Research`;
+  saveDraft();
+}
+
+// ═══════════════════════ MY PROFILE ═══════════════════════
+let myResumeFile = null;
+let myDescription = '';
+
+function handleResumeUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  myResumeFile = file;
+  document.getElementById('resume-label').classList.add('hidden');
+  const uploaded = document.getElementById('resume-uploaded');
+  uploaded.classList.remove('hidden');
+  uploaded.classList.add('flex');
+  document.getElementById('resume-name-display').textContent = file.name;
+}
+
+function clearResume() {
+  myResumeFile = null;
+  document.getElementById('resume-input').value = '';
+  document.getElementById('resume-label').classList.remove('hidden');
+  const uploaded = document.getElementById('resume-uploaded');
+  uploaded.classList.add('hidden');
+  uploaded.classList.remove('flex');
+}
+
+function saveMyDescription() {
+  myDescription = document.getElementById('my-description').value;
+  const indicator = document.getElementById('desc-saved');
+  indicator.style.opacity = '1';
+  clearTimeout(window._descTimer);
+  window._descTimer = setTimeout(() => { indicator.style.opacity = '0'; }, 1500);
+}
+
+// ═══════════════════════ START ═══════════════════════
+init();
+</script>
+</body>
+</html>

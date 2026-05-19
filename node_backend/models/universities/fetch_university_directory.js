@@ -2,7 +2,7 @@ import prisma from '#prisma';
 
 export default async function fetchUniversityDirectory() {
   return prisma.universities.findMany({
-    orderBy: [{ name: 'asc' }],
+    orderBy: [{ id: 'asc' }],
     select: {
       id: true,
       name: true,
@@ -10,7 +10,7 @@ export default async function fetchUniversityDirectory() {
       state: true,
       created_at: true,
       faculties: {
-        orderBy: [{ name: 'asc' }],
+        orderBy: [{ id: 'asc' }],
         select: {
           id: true,
           name: true,
